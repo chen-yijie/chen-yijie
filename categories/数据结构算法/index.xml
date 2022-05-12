@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>数据结构算法 on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+    <link>https://xchen.com/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%AE%97%E6%B3%95/</link>
+    <description>Recent content in 数据结构算法 on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 14 Apr 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://xchen.com/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%AE%97%E6%B3%95/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>SSL证书生成</title>
+      <link>https://xchen.com/post/ssl%E8%AF%81%E4%B9%A6%E7%94%9F%E6%88%90/</link>
+      <pubDate>Tue, 14 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/ssl%E8%AF%81%E4%B9%A6%E7%94%9F%E6%88%90/</guid>
+      <description>使用OpenSSL生成整套证书流程，使用的是windows上git安装好之后的openssl工具。 .key格式：私有的密钥 .csr格式：证书</description>
+    </item>
+    
+    <item>
+      <title>手算开方</title>
+      <link>https://xchen.com/post/%E6%89%8B%E7%AE%97%E5%BC%80%E6%96%B9/</link>
+      <pubDate>Tue, 31 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%89%8B%E7%AE%97%E5%BC%80%E6%96%B9/</guid>
+      <description>之前中学课本选修里面有手动开方的方法，很多年都没用过了，有点手生了，而且当时老师教的方法也不是很好。昨晚在知乎居然看到一种方法叫 牛顿迭代法 开</description>
+    </item>
+    
+    <item>
+      <title>汇编实现二叉树</title>
+      <link>https://xchen.com/post/%E6%B1%87%E7%BC%96%E5%AE%9E%E7%8E%B0%E4%BA%8C%E5%8F%89%E6%A0%91/</link>
+      <pubDate>Thu, 07 Nov 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%B1%87%E7%BC%96%E5%AE%9E%E7%8E%B0%E4%BA%8C%E5%8F%89%E6%A0%91/</guid>
+      <description>今天翻找以前的代码, 突然发现, 以前曾经用汇编写的二叉树, 以前对汇编过于执着. 是好事, 也是坏事. 个人觉得, 用MASM写代码其实和C语言的差别是</description>
+    </item>
+    
+    <item>
+      <title>RSA算法</title>
+      <link>https://xchen.com/post/rsa%E7%AE%97%E6%B3%95/</link>
+      <pubDate>Wed, 06 Nov 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/rsa%E7%AE%97%E6%B3%95/</guid>
+      <description>RSA算法可以说在我们使用计算机的每一方面都在发挥着作用, EXE文件的签名算法用的是SHA1 + RSA. 我们每天登陆网银, 使用QQ 无时不刻都在使用着</description>
+    </item>
+    
+    <item>
+      <title>数组实现的链表(ArrayList)</title>
+      <link>https://xchen.com/post/%E6%95%B0%E7%BB%84%E5%AE%9E%E7%8E%B0%E7%9A%84%E9%93%BE%E8%A1%A8arraylist/</link>
+      <pubDate>Thu, 02 Jun 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%95%B0%E7%BB%84%E5%AE%9E%E7%8E%B0%E7%9A%84%E9%93%BE%E8%A1%A8arraylist/</guid>
+      <description>链表, 底层以数组来实现, 记得原来Java里面好像有ArrayList和Linketlist. 这个就是ArrayList. 还没有经过严格的测试</description>
+    </item>
+    
+  </channel>
+</rss>

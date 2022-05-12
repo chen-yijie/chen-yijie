@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ssl on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+    <link>https://xchen.com/tags/ssl/</link>
+    <description>Recent content in ssl on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 14 Apr 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://xchen.com/tags/ssl/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>SSL证书生成</title>
+      <link>https://xchen.com/post/ssl%E8%AF%81%E4%B9%A6%E7%94%9F%E6%88%90/</link>
+      <pubDate>Tue, 14 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/ssl%E8%AF%81%E4%B9%A6%E7%94%9F%E6%88%90/</guid>
+      <description>使用OpenSSL生成整套证书流程，使用的是windows上git安装好之后的openssl工具。 .key格式：私有的密钥 .csr格式：证书</description>
+    </item>
+    
+  </channel>
+</rss>

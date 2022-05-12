@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>手脱SoftDefender1.12版本壳 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="我使用加壳软件是:SoftDefender1.12, 还有一个最简单的delphi7程序, 只有一个窗口那种.SoftDefender1.12还" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E6%89%8B%E8%84%B1softdefender1-12%E7%89%88%E6%9C%AC%E5%A3%B3/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="手脱SoftDefender1.12版本壳" />
+<meta property="og:description" content="我使用加壳软件是:SoftDefender1.12, 还有一个最简单的delphi7程序, 只有一个窗口那种.SoftDefender1.12还" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E6%89%8B%E8%84%B1softdefender1-12%E7%89%88%E6%9C%AC%E5%A3%B3/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2012-09-06T00:00:00+00:00" />
+<meta property="article:modified_time" content="2012-09-06T00:00:00+00:00" />
+
+<meta itemprop="name" content="手脱SoftDefender1.12版本壳">
+<meta itemprop="description" content="我使用加壳软件是:SoftDefender1.12, 还有一个最简单的delphi7程序, 只有一个窗口那种.SoftDefender1.12还"><meta itemprop="datePublished" content="2012-09-06T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2012-09-06T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1418">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="手脱SoftDefender1.12版本壳"/>
+<meta name="twitter:description" content="我使用加壳软件是:SoftDefender1.12, 还有一个最简单的delphi7程序, 只有一个窗口那种.SoftDefender1.12还"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">手脱SoftDefender1.12版本壳</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2012-09-06 </span>
+        <div class="post-category">
+            <a href="/categories/%E9%80%86%E5%90%91%E8%84%B1%E5%A3%B3/"> 逆向脱壳 </a>
+            </div>
+          <span class="more-meta"> 约 1418 字 </span>
+          <span class="more-meta"> 预计阅读 3 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>我使用加壳软件是:SoftDefender1.12, 还有一个最简单的delphi7程序, 只有一个窗口那种.SoftDefender1.12还是比较恶心的, 很多anti, 一不小心就中招了, 不过总体来说这款壳只能定位成新手练手用的壳.经过不少的曲折终于将这款壳给脱掉.</p>
+<p>首先上来发现有Anti.. 这个可不好玩, 然后换OD.. 最后换了个OD才把这个问题给解决了. 说到这个Ollydbg. 我想多说几句, OD本身功能不算很强大, 经过这么些年的发展, 现在逐渐的成为了全世界使用最多的破解调试器. 插件很暴力, 很强大.但是也带来一个很大的问题, 就是各个OD之间的差别不小, 有的时候调试这个软件遇到Anti, 或者莫名其妙的错误, 换一个OD就行了. 所以这边一般人估计都收集着好几个OD吧, 我手头就好几个OD. 调试程序遇到麻烦就换一换..</p>
+<p>好了, 不多说了. 首先载入程序, 我这里使用的是一个delphi的实例, 首先要剥离进程, 因为这个程序是双进程的.. 这边使用kerberos来探测下这个程序调用了一些什么API.. 或者使用APIMonitor也可以, 后者更强大,更牛. 不仅仅是寻找调用了什么API那么简单. 是一个很暴力的程序.</p>
+<p>完了之后, 生成一个.rep的文件, 用记事本打开, 寻找程序调用CreateProcess的地方.然后定位到004A7DBF显然我们这里要往上定位, 都调用创建进程了, 事情都做完了.. 所以我们定位到这里, 004AE6C3. 这是调用GetCommandLine的地方.然后往上翻一翻, 看看有没有可以跳过的的的地方, 果然前面有一个je跳转, 那么我们就直接将这个je改jmp..当然后来我发现这样不行, 有检测, 我们下硬件断点, 改下标记位就可以.. 然后双进程剥离就搞定了.</p>
+<p>接下来就是跑oep. 使用退出法, 直接定位到oep处, 0044CA98 OK 用importRec dump.. 这oep, 太简单了, 完全没有动呢.完了之后, 重新运行程序.这次准备搞IAT..</p>
+<p>首先我们在一个IAT表的项目中下个写入硬件写入断点, 然后跑起来, 最后跟几次发现</p>
+<p>004AEFC3 50 push eax</p>
+<p>004AEFC4 E8 17F8FFFF call delphi7.004AE7E0</p>
+<p>004AEFC9 8906 mov dword ptr ds:[esi],eax ; 这里填写的是正确的函数地址</p>
+<p>004AEFCB EB 29 jmp short delphi7.004AEFF6</p>
+<p>恩, 找到了填写IAT地址的地方, 但是发现填写进去的地址不是我们想要的, 原来已经给处理过了.跑两次发现, 就是上面那个call处理的, call elphi7.004AE7E0, 那么直接将其nop.. 清净了..很快kernel32.dll的函数就定位完了. 但是打开IAT看一看发现有很多函数还是被加密起来了..那么在被加密的IAT里面下断点, 最后定位到一系列加密函数的地方.. 他们是这些. 全部改成jmp..</p>
+<p>004AEE2F /75 11 jnz short delphi7.004AEE42</p>
+<p>004AEE55 /75 11 jnz short delphi7.004AEE68</p>
+<p>004AEE7B /75 11 jnz short delphi7.004AEE8E</p>
+<p>004AEEA1 /75 11 jnz short delphi7.004AEEB4</p>
+<p>004AEEC7 /75 11 jnz short delphi7.004AEEDA</p>
+<p>004AEEED /75 11 jnz short delphi7.004AEF00</p>
+<p>004AEF13 /75 11 jnz short delphi7.004AEF26</p>
+<p>004AEF39 /75 11 jnz short delphi7.004AEF4C</p>
+<p>004AEF5F /75 11 jnz short delphi7.004AEF72</p>
+<p>004AEF85 /75 0E jnz short delphi7.004AEF95</p>
+<p>004AEFA8 /75 0E jnz short delphi7.004AEFB8</p>
+<p>这些IAT判断都是判断一些API函数然后是否需要加密一类的, 全部改成jmp.. OK, 就这样IAT就全部搞定了.其实没有, 还需要做一步, 因为中间还有检测.</p>
+<p>004AF028 ^\E9 BAFCFFFF jmp delphi7.004AECE7</p>
+<p>004AF02D E8 35E4FFFF call 004AD467</p>
+<p>004AF032 8B57 04 mov edx,dword ptr ds:[edi+4]</p>
+<p>这个CALL 004AD467比较奇怪了. 严重BS.. 里面就是检测我们是否修改了内存的, 前面我们将jnz全部改成jmp. 当然修改了所以这里我们将所有在填写IAT的循环中,调用到004AD467的地方全部nop.. 这下真的是清净了.. 非常安静..完了之后在函数的末尾, 填写完IAT之后, 我们再将那些所有我们修改过的地方改回来, 神不知鬼不觉啊.跑到OEP.然后直接打开Import Rec, 修复IAT一个错误也没有. OK.. 脱壳完成.</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2012-09-06
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/acprotect-v2-1-3%E7%89%88%E6%9C%AC%E8%84%B1%E5%A3%B3/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">ACProtect v2.1.3版本脱壳.</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E8%84%B1%E4%B8%80%E4%BA%9B%E7%AE%80%E5%8D%95%E7%9A%84%E5%8E%8B%E7%BC%A9%E5%A3%B3/">
+            <span class="next-text nav-default">脱一些简单的压缩壳</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>内核定时器 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="在Win32上面基本上定时做事情事情的话, 一般会使用WM_TIMER消息, 当然其他还有很多种选择, 同样的, 在内核中一样很多种的定时器对象可供" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E5%86%85%E6%A0%B8%E5%AE%9A%E6%97%B6%E5%99%A8/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="内核定时器" />
+<meta property="og:description" content="在Win32上面基本上定时做事情事情的话, 一般会使用WM_TIMER消息, 当然其他还有很多种选择, 同样的, 在内核中一样很多种的定时器对象可供" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E5%86%85%E6%A0%B8%E5%AE%9A%E6%97%B6%E5%99%A8/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-11-11T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-11-11T00:00:00+00:00" />
+
+<meta itemprop="name" content="内核定时器">
+<meta itemprop="description" content="在Win32上面基本上定时做事情事情的话, 一般会使用WM_TIMER消息, 当然其他还有很多种选择, 同样的, 在内核中一样很多种的定时器对象可供"><meta itemprop="datePublished" content="2011-11-11T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-11-11T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2273">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="内核定时器"/>
+<meta name="twitter:description" content="在Win32上面基本上定时做事情事情的话, 一般会使用WM_TIMER消息, 当然其他还有很多种选择, 同样的, 在内核中一样很多种的定时器对象可供"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">内核定时器</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-11-11 </span>
+        <div class="post-category">
+            <a href="/categories/kernel/"> kernel </a>
+            </div>
+          <span class="more-meta"> 约 2273 字 </span>
+          <span class="more-meta"> 预计阅读 5 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>在Win32上面基本上定时做事情事情的话, 一般会使用WM_TIMER消息, 当然其他还有很多种选择, 同样的, 在内核中一样很多种的定时器对象可供使用, 使用起来也是那么的简单.</p>
+<p>那么来看看一般都使用哪几种, 首先就是IO/定时器了, 这种定时器固定了是1s/次, 当然能够间隔一秒的话, 其实间隔多秒也是可以的在定时器例程中记录一个计时器, 这样就可以达到间隔多次的目的, 不过最精确就是1S了, Win32下面的WM_TIMER好像是55ms一次. 看来精确度还是不够啊, 没事下面还有其他的. 这边先看看这个间隔1S的, 用起来也不过是几个函数的调用而已, 重要的是记住这个IO/定时器运行在Dispathc_Level级别上, 这个级别是有限制的. 要记住这点.另外定时器的运行线程是不固定的, 哪里都有可能, 所以不能够使用低2G的内存地址. 这个很好明白了!</p>
+<p>第2种就是DPC定时器了, 这个定时器的精度就高多了, DPC定时器的Timer对象初始化函数很容易和上面那个搞混, 一个是IoInitializeTimer一个是KeInitializeTimer我倒, 这个Dpc定时器是只有一次的, 所以如果需要循环的做某些事情, 那么在Dpc例程后面还要调用KeSetTimer重新计时. 当然这个Dpc定时器计时的办法也是很掉链子, 内部用的是100us单位, 和我们一般使用的ms都不一样. 伤不起啊! 这边有个计算方法,1000 * 1000 * 2 * -10 这个就是间隔2秒了, 直接套用就成, 倒.DPC例程也是运行在Dispathc_Level注意了. 分页内存不能够搞!</p>
+<p>上面基本上说的是想基于定时器来循环做一些事情, 显然我们还有需求就是等待了. 一般都使用KeWaitForSingleObject, 下面的代码也有体现.然后第2中方法呢使用KeDelayExecutionThread, 这号函数也是强制当前线程进入睡眠, 经过指定的睡眠时间后, 线程恢复运行!这号函数非常好用.第3中方法就是摆摆样子了, KeStallExecutionProcesor这个函数类似于自旋锁, 该内核函数是让CPU处于等待状态, 不是睡眠. 经过指定的时间后, 继续让线程运行, DDK说不要超过50us, 我倒, 这个基本就没有什么用处了.</p>
+<p>第4种的话, 其实还是前面的Dpc定时器那种, 不过这边不用Dpc对象和Dpc例程, 因此当指定时间到了以后不进入Dpc例程, 就相当于睡眠了.定时器对象和其他内核同步对象一样, 有两种状态, 一种是激发状态, 一种是未激发状态, 所以也可以用KeWaitForSingleObject等待. 差不多就是这些东西了!</p>
+<p>/*
+内核下的定时器函数, 和一系列其他函数的使用 0环代码
+TAB = 8
+*/</p>
+<p>#include &lt;ntddk.h&gt;</p>
+<p>#define  TIMER_OUT	10</p>
+<p>typedef	struct tagDevice_Ext {
+ULONG ulTimeOut;
+PKEVENT phEvent;		//事件对象指针
+KTIMER StTimer;			//Dpc计时器对象
+KDPC StDpc;			//Dpc对象
+LARGE_INTEGER liInterger;	//Dpc间隔时间
+} DEVICE_EXT, *PDEVICE_EXT;
+//===========================================================================
+//内核线程函数1
+//===========================================================================
+#pragma code_seg( &ldquo;PAGE&rdquo; )
+VOID SysRoutine1( PVOID pContext ) {
+PEPROCESS pEprocess = NULL;
+PTSTR pStrProcessName = NULL;</p>
+<pre><code>PAGED\_CODE();
+
+//获取进程名称
+pEprocess = IoGetCurrentProcess();
+pStrProcessName = ( PTSTR )( ( ULONG )pEprocess + 0x174 );
+KdPrint( ( &quot;进程名称:%s\\n&quot;,  pStrProcessName ) );
+
+//停止50毫秒,我倒, 我改成5000都没有效果
+KeStallExecutionProcessor( 50 );
+
+PsTerminateSystemThread( STATUS\_SUCCESS );
+</code></pre>
+<p>}
+//===========================================================================
+//打印进程和时间信息
+//===========================================================================
+VOID PrintInfo() {
+TIME_FIELDS StTime;
+PEPROCESS pEprocess = NULL;
+PTSTR pStrProcessName = NULL;
+LARGE_INTEGER liSysTime;
+LARGE_INTEGER liLocalTime;</p>
+<pre><code>//获取进程名称
+pEprocess = IoGetCurrentProcess();
+pStrProcessName = ( PTSTR )( ( ULONG )pEprocess + 0x174 );
+KdPrint( ( &quot;进程名称:%s\\n&quot;,  pStrProcessName ) );
+
+//得到当前系统时间
+KeQuerySystemTime( &amp;liSysTime );
+
+//从系统时间转换成当地时区时间
+ExSystemTimeToLocalTime( &amp;liSysTime, &amp;liLocalTime );
+
+//由当地时区时间得到月日年信息
+RtlTimeToTimeFields( &amp;liLocalTime, &amp;StTime );
+
+//显示年月日等信息
+KdPrint( ( &quot;年%d/&quot;, StTime.Year ) );
+KdPrint( ( &quot;月%d/&quot;, StTime.Month ) );
+KdPrint( ( &quot;日%d/&quot;, StTime.Day ) );
+KdPrint( ( &quot;星期%d\\n&quot;, StTime.Weekday ) );
+
+KdPrint( ( &quot;%d:&quot;, StTime.Hour ) );
+KdPrint( ( &quot;%d:&quot;, StTime.Minute ) );
+KdPrint( ( &quot;%d:&quot;, StTime.Second ) );
+KdPrint( ( &quot;%d\\n\\n&quot;, StTime.Milliseconds ) );
+</code></pre>
+<p>}
+//===========================================================================
+//定时器过程
+//===========================================================================
+#pragma code_seg()
+VOID TimerRoutine( PDEVICE_OBJECT pDeviceObj, PVOID pContext ) {
+PDEVICE_EXT pDeviceExt = NULL;</p>
+<pre><code>PAGED\_CODE\_LOCKED();
+PrintInfo();
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+pDeviceExt = pDeviceObj-&gt;DeviceExtension;</p>
+<pre><code>ASSERT( pDeviceExt != NULL );
+
+if ( pDeviceExt-&gt;ulTimeOut == 0 ) {
+	KeSetEvent( pDeviceExt-&gt;phEvent, IO\_NO\_INCREMENT, FALSE );
+} else {
+	//原子--
+	InterlockedDecrement( &amp;pDeviceExt-&gt;ulTimeOut );
+}
+</code></pre>
+<p>}
+//===========================================================================
+//Dpc例程(Dpc例程只能搞一次, 所以每次在后面还要设置一次)
+//===========================================================================
+#pragma code_seg( )
+VOID DpcRoutine( PKDPC pDpc, PVOID pContext, PVOID SysArg1, PVOID SysArg2  ) {
+PDEVICE_EXT pDeviceExt = NULL;</p>
+<pre><code>PAGED\_CODE\_LOCKED();
+PrintInfo();
+
+pDeviceExt = ( ( PDEVICE\_OBJECT )pContext )-&gt;DeviceExtension;
+ASSERT( pDeviceExt != NULL );
+
+if ( pDeviceExt-&gt;ulTimeOut == 0 ) {
+	KeSetEvent( pDeviceExt-&gt;phEvent, IO\_NO\_INCREMENT, FALSE );
+} else {
+	//开启Dpc例程
+	KeSetTimer( &amp;pDeviceExt-&gt;StTimer, pDeviceExt-&gt;liInterger,
+		    &amp;pDeviceExt-&gt;StDpc );
+	//原子--
+	InterlockedDecrement( &amp;pDeviceExt-&gt;ulTimeOut );
+}
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//驱动入口
+//===========================================================================
+#pragma code_seg( &ldquo;INIT&rdquo; )
+NTSTATUS DriverEntry( PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pUSzRegPath ) {
+ULONG* pUlTime = NULL;
+HANDLE hThread;
+NTSTATUS Status;
+KEVENT hEvent;
+PETHREAD pThread = NULL;
+PDEVICE_OBJECT pDevice = NULL;
+PDEVICE_EXT pDeviceExt = NULL;</p>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+//创建一个线程然后等待, 知道线程对象返回
+//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+//创建线程(参数4指定是用户线程函数系统线程, 很明显这里是系统线程)
+Status = PsCreateSystemThread( &amp;hThread, 0, NULL, NULL, NULL, &amp;SysRoutine1, NULL );
+if ( !NT_SUCCESS( Status ) ) {
+KdPrint( ( &ldquo;创建线程失败!\n&rdquo; ) );
+return Status;
+}</p>
+<pre><code>//将线程句柄转化为指针
+Status  = ObReferenceObjectByHandle( hThread, 0, \*PsThreadType,
+				     KernelMode, ( PVOID\* )&amp;pThread, NULL );
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint( ( &quot;线程句柄转换指针失败!\\n&quot; ) );
+	return Status;
+}
+
+//等待线程对象(创建线程返回的是句柄, 所以需要转成指针)
+KeWaitForSingleObject( pThread, Executive, KernelMode, FALSE, NULL );
+
+//这号函数也是可以等待的, 句柄.
+//ZwWaitForSingleObject( hThread, TRUE, 0 );
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+//创建一个定时器1s一次
+//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+KeInitializeEvent( &amp;hEvent, NotificationEvent, FALSE );</p>
+<pre><code>Status = IoCreateDevice( pDriverObj, sizeof( DEVICE\_EXT ), NULL,
+			 FILE\_DEVICE\_UNKNOWN, 0, TRUE, &amp;pDevice );
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint( ( &quot;创建设备失败!\\n&quot; ) );
+	return Status;
+}
+
+ASSERT( pDevice != NULL );
+
+pDeviceExt = pDevice-&gt;DeviceExtension;
+pDeviceExt-&gt;phEvent = &amp;hEvent;
+pDeviceExt-&gt;ulTimeOut = TIMER\_OUT;
+
+//初始化定时器对象和启动定时器
+IoInitializeTimer( pDevice, &amp;TimerRoutine, NULL );
+IoStartTimer( pDevice );
+
+//等待事件对象置位
+KeWaitForSingleObject( &amp;hEvent, Executive, KernelMode, FALSE, NULL );
+
+//停止定时器
+IoStopTimer( pDevice );
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+//Dpc例程试验,
+//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+pDeviceExt-&gt;ulTimeOut = TIMER_OUT;</p>
+<pre><code>//负数表示间隔多少时间, 单位是ns 1000ns=1ms, 1000 ms = 1s
+pDeviceExt-&gt;liInterger = RtlConvertLongToLargeInteger( 1000 \* 1000 \* 2 \* -10 );
+
+//初始化计时器对象
+KeInitializeTimer( &amp;pDeviceExt-&gt;StTimer );
+
+//初始化DPC对象
+KeInitializeDpc( &amp;pDeviceExt-&gt;StDpc, &amp;DpcRoutine, pDevice  );
+
+//开启Dpc例程
+KeSetTimer( &amp;pDeviceExt-&gt;StTimer, pDeviceExt-&gt;liInterger, &amp;pDeviceExt-&gt;StDpc );
+
+KeResetEvent( &amp;hEvent );
+//等待事件对象置位
+KeWaitForSingleObject( &amp;hEvent, Executive, KernelMode, FALSE, NULL );
+
+//取消定时器和事件对象
+KeCancelTimer( &amp;pDeviceExt-&gt;StTimer );
+KeClearEvent( &amp;hEvent );
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+if ( pDevice ) {
+IoDeleteDevice( pDevice );
+}
+KdPrint( ( &ldquo;DriverEntry调用完毕!\n&rdquo; ) );
+return STATUS_UNSUCCESSFUL;
+}</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-11-11
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/irp%E8%B6%85%E6%97%B6%E5%A4%84%E7%90%86/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Irp超时处理</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/startio%E4%BE%8B%E7%A8%8B/">
+            <span class="next-text nav-default">StartIo例程</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

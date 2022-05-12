@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>内核中文件操作 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="文件操作也是比较有用的功能, 而且这部分功能也比较有用. 当然全部记录下来也没有什么营养. 学内核还是要学内核的架构. 关于这个函数的使用. 我觉得不" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="内核中文件操作" />
+<meta property="og:description" content="文件操作也是比较有用的功能, 而且这部分功能也比较有用. 当然全部记录下来也没有什么营养. 学内核还是要学内核的架构. 关于这个函数的使用. 我觉得不" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-10-11T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-10-11T00:00:00+00:00" />
+
+<meta itemprop="name" content="内核中文件操作">
+<meta itemprop="description" content="文件操作也是比较有用的功能, 而且这部分功能也比较有用. 当然全部记录下来也没有什么营养. 学内核还是要学内核的架构. 关于这个函数的使用. 我觉得不"><meta itemprop="datePublished" content="2011-10-11T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-10-11T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2662">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="内核中文件操作"/>
+<meta name="twitter:description" content="文件操作也是比较有用的功能, 而且这部分功能也比较有用. 当然全部记录下来也没有什么营养. 学内核还是要学内核的架构. 关于这个函数的使用. 我觉得不"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">内核中文件操作</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-10-11 </span>
+        <div class="post-category">
+            <a href="/categories/kernel/"> kernel </a>
+            </div>
+          <span class="more-meta"> 约 2662 字 </span>
+          <span class="more-meta"> 预计阅读 6 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>文件操作也是比较有用的功能, 而且这部分功能也比较有用. 当然全部记录下来也没有什么营养. 学内核还是要学内核的架构. 关于这个函数的使用. 我觉得不经常使用的使用一次就可以了. 就像Win32下面的函数. 很多基本都用不上. 不过也没有什么问题!! 能够查就行. 不过一些非常常用的函数还查. 就有点&hellip;.所以函数应该把套路稍微记下..</p>
+<p>没有什么好说的, 直接上代码:</p>
+<p>/*
+Windows内核下文件操作!
+编译方法参见makefile.
+*/
+#include &lt;ntddk.h&gt;
+#define BUFFER_SIZE 1024
+//===========================================================================
+//写入文件试验
+NTSTATUS CreateWriteFileTest() {
+HANDLE hFile = NULL;
+PUCHAR pBuffer = NULL;
+NTSTATUS Status;
+LARGE_INTEGER L_number;
+IO_STATUS_BLOCK Io_Status;
+OBJECT_ATTRIBUTES Obj_Attributes;
+//或者写成 &quot;\\Device\\HarddiskVolume1\\1.LOG&quot;
+UNICODE_STRING UStFileName = RTL_CONSTANT_STRING( L&quot;\\??\\C:\\Joen.log&quot; );</p>
+<pre><code>do {
+	//初始化objectAttributes 对大小写敏感
+	InitializeObjectAttributes( &amp;amp;Obj\_Attributes,&amp;amp;UStFileName, OBJ\_CASE\_INSENSITIVE,	NULL, NULL );
+
+	//打开文件, 用于重写.文件不存在返回错误.同时会覆盖原来文件的内容
+	Status = ZwCreateFile( &amp;amp;hFile, GENERIC\_WRITE,&amp;amp;Obj\_Attributes, &amp;amp;Io\_Status, NULL,FILE\_ATTRIBUTE\_NORMAL,
+		FILE\_SHARE\_WRITE,FILE\_OVERWRITE,FILE\_SYNCHRONOUS\_IO\_NONALERT, NULL, 0 );
+	if ( !NT\_SUCCESS(Status) ) {
+
+		//创建文件, 即使存在该文件存在.也创建覆盖
+		Status = ZwCreateFile( &amp;amp;hFile, GENERIC\_WRITE,&amp;amp;Obj\_Attributes, &amp;amp;Io\_Status, NULL,FILE\_ATTRIBUTE\_NORMAL,
+			FILE\_SHARE\_WRITE,FILE\_OPEN\_IF,FILE\_SYNCHRONOUS\_IO\_NONALERT, NULL, 0 );
+		if ( !NT\_SUCCESS(Status) ) {
+			break;
+		}
+	}
+
+	//分配内存
+	pBuffer = (PUCHAR)ExAllocatePool(PagedPool, BUFFER\_SIZE );
+	if ( !pBuffer ) {
+		KdPrint(( &amp;quot;内存分配失败!\\n&amp;quot; ));
+		Status = STATUS\_UNSUCCESSFUL;
+		break;
+	}
+
+	//构造要填充的数据
+	RtlFillMemory( pBuffer,BUFFER\_SIZE,&amp;#39;J&amp;#39; );
+
+	//写文件
+	Status = ZwWriteFile( hFile,NULL,NULL,NULL,&amp;amp;Io\_Status, pBuffer,BUFFER\_SIZE, NULL, NULL );
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &amp;quot;WriteFile Error!\\n&amp;quot; ));
+		break;
+	}else {
+		KdPrint(( &amp;quot;文件写入长度%d!\\n&amp;quot;,Io\_Status.Information ));
+	}	
+
+	//构造要填充的数据
+	RtlFillMemory(pBuffer,BUFFER\_SIZE,&amp;#39;0&amp;#39; );
+
+	//追加数据, 设置文件偏移指针64位的
+	L\_number.QuadPart = 1024i64;
+
+	//对文件进行附加写
+	Status = ZwWriteFile( hFile, NULL, NULL, NULL, &amp;amp;Io\_Status, pBuffer, BUFFER\_SIZE, &amp;amp;L\_number, NULL );
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &amp;quot;文件写入失败!\\n&amp;quot; ));
+		break;
+	}else {
+		KdPrint(( &amp;quot;文件写入长度%d!\\n&amp;quot;,Io\_Status.Information ));
+	}
+
+	Status = STATUS\_SUCCESS;
+}while ( FALSE );
+
+//关闭文件句柄
+if ( hFile ) {
+	ZwClose( hFile );
+}
+if ( pBuffer ) {
+	ExFreePool(pBuffer);
+}
+return Status;
+</code></pre>
+<p>}
+//===========================================================================
+//打开文件进行追加内容试验
+NTSTATUS OpenWriteFileTest() {
+HANDLE hFile = NULL;
+PUCHAR pBuffer = NULL;
+NTSTATUS Status;
+IO_STATUS_BLOCK Io_Status;
+OBJECT_ATTRIBUTES Obj_Attributes;
+//或者写成 &quot;\\Device\\HarddiskVolume1\\1.LOG&quot;
+UNICODE_STRING UStFileName = RTL_CONSTANT_STRING( L&quot;\\??\\C:\\Joen.log&quot; );
+FILE_STANDARD_INFORMATION File_Information;</p>
+<pre><code>do {
+	//初始化objectAttributes 对大小写敏感
+	InitializeObjectAttributes( &amp;amp;Obj\_Attributes,&amp;amp;UStFileName, OBJ\_CASE\_INSENSITIVE,	NULL, NULL );
+
+	//打开文件, 进行读取, 文件不存在会返回错误. 同时对文件进行追加
+	Status = ZwOpenFile( &amp;amp;hFile, GENERIC\_ALL,&amp;amp;Obj\_Attributes, &amp;amp;Io\_Status,
+		FILE\_SHARE\_READ|FILE\_SHARE\_WRITE,FILE\_SYNCHRONOUS\_IO\_NONALERT );
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &amp;quot;打开文件失败!\\n&amp;quot; ));
+		break;
+	}
+
+	//分配内存
+	pBuffer = (PUCHAR)ExAllocatePool(PagedPool, BUFFER\_SIZE );
+	if ( !pBuffer ) {
+		KdPrint(( &amp;quot;内存分配失败!\\n&amp;quot; ));
+		Status = STATUS\_UNSUCCESSFUL;
+		break;
+	}
+
+	//读取文件
+	Status = ZwReadFile( hFile,NULL,NULL,NULL,&amp;amp;Io\_Status,pBuffer,BUFFER\_SIZE,NULL,NULL);
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &amp;quot;读取文件失败!\\n&amp;quot; ));
+		break;
+	}
+
+	//构造要填充的数据
+	RtlFillMemory( pBuffer, BUFFER\_SIZE,&amp;#39;e&amp;#39; );
+
+	//查询文件长度
+	Status = ZwQueryInformationFile( hFile,	&amp;amp;Io\_Status,&amp;amp;File\_Information,
+		sizeof(FILE\_STANDARD\_INFORMATION),FileStandardInformation );
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &amp;quot;查询文件长度失败!\\n&amp;quot; ));
+		break;
+	}else {
+		KdPrint(( &amp;quot;文件长度%d\\n&amp;quot;, File\_Information.EndOfFile.QuadPart ));
+	}
+
+	//文件长度中间扩展下(根据实验扩展出来都是0)
+	File\_Information.EndOfFile.QuadPart+= 1024;
+
+	//修改当前文件指针
+	Status = ZwSetInformationFile( hFile,	&amp;amp;Io\_Status,&amp;amp;File\_Information.EndOfFile.QuadPart,
+		sizeof(FILE\_POSITION\_INFORMATION),FilePositionInformation);
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &amp;quot;设置文件长度失败!\\n&amp;quot; ));
+	}
+
+	//写文件
+	Status = ZwWriteFile( hFile,NULL,NULL,NULL,&amp;amp;Io\_Status, pBuffer,BUFFER\_SIZE,
+		&amp;amp;File\_Information.EndOfFile, NULL );
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &amp;quot;写入文件失败!\\n&amp;quot; ));
+		break;
+	}else {
+		KdPrint(( &amp;quot;文件真正写入文件长度 %d\\n&amp;quot;, Io\_Status.Information ));
+	}
+
+	//构造要填充的数据
+	RtlFillMemory(pBuffer,BUFFER\_SIZE,&amp;#39;n&amp;#39; );
+
+	//查询文件长度
+	Status = ZwQueryInformationFile( hFile,	&amp;amp;Io\_Status,&amp;amp;File\_Information,
+		sizeof(FILE\_STANDARD\_INFORMATION),FileStandardInformation );
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &amp;quot;查询文件长度失败!\\n&amp;quot; ));
+		break;
+	}else {
+		KdPrint(( &amp;quot;文件长度%d\\n&amp;quot;, File\_Information.EndOfFile.QuadPart ));
+	}
+
+	//对文件进行附加写
+	Status = ZwWriteFile( hFile, NULL, NULL, NULL, &amp;amp;Io\_Status, pBuffer, BUFFER\_SIZE,
+		&amp;amp;File\_Information.EndOfFile, NULL );
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &amp;quot;文件写入错误!\\n&amp;quot; ));
+		break;
+	}
+	Status = STATUS\_SUCCESS;
+}while ( FALSE );
+
+//关闭文件句柄
+if ( hFile ) {
+	ZwClose( hFile );
+}
+if ( pBuffer ) {
+	ExFreePool(pBuffer);
+}
+return Status;
+</code></pre>
+<p>}
+//===========================================================================
+//文件属性测试
+NTSTATUS FileAttributeTest() {
+HANDLE hFile = NULL;
+NTSTATUS Status;
+IO_STATUS_BLOCK Io_Status;
+#if DBG
+TIME_FIELDS SysTime = {0};
+#endif
+OBJECT_ATTRIBUTES Obj_Attributes;
+UNICODE_STRING UStFileName = RTL_CONSTANT_STRING( L&quot;\\??\\C:\\Joen.log&quot; );
+FILE_BASIC_INFORMATION		File_BasicInfo = {0};
+PFILE_NAME_INFORMATION		pFile_NameInfo = NULL;
+FILE_STANDARD_INFORMATION	File_StdInfo;
+FILE_POSITION_INFORMATION	File_PostInfo;</p>
+<pre><code>do {
+	//初始化objectAttributes 对大小写敏感
+	InitializeObjectAttributes( &amp;amp;Obj\_Attributes,&amp;amp;UStFileName, OBJ\_CASE\_INSENSITIVE,	NULL, NULL );
+
+	//打开文件, 进行读取, 文件不存在会返回错误. 同时对文件进行追加
+	Status = ZwOpenFile( &amp;amp;hFile, GENERIC\_ALL,&amp;amp;Obj\_Attributes, &amp;amp;Io\_Status,
+		FILE\_SHARE\_READ|FILE\_SHARE\_WRITE,FILE\_SYNCHRONOUS\_IO\_NONALERT );
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &amp;quot;打开文件失败!\\n&amp;quot; ));
+		break;
+	}
+
+	//查询文件长度, 这里假设文件长度不会超过4G了
+	Status = ZwQueryInformationFile( hFile,	&amp;amp;Io\_Status, &amp;amp;File\_StdInfo,
+		sizeof(FILE\_STANDARD\_INFORMATION), FileStandardInformation );
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &amp;quot;查询文件信息失败!\\n&amp;quot; ));
+		break;
+	}else {
+		KdPrint(( &amp;quot;文件占用族大小: %d, 距离文件结尾还有%d个字节(文件长度).多少个链接文件%d, 是否准备删除%d, 是否是目录%d\\n&amp;quot;,
+			File\_StdInfo.AllocationSize.LowPart, File\_StdInfo.EndOfFile.LowPart,
+			File\_StdInfo.NumberOfLinks,
+			File\_StdInfo.DeletePending, File\_StdInfo.Directory ));
+	}
+
+	//查询文件时间信息, 和属性. 当然也可以设置
+	Status = ZwQueryInformationFile( hFile,	&amp;amp;Io\_Status, &amp;amp;File\_BasicInfo,
+		sizeof(FILE\_BASIC\_INFORMATION),FileBasicInformation );
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &amp;quot;查询文件信息失败!\\n&amp;quot; ));
+		break;
+	}else {
+</code></pre>
+<p>#if DBG
+//系统时间转成本地时间
+ExSystemTimeToLocalTime(&amp;File_BasicInfo.CreationTime, &amp;File_BasicInfo.CreationTime);
+ExSystemTimeToLocalTime(&amp;File_BasicInfo.LastAccessTime, &amp;File_BasicInfo.LastAccessTime);
+ExSystemTimeToLocalTime(&amp;File_BasicInfo.LastWriteTime, &amp;File_BasicInfo.LastWriteTime);</p>
+<pre><code>		KdPrint(( &amp;quot;年/月/日   时/分/秒 \\n&amp;quot; ));
+		RtlTimeToTimeFields( &amp;amp;File\_BasicInfo.CreationTime, &amp;amp;SysTime );
+		KdPrint(( &amp;quot;文件创建的时间:   %d/%d/%d   %d:%d:%d\\n&amp;quot;,
+			SysTime.Year, SysTime.Month, SysTime.Day, SysTime.Hour, SysTime.Minute, SysTime.Second ));
+
+		//最后访问时间是只有日期的..
+		RtlTimeToTimeFields( &amp;amp;File\_BasicInfo.LastAccessTime, &amp;amp;SysTime );
+		KdPrint(( &amp;quot;文件最后访问时间: %d/%d/%d   %d:%d:%d\\n&amp;quot;,
+			SysTime.Year, SysTime.Month, SysTime.Day, SysTime.Hour, SysTime.Minute, SysTime.Second ));
+
+		RtlTimeToTimeFields( &amp;amp;File\_BasicInfo.LastWriteTime, &amp;amp;SysTime );
+		KdPrint(( &amp;quot;文件最后写时间:   %d/%d/%d   %d:%d:%d\\n&amp;quot;,
+			SysTime.Year, SysTime.Month, SysTime.Day, SysTime.Hour, SysTime.Minute, SysTime.Second ));
+</code></pre>
+<p>// 			RtlTimeToTimeFields( &amp;File_BasicInfo.ChangeTime, &amp;SysTime );
+// 			KdPrint(( &quot;修改修改时间: %d/%d/%d   %d/%d/%d\n&quot;,
+// 				SysTime.Year, SysTime.Month, SysTime.Day, SysTime.Hour, SysTime.Minute, SysTime.Second ));
+//
+if ( File_BasicInfo.FileAttributes &amp; FILE_ATTRIBUTE_ARCHIVE ) {
+KdPrint(( &quot;文件是一个普通文件\n&quot; ));
+}
+if ( File_BasicInfo.FileAttributes &amp; FILE_ATTRIBUTE_NORMAL ) {
+KdPrint(( &quot;文件没有设置属性\n&quot; ));
+}
+if ( File_BasicInfo.FileAttributes &amp; FILE_ATTRIBUTE_DIRECTORY ){
+KdPrint(( &quot;文件是一个目录\n&quot; ));
+}
+if ( File_BasicInfo.FileAttributes &amp; FILE_ATTRIBUTE_READONLY ) {
+KdPrint(( &quot;文件是只读的\n&quot; ));
+}
+if( File_BasicInfo.FileAttributes &amp; FILE_ATTRIBUTE_HIDDEN ) {
+KdPrint(( &quot;文件是隐藏的\n&quot; ));
+}
+if( File_BasicInfo.FileAttributes &amp; FILE_ATTRIBUTE_SYSTEM ) {
+KdPrint(( &quot;文件是系统文件\n&quot; ));
+}
+#endif
+}</p>
+<pre><code>	pFile\_NameInfo = (PFILE\_NAME\_INFORMATION)ExAllocatePool(PagedPool, BUFFER\_SIZE );
+	if ( !pFile\_NameInfo ) {
+		KdPrint(( &amp;quot;内存分配失败!\\n&amp;quot; ));
+		break;
+	}
+	RtlZeroMemory( pFile\_NameInfo,BUFFER\_SIZE );
+	pFile\_NameInfo-&amp;gt;FileNameLength = BUFFER\_SIZE;
+
+	//查询文件名称信息
+	Status = ZwQueryInformationFile( hFile,	&amp;amp;Io\_Status, pFile\_NameInfo,
+		BUFFER\_SIZE,FileNameInformation );
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &amp;quot;查询文件名称信息失败!\\n&amp;quot; ));
+		break;
+	}else {
+		KdPrint(( &amp;quot;文件名称长度:%d, 文件名称:%ws \\n&amp;quot;, pFile\_NameInfo-&amp;gt;FileNameLength,
+			pFile\_NameInfo-&amp;gt;FileName ));
+	}
+
+	//修改当前文件指针, 当然也是可以查询的
+	File\_PostInfo.CurrentByteOffset.QuadPart = 100i64;
+	Status = ZwSetInformationFile( hFile, &amp;amp;Io\_Status,&amp;amp;File\_PostInfo,
+		sizeof(FILE\_POSITION\_INFORMATION),FilePositionInformation );
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &amp;quot;设置文件当前指针失败\\n&amp;quot; ));
+	}else {
+		KdPrint(( &amp;quot;设置文件当前指针成功\\n&amp;quot; ));
+	}
+} while ( FALSE );
+
+if ( hFile ) {
+	ZwClose( hFile );
+}
+if ( pFile\_NameInfo ) {
+	ExFreePool( pFile\_NameInfo );
+}
+return Status;
+</code></pre>
+<p>}</p>
+<p>NTSTATUS DriverEntry( PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pUSzReg ) {
+NTSTATUS Status;</p>
+<pre><code>Status = CreateWriteFileTest();			//创建新文件写入试验
+if ( !NT\_SUCCESS(Status) ) {
+	KdPrint(( &amp;quot;CreateWriteFileTest调用遇到错误!&amp;quot; ));
+	return Status;
+}
+
+Status = OpenWriteFileTest();			//打开文件进行追加写入文件
+if ( !NT\_SUCCESS(Status) ) {
+	KdPrint(( &amp;quot;OpenWriteFileTest 调用遇到错误!&amp;quot; ));
+	return Status;
+}
+
+Status = FileAttributeTest();			//文件属性设置
+if ( !NT\_SUCCESS(Status) ) {
+	KdPrint(( &amp;quot;FileAttributeTest 调用遇到错误!&amp;quot; ));
+	return Status;
+}
+return -1;
+</code></pre>
+<p>}</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-10-11
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E6%B3%A8%E5%86%8C%E8%A1%A8%E6%93%8D%E4%BD%9C/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">内核中注册表操作</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C/">
+            <span class="next-text nav-default">内核中的字符串操作</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

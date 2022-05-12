@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Categories on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+    <link>https://xchen.com/categories/</link>
+    <description>Recent content in Categories on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 08 Nov 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://xchen.com/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ios逆向</title>
+      <link>https://xchen.com/categories/ios%E9%80%86%E5%90%91/</link>
+      <pubDate>Mon, 08 Nov 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/categories/ios%E9%80%86%E5%90%91/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>sdk</title>
+      <link>https://xchen.com/categories/sdk/</link>
+      <pubDate>Fri, 25 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/categories/sdk/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>数据结构算法</title>
+      <link>https://xchen.com/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%AE%97%E6%B3%95/</link>
+      <pubDate>Tue, 14 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%AE%97%E6%B3%95/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>rust</title>
+      <link>https://xchen.com/categories/rust/</link>
+      <pubDate>Thu, 20 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/categories/rust/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ios开发</title>
+      <link>https://xchen.com/categories/ios%E5%BC%80%E5%8F%91/</link>
+      <pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/categories/ios%E5%BC%80%E5%8F%91/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>逆向脱壳</title>
+      <link>https://xchen.com/categories/%E9%80%86%E5%90%91%E8%84%B1%E5%A3%B3/</link>
+      <pubDate>Tue, 30 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/categories/%E9%80%86%E5%90%91%E8%84%B1%E5%A3%B3/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>比较给力的内核程序</title>
+      <link>https://xchen.com/categories/%E6%AF%94%E8%BE%83%E7%BB%99%E5%8A%9B%E7%9A%84%E5%86%85%E6%A0%B8%E7%A8%8B%E5%BA%8F/</link>
+      <pubDate>Sat, 08 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/categories/%E6%AF%94%E8%BE%83%E7%BB%99%E5%8A%9B%E7%9A%84%E5%86%85%E6%A0%B8%E7%A8%8B%E5%BA%8F/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>区块链</title>
+      <link>https://xchen.com/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/</link>
+      <pubDate>Fri, 29 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>nothing</title>
+      <link>https://xchen.com/categories/nothing/</link>
+      <pubDate>Tue, 27 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/categories/nothing/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>android</title>
+      <link>https://xchen.com/categories/android/</link>
+      <pubDate>Thu, 07 Dec 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/categories/android/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>漏洞挖掘</title>
+      <link>https://xchen.com/categories/%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/</link>
+      <pubDate>Wed, 13 May 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/categories/%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>kernel</title>
+      <link>https://xchen.com/categories/kernel/</link>
+      <pubDate>Thu, 01 Jan 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/categories/kernel/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>virtual-technology</title>
+      <link>https://xchen.com/categories/virtual-technology/</link>
+      <pubDate>Thu, 15 Aug 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/categories/virtual-technology/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>prote</title>
+      <link>https://xchen.com/categories/prote/</link>
+      <pubDate>Wed, 26 Sep 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/categories/prote/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

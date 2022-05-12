@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>android 6.0三星5.1.1Root - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="现在google是越来越不给我们留活路了&amp;hellip; 从android 6.0开始, 三星的5.1.1开始. 默认都开启了data分区的forc" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/android-6-0%E4%B8%89%E6%98%9F5-1-1root/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="android 6.0三星5.1.1Root" />
+<meta property="og:description" content="现在google是越来越不给我们留活路了&hellip; 从android 6.0开始, 三星的5.1.1开始. 默认都开启了data分区的forc" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/android-6-0%E4%B8%89%E6%98%9F5-1-1root/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2015-12-01T00:00:00+00:00" />
+<meta property="article:modified_time" content="2015-12-01T00:00:00+00:00" />
+
+<meta itemprop="name" content="android 6.0三星5.1.1Root">
+<meta itemprop="description" content="现在google是越来越不给我们留活路了&hellip; 从android 6.0开始, 三星的5.1.1开始. 默认都开启了data分区的forc"><meta itemprop="datePublished" content="2015-12-01T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2015-12-01T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1784">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="android 6.0三星5.1.1Root"/>
+<meta name="twitter:description" content="现在google是越来越不给我们留活路了&hellip; 从android 6.0开始, 三星的5.1.1开始. 默认都开启了data分区的forc"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">android 6.0三星5.1.1Root</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2015-12-01 </span>
+        <div class="post-category">
+            <a href="/categories/android/"> android </a>
+            </div>
+          <span class="more-meta"> 约 1784 字 </span>
+          <span class="more-meta"> 预计阅读 4 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>现在google是越来越不给我们留活路了&hellip; 从android 6.0开始, 三星的5.1.1开始. 默认都开启了data分区的forceencryption, 也就是强制加密. 也开启了/system分区验证. 所以目前市面上都没有针对android 6.0和三星5.1.1以上的root方案..</p>
+<p>国外的supersu的作者chainfire, 搞cf-auto-root那哥们, 也没有针对三星5.1.1和android 6.0的方案. 不过他私下搞了个修改android内核的root方案.. 这个可能是目前唯一可以root 6.0的办法.</p>
+<p><a href="http://forum.xda-developers.com/apps/supersu/wip-android-6-0-marshmellow-t3219344" title="http://forum.xda-developers.com/apps/supersu/wip-android-6-0-marshmellow-t3219344">http://forum.xda-developers.com/apps/supersu/wip-android-6-0-marshmellow-t3219344</a></p>
+<p>这个可能也是以后root的办法.. 它是通过修改boot.img也就是Android的内核文件, 对/system分区效验的地方打补丁. 目前我们搞刷机也是用的这个办法. 这个办法有一个弊端, 就是需要修改Android的内核文件. 要针对一台一台机型的做处理. 即使是一键Root也必须这样.</p>
+<p>以后Root会越来越难! 即使是有漏洞, 能够提权, 但是不允许修改/system目录的话, 也要针对每一款机型自己做一个打过补丁的sepolicy文件!想来感觉真是有点心寒, google这是要赶尽杀绝的节奏啊!目前只能使用chainfire研究出来的给sepolicy打补丁的办法. 不过他说在弄, 不需要打补丁的办法. 但是还没试验, 另外他说Bugs&hellip; Bugs everywhere!</p>
+<p><a href="http://www.androidpolice.com/2015/10/31/chainfire-experiment-achieves-android-root-without-touching-the-system-partition/" title="http://www.androidpolice.com/2015/10/31/chainfire-experiment-achieves-android-root-without-touching-the-system-partition/">http://www.androidpolice.com/2015/10/31/chainfire-experiment-achieves-android-root-without-touching-the-system-partition/</a></p>
+<p>所以目前可行的办法还是修改boot.img.. 昨天在三星的S5(SM-G900I)上, 成功做出来了一个刷机包可以获取到root权限. 这种办法, 针对android 6.0和三星的5.1.1以上都可以.. 当然如果是锁了bootloader的机器, 那就没办法了! 这里简单说下步骤.</p>
+<p>1. 首先根据机型的型号(SM-G900I)和Model number去下载原版的刷机包. 下载包的时候注意基带版本和Build number.</p>
+<p><a href="http://samsung-updates.com/" title="http://samsung-updates.com/">http://samsung-updates.com/</a></p>
+<p>2. 下载一个该机型的(SM-G900I)的自定义recovery. 一般CWM 和TWRP都可以. 只需要有完整的busybox工具就行!</p>
+<p><a href="https://www.clockworkmod.com/rommanager" title="https://www.clockworkmod.com/rommanager">https://www.clockworkmod.com/rommanager</a></p>
+<p><a href="http://teamw.in/Devices/" title="http://teamw.in/Devices/">http://teamw.in/Devices/</a></p>
+<p>3. 下载SuperSU-v2.56-20151030013730 底包</p>
+<p><a href="http://forum.xda-developers.com/attachment.php?attachmentid=3523851&amp;d=1446166283" title="SuperSU-v2.56-20151030013730">SuperSU-v2.56-20151030013730.zip</a></p>
+<p>4. 脚本文件提取. 这个我们就直接从xiao1u修改的S6(SM-G9200)的boot.img里面提取就行. 需要这个包里面的3个脚本文件. startsu.sh init.fixdeepsleep.sh  install-su.sh</p>
+<p><a href="http://pan.baidu.com/s/1bnE2nJT">http://pan.baidu.com/s/1bnE2nJT</a> 密码: yb1y</p>
+<p>这样. 需要的基本资源就可以了.. 下面就是做自己的包了. 所以接下来这几步这样弄.</p>
+<p>1. 获取patch过的sepolicy. 这步很关键, 不然即使脚本和SuperSU放进去了, 也启动不了机器. 因为seplicy检测到/system被修改了, 会拒绝启动. 所以刷入自定义的recovery然后进入recovery中执行以下命令.</p>
+<p>adb push sepolicy /data/local/tmp/sepolicy
+adb shell su -c &ldquo;supolicy &ndash;file /data/local/tmp/sepolicy /data/local/tmp/sepolicy_out&rdquo;
+adb shell su -c &ldquo;chmod 0644 /data/local/tmp/sepolicy_out&rdquo;
+adb pull /data/local/tmp/sepolicy_out sepolicy_out</p>
+<p>sepolicy在下载的原版刷机包里面有, supolicy在SuperSU-v2.56-20151030013730里面. 运行supolicy的时候, 提示缺少库文件libsupol.so所以把libsupol.so上传到/system/lib下面. 上面的命令就可以执行完成了. 输出的sepolicy_out就是patch过的文件. 用这个替换掉boot.img里面的sepolicy就可以关闭检测了.</p>
+<p>1） 修改/default.prop</p>
+<p>修改内容：</p>
+<p>ro.secure=1 ro.allow.mock.location=0 ro.debuggable=0 ro.adb.secure=1</p>
+<p>&gt;&gt; ro.secure=0 ro.allow.mock.location=1 ro.debuggable=1 ro.adb.secure=0</p>
+<p>2） 修改 /fstab.samsungexynos7420 和 fstab.samsungexynos7420.fwup有可能是 /system 改为不带 verify 的 修改内容： /dev/block/platform/15570000.ufs/by-name/SYSTEM /system ext4 ro,errors=panic,noload wait,support_scfs,verify &raquo; /dev/block/platform/15570000.ufs/by-name/SYSTEM /system ext4 ro,errors=panic,noload wait,support_scfs</p>
+<p>有可能是fstab.qcom如果默认不带verify就不需要修改了!</p>
+<p>3）修改 /init.rc</p>
+<p>3.1）on late-init 后加入：</p>
+<p>service injectsu /system/bin/sh /sbin/install-su.sh class core user root oneshot</p>
+<p>3.2） ## Daemon processes to be run by init. 中加入</p>
+<p>service fixdeep /system/bin/sh /sbin/init.fixdeepsleep.sh class core user root oneshot</p>
+<p>3.3）最后加入：</p>
+<p>service startsu /system/bin/sh /sbin/startsu.sh class main user root oneshot</p>
+<ol start="4">
+<li>增加额外的文件（Superuser，脚本）</li>
+</ol>
+<p>$ARCH 可能是 arm64 或者 arm</p>
+<p>/sbin/supersu/$ARCH/libsupol.so</p>
+<p>/sbin/supersu/$ARCH/su</p>
+<p>/sbin/supersu/$ARCH/supolicy</p>
+<p>/sbin/supersu/common/99SuperSUDaemon</p>
+<p>/sbin/supersu/common/install-recovery.sh</p>
+<p>/sbin/supersu/common/Superuser.apk</p>
+<p>/sbin/init.fixdeepsleep.sh</p>
+<p>/sbin/install-su.sh</p>
+<p>/sbin/startsu.sh</p>
+<p>注意, 一般来说boot.img分区不是很大, 很容易放入Superuser以后空间就不够了. 这时候可以不放入Superuser. 这样的boot.img刷入以后, 直接输入su就可以提权. 可以进入系统再安装一个Superuser也可以.. 或者放在cache.img.ext4里面也可以.. 然后修改install-su.sh脚本里面的</p>
+<p>cp_perm 0 0 0644 $COM/Superuser.apk $APKNAME</p>
+<p>改成</p>
+<p>cp_perm 0 0 0644 /cache/Superuser.apk $APKNAME</p>
+<p>按照这个套路搞好的boot.img刷入系统, 就可以获取到root权限了!</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2015-12-01
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/linux%E7%95%99%E5%90%8E%E9%97%A8%E7%A8%8B%E5%BA%8F/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Linux留后门程序</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/getprop%E4%B8%8Edumpsys%E5%91%BD%E4%BB%A4/">
+            <span class="next-text nav-default">getprop与dumpsys命令</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>windbg 命令收集 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="windbg的命令非常多. 有很多漂亮的命令, 用一次以后突然会忘记. 还是记下来比较合适啊. 符号相关: !sym noisy :开启符号打印. 这样符号加载的信息显示" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/windbg-%E5%91%BD%E4%BB%A4%E6%94%B6%E9%9B%86/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="windbg 命令收集" />
+<meta property="og:description" content="windbg的命令非常多. 有很多漂亮的命令, 用一次以后突然会忘记. 还是记下来比较合适啊. 符号相关: !sym noisy :开启符号打印. 这样符号加载的信息显示" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/windbg-%E5%91%BD%E4%BB%A4%E6%94%B6%E9%9B%86/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2014-02-05T00:00:00+00:00" />
+<meta property="article:modified_time" content="2014-02-05T00:00:00+00:00" />
+
+<meta itemprop="name" content="windbg 命令收集">
+<meta itemprop="description" content="windbg的命令非常多. 有很多漂亮的命令, 用一次以后突然会忘记. 还是记下来比较合适啊. 符号相关: !sym noisy :开启符号打印. 这样符号加载的信息显示"><meta itemprop="datePublished" content="2014-02-05T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2014-02-05T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2800">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="windbg 命令收集"/>
+<meta name="twitter:description" content="windbg的命令非常多. 有很多漂亮的命令, 用一次以后突然会忘记. 还是记下来比较合适啊. 符号相关: !sym noisy :开启符号打印. 这样符号加载的信息显示"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">windbg 命令收集</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2014-02-05 </span>
+        <div class="post-category">
+            <a href="/categories/%E6%AF%94%E8%BE%83%E7%BB%99%E5%8A%9B%E7%9A%84%E5%86%85%E6%A0%B8%E7%A8%8B%E5%BA%8F/"> 比较给力的内核程序 </a>
+            </div>
+          <span class="more-meta"> 约 2800 字 </span>
+          <span class="more-meta"> 预计阅读 6 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p> </p>
+<p>windbg的命令非常多. 有很多漂亮的命令, 用一次以后突然会忘记. 还是记下来比较合适啊.</p>
+<p><strong>符号相关:</strong></p>
+<p>!sym noisy  :开启符号打印. 这样符号加载的信息显示就非常多了</p>
+<p> </p>
+<p><strong>查看pe信息</strong></p>
+<p>!dh [Options] Address : 查看模块pe信息 !dh -f : display file headers !dh -s : section headers !dh -a : all header informations !verifier:查看Verifier 检测统计信息</p>
+<p><strong>监视窗口</strong>:</p>
+<p>@@(poi(0ffb6bae0))</p>
+<p>显示0ffb6bae0指向的值. 具体可以参照windbg的命令语法写一个很复杂的命令.</p>
+<p>@@(eax)</p>
+<p>监视器窗口添加eax的值</p>
+<p>@$peb @$teb @$ip</p>
+<p>监视窗口添加peb teb eip的值</p>
+<p>@$proc</p>
+<p>监视窗口添加 eprocess的结构信息</p>
+<p><strong>条件断点:</strong></p>
+<p>bp kernel32!CreateFileW+0x5 &ldquo;dU /c 50 poi(@ebp+8) ;gc&rdquo;</p>
+<p>断在CreateFileW, 然后打印第一个参数. 也就是文件名称了还可以这样</p>
+<p>bp kernel32!OpenFileMappingW+5 &ldquo;kv 10;dU /c 30 poi(@ebp+10)&rdquo;</p>
+<p>更可以这样</p>
+<p>bp kernel32!CreateFileW+0x5 &ldquo;dU /c 50 poi(@ebp+8) ;gu;  r eax; gc&rdquo;</p>
+<p>更牛逼的是这样, 加个判断</p>
+<p>bp kernel32!CreateFileW+0x5 &ldquo;dU /c 50 poi(@ebp+8) ;gu;  r eax; .if (@eax &lt; 0 ) {.echo hit }.else{gc}&rdquo;</p>
+<p> </p>
+<p><strong>字符串条件断点(OllyDbg):</strong></p>
+<p>使用快捷键：Shift+F2设置条件断点，在条件中输入。</p>
+<p><strong>ASCII字符集字符串设置方法：</strong></p>
+<p>代码:</p>
+<p>    STRING [eax] == &ldquo;DDLX_CHAR&rdquo;   
+    STRING [eax] == &ldquo;DDLX_char&rdquo; //不区分大小写  
+    STRING [eax] == &ldquo;DDLX&rdquo; //不区分文本长度</p>
+<p><strong>UNICODE字符集字符串设置方法：</strong></p>
+<p>代码:</p>
+<p>    UNICODE [eax] == &ldquo;DDLX_WCHAR&rdquo;  
+    UNICODE [eax] == &ldquo;DDLX_wchar&rdquo; //不区分大小写  
+    UNICODE [eax] == &ldquo;DDLX&rdquo; //不区分文本长度</p>
+<p>字符串条件断点(Windbg):</p>
+<p>//全字符串匹配，区分大小写  
+bp 0041141d &ldquo;r @$t1 = eax; as /ma ${/v:pzString} $t1;.if ($scmp(\&quot;${pzString}\&rdquo;,\&ldquo;DDLX_CHAR\&rdquo;)==0) {} .else {gc}&quot;</p>
+<p>//全字符串匹配，不区分大小写  
+bp 0041141d &ldquo;r @$t1 = eax; as /ma ${/v:pzString} $t1;.if ($sicmp(\&quot;${pzString}\&rdquo;,\&ldquo;DDLX_char\&rdquo;)==0) {} .else {gc}&quot;</p>
+<p>//字符串还可以模糊匹配，*表示0-?个模糊字符  
+bp 0041141d &ldquo;r @$t1 = eax; as /ma ${/v:pzString} $t1;.if ($spat(\&quot;${pzString}\&rdquo;,\&ldquo;DDLX*\&rdquo;)==0) {} .else {gc}&quot;</p>
+<p>UNICODE字符集字符串设置方法：</p>
+<p>bp 0041141d &ldquo;r @$t1 = eax; as /mu ${/v:pzString} $t1;.if ($scmp(\&quot;${pzString}\&rdquo;,\&ldquo;DDLX_WCHAR\&rdquo;)==0) {} .else {gc}&quot;</p>
+<p>可以看到, 就是一个/mu /ma的区别. 看看windbg的帮助, 发现还有很多其他样式可供选择.</p>
+<p><strong>打印线程堆栈, 线程LastError值</strong></p>
+<p>~*e ? @$tid;!gle</p>
+<p>~*e ? @$tid;kv</p>
+<p>~* k( ~* kv ) 打印所有线程堆栈</p>
+<p>显示进程中每个线程的的iD和LastError值.</p>
+<p><strong>过滤命令窗口输出信息</strong></p>
+<p>.prompt_allow 设置单步过程中，是否显示一些附带信息，通过+/-控制。 dis  反汇编当前指令 ea  当前指令地址 reg  寄存器 src  源代码行中位置 sym 符号 例如关闭所有单步过程中的显示，可以输入.prompt_allow –dis –ea –reg –src -sym特别地，你可以通过rm指令来设置显示哪些寄存器，你可以通过rm ?来显示可以设置的值。 1  32位寄存器 2  64位寄存器，如果支持 4  浮点寄存器 8  段寄存器 10  MMX寄存器 20  Debug 寄存器，如果在内核模式，还能显示CR类的寄存器 40  SSE XMM 寄存器 如果需要同时显示几类寄存器，只要把对应的数字加起来就可以了，例如你希望同时显示MMX寄存器和SSE XMM寄存器，你可以输入rm 50</p>
+<p><strong>异常处理相关</strong></p>
+<p>有 sx, sxd, sxe, sxi, sxn, sxr 几条命令可用来设置异常和事件的处理方式。比如：</p>
+<p>0:000&gt; sxe ld</p>
+<p>可以在加载 dll 时中断下来。</p>
+<p><strong>调试运行相关:</strong> gn 强制返回已经处理了异常 gh 跳过异常处理使用程序自带的异常处理. ba 硬件断点 dl 遍历链表 如 dl nt!PsActiveProcessHead 1000 dt -r3 nt!_KPCR 显示结构遍历3层. .call 调用目标程序的函数.</p>
+<p><strong>进程线程相关</strong></p>
+<p>.dml_start   以DML的方式显示一些自定义功能，默认情况下会显示各类命令帮助已经关于调试进程的一些基本信息。DML命令在命令浏览窗口将会得到更好的支持。你能使用CTRL+N打开该窗口并使用此指令 !dml_proc 也用来显示进程信息，不带参数时直接显示进程列表，比!process 0 0 命 令显示的格式要紧凑好看点, <strong>是一条霸气侧漏的语句</strong> !thread 列出当前线程信息</p>
+<p>!cs 显示互斥量信息 .thread 地址 切换到某个线程</p>
+<p><strong>内存命令</strong></p>
+<p>!address 命令显示内存信息，如内存范围、内存权限等。 !vm 标号 命令显示虚拟内存信息 !memusage 命令显示物理内存信息 !pte 命令显示指定地址对应的页表项（PTE）和页目录项（PDE）。 !pfn 命令显示物理内存页的详细信息，指定页面帧编号为参数 !db/!eb 命令用来显示、修改物理内存，类似的还有!dd/!dc/!dq/!ed 等 !vprot address 显示某个地址所在的模块属性.</p>
+<p>lm 列出模块信息.</p>
+<p>lm m kern* 查找kern开头的模块信息.</p>
+<p>lmf 显示模块的具体路径</p>
+<p>lmv 显示模块的具体信息</p>
+<p> </p>
+<p><strong>写代码的时候记得列出标号是多么重要</strong></p>
+<p>!pool 命令显示内核内存池信息 !poolused 命令按照内存池 Tag 显示内存池信息。 !poolfind 命令显示所有指定 Tag 的内存信息</p>
+<p><strong>对象相关命令</strong> !handle 命令显示句柄信息，包括句柄类型、句柄引用计数、句柄名等 !object 命令显示对象信息。 !object xxxxxxx 命令显示指定对象的信息，xxxxxxxx 表示对象地址 !drvobj 命令显示驱动信息，主要是显示 DRIVER_OBJECT 结构的信息 !devobj 命令显示驱动设备信息，主要是显示 DEVICE_OBJECT 结构信息。</p>
+<p><strong>蓝屏Dump相关命令</strong> !analyze -v 命令是分析蓝屏 dump 时首先应该执行的命令，该命令会显示蓝屏原因、蓝屏上下文等，并会根据 蓝屏原因自动进行相关的分析，给出进一步分析的建议。</p>
+<p>.ecxr 命令会回到异常产生的地方.</p>
+<p><strong>查看目标机(底层相关命令)</strong></p>
+<p>vertarget 命令可以显示目标系统的基本信息，如系统版本、计算机名、内核基址等 dg 命令主要显示选择子的详细信息 !cpuinfo 命令显示CPU 信息 !pcr 命令显示处理器控制域（Processor Control Region）信息，也就是KPCR 结构信息，每个CPU 对应一个KPCR 结构，可以在命令中指定需要显示的CPU 序号，不指定则显示当前CPU 的PCR 信息。</p>
+<p>!prcb 命令显示处理器控制块（Processor Control Block）信息，也就是KPRCB 结构信息，同样，每个CPU对应一个KPRCB 结构，该结构紧接在KPCR 结 构后面，由KPCB 结构中的PrcbData 表示。命令中可以指定CPU 序号。 !idt 命令显示中断服务表，可以指定中断号显示，也可以显示全部的中断服务表 !irql 命令显示目标系统中断到WinDbg 时的中断请求级（IRQL），在 Windows2003 及以后的系统上可用,调试和IRQL 相关的程序时可能会用 !running 命令显示所有CPU 上正在运行的线程信息，便于了解系统当前的情况，如果 是分析蓝屏文件，则可以 看到蓝屏时系统正在执行什么线程。 !gflag 命令显示、设置系统全局标志，用于控制系统行为，和WinDbg 自带的gflags.exe 工具类似，不过设置 后只对当前调试会话有效。</p>
+<p><strong>句柄泄漏查找:</strong></p>
+<p>1）找到windbgs安装目录下的gflags.exe工具，该工具可用来打开windows自带的一些调试选项，具体gflags.exe的详细使用可以查看windbg帮助;这里我们设置勾上application verifiwer，该工具主要可用来对程序做一些稳定性的检测，本次调试主要用于保存栈的相关信息。同时设置stackbacktrace即栈的大小为10.</p>
+<p>2）运行windbg，打开第一步编译的程序，并使其跑起来；此时你查看任务管理器中的句柄信息，会发行相应进程句柄一直在增加。</p>
+<p>3）windbg用ctrl+break命令中断进程运行，用！htrace -enable命令开启句柄检测；htrace提供了进行句柄相关检测的命令，可查看windbg帮助。</p>
+<p>4）再次中断进程，使用！htrace -snapshot命令，获得此时进程句柄的镜像。并再次让程序运行。</p>
+<p>5）第三次中断进程运行，我们再使用！htrace -diff命令获得当前句柄状态与第4步 snapshot镜像句柄的差异；</p>
+<p>6）我们使用lsa 传递指定位置对应的代码，lsa handlew2!fun4+0x0000002e</p>
+<p>到这里，我们就找到了泄露句柄的函数，真是神奇啊。</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2014-02-05
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/windbg-version/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Windbg Version</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/windows-api%E6%93%8D%E4%BD%9C%E9%93%BE%E8%A1%A8/">
+            <span class="next-text nav-default">windows API操作链表</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

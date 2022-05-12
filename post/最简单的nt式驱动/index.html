@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>最简单的NT式驱动 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="一直想着, 再写点东西. 本来关于驱动这方面的话, 网上资料很丰富. 相对保护模式来说吧!所以不是很想写了. 还有说到这个写点东西的话. 我发现我也不是" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E6%9C%80%E7%AE%80%E5%8D%95%E7%9A%84nt%E5%BC%8F%E9%A9%B1%E5%8A%A8/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="最简单的NT式驱动" />
+<meta property="og:description" content="一直想着, 再写点东西. 本来关于驱动这方面的话, 网上资料很丰富. 相对保护模式来说吧!所以不是很想写了. 还有说到这个写点东西的话. 我发现我也不是" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E6%9C%80%E7%AE%80%E5%8D%95%E7%9A%84nt%E5%BC%8F%E9%A9%B1%E5%8A%A8/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-10-09T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-10-09T00:00:00+00:00" />
+
+<meta itemprop="name" content="最简单的NT式驱动">
+<meta itemprop="description" content="一直想着, 再写点东西. 本来关于驱动这方面的话, 网上资料很丰富. 相对保护模式来说吧!所以不是很想写了. 还有说到这个写点东西的话. 我发现我也不是"><meta itemprop="datePublished" content="2011-10-09T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-10-09T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2393">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="最简单的NT式驱动"/>
+<meta name="twitter:description" content="一直想着, 再写点东西. 本来关于驱动这方面的话, 网上资料很丰富. 相对保护模式来说吧!所以不是很想写了. 还有说到这个写点东西的话. 我发现我也不是"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">最简单的NT式驱动</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-10-09 </span>
+        <div class="post-category">
+            <a href="/categories/kernel/"> kernel </a>
+            </div>
+          <span class="more-meta"> 约 2393 字 </span>
+          <span class="more-meta"> 预计阅读 5 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>一直想着, 再写点东西. 本来关于驱动这方面的话, 网上资料很丰富. 相对保护模式来说吧!所以不是很想写了. 还有说到这个写点东西的话. 我发现我也不是很适合写文章. 写出来只有自己才能够看懂!<br>
+还有搞到这个写文章的适合用什么语言写就是一个比较纠结的地方了. 用汇编语言的话. 也不是不可以kmdkit包里面已经有了不少写汇编所需的头文件和lib文件, 但是还是不够的, 在写wdm和wdf的时候,我发现我还是得去自己整理头文件. 我倒..不过不要要求太多了, 毕竟kmdkit东西也是比较多了. 搞这个的也比较辛苦, 没有什么成就感. 其实语言的话. 无所谓了. 主要是能够解决一些问题吧. 大牛都是这样说的..</p>
+<p>好吧, 看看写一个基本的驱动需要哪些东西!</p>
+<p>首先我想3环的程序应该都写过吧, 其实这就是很好的入口点嘛, 写3环的程序经常打开文件或者其他东西, 一般都是调用CreateFile什么的!, 所以驱动的话一般会创建一个设备了. 只是一般来说了. 如果内核只是想做些猥琐的事情就退出, 也就不需要创建什么设备撒的. 当然. 现在假设是按照这个套路来的. 打开设备以后一般就是ReadFile, 和WriteFile. 这两个函数的话非常常用. 读取文件什么的. 当然你会看到它们不只是可以读取文件了.. 另外还有个不太常用的DeviceIoControl</p>
+<p>完事以后一般就是CloseHandle了.. 用户层这边的代码的话, 应该都有写过. 主要是驱动这边的套路.. 来看看是怎么搞的!<br>
+ </p>
+<p>/*
+简单的驱动, 主要是感受下驱动的写法!这里是驱动端
+编译方法参见makefile.
+*/
+#include &lt;ntddk.h&gt;</p>
+<p>//设备扩展
+typedef struct tagDeviceExt{
+PDEVICE_OBJECT pDeviceObj;
+UNICODE_STRING StSzDeviceName;
+UNICODE_STRING StSzSysLinkName;
+}DEVICE_EXT, *PDEVICE_EXT;</p>
+<p>//驱动卸载处理函数
+VOID DriverUnload( PDRIVER_OBJECT pDriverObj ) {
+PDEVICE_EXT pDeviceExt = NULL;
+NTSTATUS Status;
+UNICODE_STRING StUSzSysLink = {0};
+PDEVICE_OBJECT pNextObj = NULL;</p>
+<pre><code>pNextObj = pDriverObj-&gt;DeviceObject;
+while (pNextObj){
+	pDeviceExt = (PDEVICE\_EXT)pNextObj-&gt;DeviceExtension;
+
+	StUSzSysLink = pDeviceExt-&gt;StSzSysLinkName;
+	//删除符号链接
+	Status = IoDeleteSymbolicLink( &amp;StUSzSysLink );
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &quot;删除符号链接失败\\n&quot; ));
+		return;
+	}
+	//删除设备
+	IoDeleteDevice( pDeviceExt-&gt;pDeviceObj );
+
+	pNextObj = pNextObj-&gt;NextDevice;
+}
+KdPrint(( &quot;DriverUnload 执行完毕!\\n&quot; ));
+</code></pre>
+<p>}</p>
+<p>//所有IRP消息的处理过程, 这个代码是允许被分页的
+#pragma  code_seg( &ldquo;PAGE&rdquo; )
+NTSTATUS Irp_DispatchRoutine( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+UCHAR type;
+PIO_STACK_LOCATION pStack = NULL;</p>
+<pre><code>//建立一个字符串数组与IRP类型对应起来
+static char\* SzIrpName\[\] = {
+		&quot;IRP\_MJ\_CREATE&quot;,
+		&quot;IRP\_MJ\_CREATE\_NAMED\_PIPE&quot;,
+		&quot;IRP\_MJ\_CLOSE&quot;,
+		&quot;IRP\_MJ\_READ&quot;,
+		&quot;IRP\_MJ\_WRITE&quot;,
+		&quot;IRP\_MJ\_QUERY\_INFORMATION&quot;,
+		&quot;IRP\_MJ\_SET\_INFORMATION&quot;,
+		&quot;IRP\_MJ\_QUERY\_EA&quot;,
+		&quot;IRP\_MJ\_SET\_EA&quot;,
+		&quot;IRP\_MJ\_FLUSH\_BUFFERS&quot;,
+		&quot;IRP\_MJ\_QUERY\_VOLUME\_INFORMATION&quot;,
+		&quot;IRP\_MJ\_SET\_VOLUME\_INFORMATION&quot;,
+		&quot;IRP\_MJ\_DIRECTORY\_CONTROL&quot;,
+		&quot;IRP\_MJ\_FILE\_SYSTEM\_CONTROL&quot;,
+		&quot;IRP\_MJ\_DEVICE\_CONTROL&quot;,
+		&quot;IRP\_MJ\_INTERNAL\_DEVICE\_CONTROL&quot;,
+		&quot;IRP\_MJ\_SHUTDOWN&quot;,
+		&quot;IRP\_MJ\_LOCK\_CONTROL&quot;,
+		&quot;IRP\_MJ\_CLEANUP&quot;,
+		&quot;IRP\_MJ\_CREATE\_MAILSLOT&quot;,
+		&quot;IRP\_MJ\_QUERY\_SECURITY&quot;,
+		&quot;IRP\_MJ\_SET\_SECURITY&quot;,
+		&quot;IRP\_MJ\_POWER&quot;,
+		&quot;IRP\_MJ\_SYSTEM\_CONTROL&quot;,
+		&quot;IRP\_MJ\_DEVICE\_CHANGE&quot;,
+		&quot;IRP\_MJ\_QUERY\_QUOTA&quot;,
+		&quot;IRP\_MJ\_SET\_QUOTA&quot;,
+		&quot;IRP\_MJ\_PNP&quot;, };
+
+pStack = IoGetCurrentIrpStackLocation( pIrp );
+type =  pStack-&gt;MajorFunction;
+
+if ( type &gt;= sizeof(SzIrpName) / sizeof(SzIrpName\[0\]) ) {
+	KdPrint(( &quot;未知的功能号 %d\\n&quot;, type ));
+}else {
+	KdPrint(( &quot;功能号为 %s\\n&quot;, SzIrpName\[type\] ));
+}
+
+//一般分发函数的处理套路就是这样
+pIrp-&gt;IoStatus.Information = 0;
+pIrp-&gt;IoStatus.Status = STATUS\_SUCCESS;
+IoCompleteRequest( pIrp, IO\_NO\_INCREMENT );
+
+KdPrint(( &quot;Irp\_DispatchRoutine 执行完毕&quot; ));
+return STATUS\_SUCCESS;
+</code></pre>
+<p>}</p>
+<p>#pragma  code_seg(&ldquo;INIT&rdquo; )
+NTSTATUS DriverEntry( PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pUSzRegPath ) {
+NTSTATUS Status;
+PDEVICE_EXT pDeviceExt = NULL;
+UNICODE_STRING StDeviceName = {0};
+UNICODE_STRING StSysLinkName= {0};
+PDEVICE_OBJECT pDeviceObj = NULL;</p>
+<pre><code>//填写分发函数地址
+pDriverObj-&gt;DriverUnload = DriverUnload;
+pDriverObj-&gt;MajorFunction\[IRP\_MJ\_READ\]   = Irp\_DispatchRoutine;
+pDriverObj-&gt;MajorFunction\[IRP\_MJ\_CLOSE\]  = Irp\_DispatchRoutine;
+pDriverObj-&gt;MajorFunction\[IRP\_MJ\_WRITE\]  = Irp\_DispatchRoutine;
+pDriverObj-&gt;MajorFunction\[IRP\_MJ\_CREATE\] = Irp\_DispatchRoutine;
+pDriverObj-&gt;MajorFunction\[IRP\_MJ\_DEVICE\_CONTROL\] = Irp\_DispatchRoutine;
+
+//初始化设备名和链接名
+RtlInitUnicodeString(&amp;StDeviceName, L&quot;\\\\Device\\\\JoenDevice&quot; );
+RtlInitUnicodeString(&amp;StSysLinkName, L&quot;\\\\??\\\\LinkJoenDevice&quot; );
+
+//创建设备, 用于3环打开
+Status = IoCreateDevice( pDriverObj, sizeof(DEVICE\_EXT), &amp;StDeviceName, \\
+	FILE\_DEVICE\_UNKNOWN, 0, TRUE, &amp;pDeviceObj );
+
+if ( !NT\_SUCCESS(Status) ) {
+	return Status;
+}
+
+//创建符号链接用于3环打开
+Status = IoCreateSymbolicLink(&amp;StSysLinkName, &amp;StDeviceName );
+if ( !NT\_SUCCESS(Status) ) {
+	IoDeleteDevice( pDeviceObj );
+	return Status;
+}
+
+//设备对内存的操作方式
+pDeviceObj-&gt;Flags |= DO\_BUFFERED\_IO;
+
+//将设备对象和设备名称和符号链接名称保存到设备扩展中
+pDeviceExt = (PDEVICE\_EXT)pDeviceObj-&gt;DeviceExtension;
+pDeviceExt-&gt;pDeviceObj = pDeviceObj;
+pDeviceExt-&gt;StSzDeviceName = StDeviceName;
+pDeviceExt-&gt;StSzSysLinkName = StSysLinkName;
+
+KdPrint(( &quot;DriverEntry 执行成功!\\n&quot; ));
+return STATUS\_SUCCESS;
+</code></pre>
+<p>}</p>
+<p>这个在网页上面发表代码真是太难受了.. 我倒.. html5会不会好些?? 驱动这边干得事情很简单. 一般套路. 自己跟着这个注释看明白没有问题.. 看看用户层的代码..<br>
+ </p>
+<p>/*
+简单的驱动, 主要是感受下驱动的写法!这里是3环,安装端!
+编译方法参见makefile.
+*/
+#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+#include &lt;winsvc.h&gt;
+#include &lt;conio.h&gt;</p>
+<p>#define DRIVER_NAME &ldquo;TestNtDriver&rdquo;
+#define DRIVER_PATH &ldquo;TestNtDriver.sys&rdquo;</p>
+<p>/*
+装载驱动程序
+pDriverName	:驱动程序名称
+pDriverPath	:驱动程序路径
+成功返回非0, 失败返回0
+*/
+int LoadNTDriver( char* pDriverName, char* pDriverPath ) {
+SC_HANDLE hServiceMgr=NULL;
+SC_HANDLE hServiceDDK=NULL;
+char SzDriverPath[MAX_PATH];
+DWORD dwRet = 0;</p>
+<pre><code>//得到完整的驱动路径
+GetFullPathName( pDriverPath, 256, SzDriverPath, NULL);
+
+do {
+	//打开SCM管理器
+	hServiceMgr = OpenSCManager( NULL, NULL, SC\_MANAGER\_ALL\_ACCESS );
+	if ( hServiceMgr == NULL ) {
+		break;
+	}
+
+	//创建驱动所对应的服务
+	hServiceDDK = CreateService( hServiceMgr,
+		pDriverName,			// 驱动程序的在注册表中的名字
+		pDriverName,			// 注册表驱动程序的 DisplayName 值
+		SERVICE\_ALL\_ACCESS,		// 加载驱动程序的访问权限
+		SERVICE\_KERNEL\_DRIVER,	// 表示加载的服务是驱动程序
+		SERVICE\_DEMAND\_START,	// 注册表驱动程序的 Start 值
+		SERVICE\_ERROR\_IGNORE,	// 注册表驱动程序的 ErrorControl 值
+		SzDriverPath,			// 注册表驱动程序的 ImagePath 值
+		NULL,  NULL, NULL, NULL, NULL);  
+
+	//如果服务安装失败
+	if( hServiceDDK == NULL ) {
+		dwRet = GetLastError();
+
+		//确实发生了错误
+		if ( dwRet != ERROR\_IO\_PENDING &amp;&amp; dwRet != ERROR\_SERVICE\_EXISTS ) {
+			 break;
+		}
+
+		//在其他情况下是因为该服务已经安装了. 这里只需要打开就可以
+		hServiceDDK = OpenService( hServiceMgr, pDriverName, SERVICE\_ALL\_ACCESS );
+		if ( !hServiceDDK ) {
+			break;
+		}
+	}
+
+	//开启此项服务
+	dwRet = StartService( hServiceDDK, 0, NULL );
+} while ( FALSE );
+
+if( hServiceDDK ) {
+	CloseServiceHandle( hServiceDDK );
+}
+if( hServiceMgr ) {
+	CloseServiceHandle( hServiceMgr );
+}
+return dwRet;
+</code></pre>
+<p>}</p>
+<p>//卸载驱动程序
+BOOL UnloadNTDriver( char * SzServiceName ) {
+BOOL bRet = FALSE;
+SC_HANDLE hServiceMgr=NULL;//SCM管理器的句柄
+SC_HANDLE hServiceDDK=NULL;//NT驱动程序的服务句柄
+SERVICE_STATUS SvrSta;</p>
+<pre><code>do {
+	//打开SCM管理器
+	hServiceMgr = OpenSCManager( NULL, NULL, SC\_MANAGER\_ALL\_ACCESS );
+	if( hServiceMgr == NULL ) {
+		break;
+	}  
+
+	//打开驱动所对应的服务
+	hServiceDDK = OpenService( hServiceMgr, SzServiceName, SERVICE\_ALL\_ACCESS );
+	if ( hServiceDDK == NULL ) {
+		break;
+	}
+
+	//停止驱动
+	ControlService( hServiceDDK, SERVICE\_CONTROL\_STOP , &amp;SvrSta );
+
+	//删除驱动
+	if( DeleteService( hServiceDDK ) ) {
+		bRet = TRUE;
+	}
+
+} while ( FALSE );
+
+if( hServiceDDK ) {
+	CloseServiceHandle( hServiceDDK );
+}
+if( hServiceMgr ) {
+	CloseServiceHandle( hServiceMgr );
+}
+return bRet;
+</code></pre>
+<p>}
+//============================================================================
+int Jmain() {
+int bRet;
+HANDLE hDevice = INVALID_HANDLE_VALUE;
+byte byBuf[1024] = {0};
+DWORD dwByteRead;
+DWORD dwByteWrite;</p>
+<pre><code>do {
+	//安装驱动
+	bRet = LoadNTDriver( DRIVER\_NAME, DRIVER\_PATH );
+	if ( bRet ) {
+		printf( &quot;驱动安装成功!\\n&quot; );
+	}else {
+		printf( &quot;驱动安装失败!\\n&quot; );
+		break;
+	}
+
+	hDevice = CreateFile(&quot;\\\\\\\\.\\\\LinkJoenDevice&quot;,GENERIC\_READ | GENERIC\_WRITE,0,
+		NULL,OPEN\_EXISTING,	FILE\_ATTRIBUTE\_NORMAL,NULL );
+	if ( hDevice != INVALID\_HANDLE\_VALUE ) {
+		printf( &quot;打开设备成功!\\n&quot; );
+	}else {
+		printf( &quot;打开设备失败!\\n&quot; );
+		break;
+	}
+
+	if( ReadFile( hDevice, &amp;byBuf, sizeof(byBuf), &amp;dwByteRead, NULL ) ) {
+		printf( &quot;读取设备成功!\\n&quot; );
+	}else {
+		printf( &quot;读取设备失败!\\n&quot; );
+		break;
+	}
+
+	if ( WriteFile(hDevice,&amp;byBuf, dwByteRead, &amp;dwByteWrite, NULL  ) ) {
+		printf( &quot;写入设备成功!\\n&quot; );
+	}else {
+		printf( &quot;写入设备失败!\\n&quot; );
+		break;
+	}
+
+	//发送控制码
+	if( DeviceIoControl( hDevice,
+		CTL\_CODE( FILE\_DEVICE\_UNKNOWN, 0x800, METHOD\_BUFFERED, FILE\_ANY\_ACCESS ),
+		&amp;byBuf, dwByteRead, &amp;byBuf, sizeof(byBuf), &amp;dwByteRead, NULL ) ) {
+		printf( &quot;发送控制码成功!\\n&quot; );
+	}else {
+		printf( &quot;发送控制码失败!\\n&quot; );
+		break;
+	}
+
+}while( FALSE );
+
+if ( hDevice != INVALID\_HANDLE\_VALUE) {
+	if ( CloseHandle( hDevice ) ) {
+		printf( &quot;关闭设备句柄成功!\\n&quot; );
+	}else {
+		printf( &quot;关闭设备句柄失败!\\n&quot; );
+	}
+}
+
+//卸载驱动
+if ( UnloadNTDriver( DRIVER\_NAME ) ) {
+	printf( &quot;驱动卸载成功!\\n&quot; );
+}else {
+	printf( &quot;驱动卸载失败!\\n&quot; );
+}
+
+getch();
+return 0;
+</code></pre>
+<p>}</p>
+<p>这么简单两个小程序, 好像没有什么好说的.. 上个图看看, 在虚拟机上运行的样子..当然这边有源码下载</p>
+<p>        <a href="http://www.joenchen.com/JoenTools/LoadNtDriver.rar">http://www.joenchen.com/JoenTools/LoadNtDriver.rar</a></p>
+<p><img src="images/LoadNtDriver.jpg" alt=""></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-10-09
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E5%86%85%E5%AD%98%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%BA%9B%E5%87%BD%E6%95%B0/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">内核中内存操作的一些函数</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F12%E5%B0%86%E4%B8%80%E4%B8%AA%E7%BA%BF%E6%80%A7%E5%9C%B0%E5%9D%80%E6%98%A0%E5%B0%84%E5%88%B0%E4%B8%8D%E5%90%8C%E7%9A%84%E7%89%A9%E7%90%86%E5%9C%B0%E5%9D%80/">
+            <span class="next-text nav-default">保护模式12:将一个线性地址映射到不同的物理地址上</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

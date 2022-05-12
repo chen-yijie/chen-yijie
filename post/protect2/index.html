@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>保护模式2:保护模式下32位代码段和16位代码段切换 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="为了兼容, 386的保护模式可以在16位代码段和32位代码段之间随意转换, 用于标示是32位或者16位代码段的是段描述符内第6字节的第6位标示出" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/protect2/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="保护模式2:保护模式下32位代码段和16位代码段切换" />
+<meta property="og:description" content="为了兼容, 386的保护模式可以在16位代码段和32位代码段之间随意转换, 用于标示是32位或者16位代码段的是段描述符内第6字节的第6位标示出" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/protect2/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-09-11T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-09-11T00:00:00+00:00" />
+
+<meta itemprop="name" content="保护模式2:保护模式下32位代码段和16位代码段切换">
+<meta itemprop="description" content="为了兼容, 386的保护模式可以在16位代码段和32位代码段之间随意转换, 用于标示是32位或者16位代码段的是段描述符内第6字节的第6位标示出"><meta itemprop="datePublished" content="2011-09-11T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-09-11T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2055">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="保护模式2:保护模式下32位代码段和16位代码段切换"/>
+<meta name="twitter:description" content="为了兼容, 386的保护模式可以在16位代码段和32位代码段之间随意转换, 用于标示是32位或者16位代码段的是段描述符内第6字节的第6位标示出"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">保护模式2:保护模式下32位代码段和16位代码段切换</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-09-11 </span>
+        <div class="post-category">
+            <a href="/categories/prote/"> prote </a>
+            </div>
+          <span class="more-meta"> 约 2055 字 </span>
+          <span class="more-meta"> 预计阅读 5 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>为了兼容, 386的保护模式可以在16位代码段和32位代码段之间随意转换, 用于标示是32位或者16位代码段的是段描述符内第6字节的第6位标示出来的. 叫做D/B位.</p>
+<p>这个D/B位还有些郁闷, 如果是描述代码段时, 该位被称为D位, 如果标志位1, 那么模式使用32位地址, 所有的16位指令都会加前缀, 如果为0则默认是16位地址, 和指令. 指令前缀66H可以指定操作符的长度而不使用缺省长度, 67H可以用来指定地址值的长度.</p>
+<p>下面这个实例就做到了在16位代码段和32位代码段之间的切换. 当然这个代码在逻辑上的含义是先显示线性地址100000h处16个字节的内容, 然后再显示一个数据段中的一个字符串.. 相对上一篇进入保护模式并没有复杂太多..</p>
+<p>代码功能首先是为切换到保护模式做准备, 初始化VGDTR描述符, 还有各个段描述符, 然后将PE置位, 开启分段切换到保护模式. 然后将线性地址100000h处的16个字节内容. 写入到B80000H处, 也就是显示在屏幕上. 然后切换到16位段. 又显示了一个字符串. 然后再切换回实模式.</p>
+<p>你可以从这里下载这个源码, 也是MASM9+link5写的..<br>
+        <a href="/files/CodeSwitch.rar">http://www.joenchen.com/JoenTools/CodeSwitch.rar</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span><span class="lnt">152
+</span><span class="lnt">153
+</span><span class="lnt">154
+</span><span class="lnt">155
+</span><span class="lnt">156
+</span><span class="lnt">157
+</span><span class="lnt">158
+</span><span class="lnt">159
+</span><span class="lnt">160
+</span><span class="lnt">161
+</span><span class="lnt">162
+</span><span class="lnt">163
+</span><span class="lnt">164
+</span><span class="lnt">165
+</span><span class="lnt">166
+</span><span class="lnt">167
+</span><span class="lnt">168
+</span><span class="lnt">169
+</span><span class="lnt">170
+</span><span class="lnt">171
+</span><span class="lnt">172
+</span><span class="lnt">173
+</span><span class="lnt">174
+</span><span class="lnt">175
+</span><span class="lnt">176
+</span><span class="lnt">177
+</span><span class="lnt">178
+</span><span class="lnt">179
+</span><span class="lnt">180
+</span><span class="lnt">181
+</span><span class="lnt">182
+</span><span class="lnt">183
+</span><span class="lnt">184
+</span><span class="lnt">185
+</span><span class="lnt">186
+</span><span class="lnt">187
+</span><span class="lnt">188
+</span><span class="lnt">189
+</span><span class="lnt">190
+</span><span class="lnt">191
+</span><span class="lnt">192
+</span><span class="lnt">193
+</span><span class="lnt">194
+</span><span class="lnt">195
+</span><span class="lnt">196
+</span><span class="lnt">197
+</span><span class="lnt">198
+</span><span class="lnt">199
+</span><span class="lnt">200
+</span><span class="lnt">201
+</span><span class="lnt">202
+</span><span class="lnt">203
+</span><span class="lnt">204
+</span><span class="lnt">205
+</span><span class="lnt">206
+</span><span class="lnt">207
+</span><span class="lnt">208
+</span><span class="lnt">209
+</span><span class="lnt">210
+</span><span class="lnt">211
+</span><span class="lnt">212
+</span><span class="lnt">213
+</span><span class="lnt">214
+</span><span class="lnt">215
+</span><span class="lnt">216
+</span><span class="lnt">217
+</span><span class="lnt">218
+</span><span class="lnt">219
+</span><span class="lnt">220
+</span><span class="lnt">221
+</span><span class="lnt">222
+</span><span class="lnt">223
+</span><span class="lnt">224
+</span><span class="lnt">225
+</span><span class="lnt">226
+</span><span class="lnt">227
+</span><span class="lnt">228
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="p">;</span><span class="o">============================================================================</span>
+</span></span><span class="line"><span class="cl">	<span class="p">;</span><span class="err">保护模式下</span><span class="mi">32</span><span class="err">位段和</span><span class="mi">16</span><span class="err">位段的转换</span>
+</span></span><span class="line"><span class="cl">	<span class="p">;</span><span class="err">编译方法参加</span><span class="n">makefile</span><span class="p">,</span> <span class="n">MASM9</span> <span class="o">+</span> <span class="n">link5</span><span class="mf">.6</span> <span class="n">TAB</span><span class="o">=</span><span class="mi">8</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">============================================================================</span>
+</span></span><span class="line"><span class="cl">	<span class="mf">.686</span><span class="n">p</span>
+</span></span><span class="line"><span class="cl">	<span class="n">Include</span> <span class="n">pm</span><span class="p">.</span><span class="n">inc</span>		<span class="p">;</span><span class="err">重要头文件定义</span>
+</span></span><span class="line"><span class="cl">	<span class="n">option</span> <span class="nl">casemap</span><span class="p">:</span><span class="n">none</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">============================================================================</span>
+</span></span><span class="line"><span class="cl">	<span class="p">;</span><span class="mi">16</span><span class="err">位数据段</span><span class="p">,</span> <span class="err">存储了一些非常重要的数据</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">============================================================================</span>
+</span></span><span class="line"><span class="cl"><span class="n">DataSeg</span>		<span class="n">Segment</span>		<span class="n">use16</span>
+</span></span><span class="line"><span class="cl"><span class="n">GDT</span>	<span class="n">label</span>	<span class="n">byte</span>				<span class="p">;</span><span class="err">全局描述符表</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Dummy</span><span class="p">:</span>		<span class="n">Descriptor</span>	<span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>		<span class="p">;</span><span class="err">空的描述符</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">----------------------------------------------------------------------------</span>		
+</span></span><span class="line"><span class="cl"><span class="p">;</span>				<span class="p">;</span><span class="err">段基址</span>	  	<span class="p">;</span><span class="err">段界限</span>		<span class="p">;</span><span class="err">属性</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Normal</span><span class="p">:</span>		<span class="n">Descriptor</span>	<span class="mi">0</span><span class="p">,</span> 		<span class="mf">0ff</span><span class="n">ffh</span><span class="p">,</span>		<span class="n">DA_DRW</span>	<span class="p">;</span><span class="err">规范选择字</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Code16Desc</span><span class="p">:</span>	<span class="n">Descriptor</span> 	<span class="mi">0</span><span class="p">,</span>		<span class="mf">0ff</span><span class="n">ffh</span><span class="p">,</span> 	<span class="n">DA_C</span>	<span class="p">;</span><span class="err">非一致代码段</span><span class="mi">16</span><span class="err">位</span>
+</span></span><span class="line"><span class="cl"><span class="nl">Code32Desc</span><span class="p">:</span>	<span class="n">Descriptor</span> 	<span class="mi">0</span><span class="p">,</span>		<span class="n">Code32Len</span><span class="p">,</span> <span class="n">DA_C</span> <span class="n">or</span> <span class="n">DA_32</span><span class="p">;</span><span class="err">非一致代码段</span><span class="mi">32</span><span class="err">位</span>
+</span></span><span class="line"><span class="cl"><span class="nl">VideoDesc</span><span class="p">:</span>	<span class="n">Descriptor</span>	<span class="mi">0</span><span class="n">b8000h</span><span class="p">,</span>	<span class="mf">0ff</span><span class="n">ffh</span><span class="p">,</span> 	<span class="n">DA_DRW</span>	<span class="p">;</span><span class="err">显存段</span><span class="p">(</span><span class="err">可读写</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nl">DataSDesc</span><span class="p">:</span>	<span class="n">Descriptor</span>	<span class="mi">100000</span><span class="n">h</span><span class="p">,</span>	<span class="mi">16</span><span class="p">,</span>		<span class="n">DA_DR</span>	<span class="p">;</span><span class="err">只读数据段</span>
+</span></span><span class="line"><span class="cl"><span class="nl">DataMessDesc</span><span class="p">:</span>	<span class="n">Descriptor</span>	<span class="mi">0</span><span class="p">,</span>	<span class="k">sizeof</span> <span class="n">SzMessage</span><span class="p">,</span> 	<span class="n">DA_DRW</span>	<span class="p">;</span><span class="err">保护模式下使用的数据段</span>
+</span></span><span class="line"><span class="cl"><span class="nl">StackDesc</span><span class="p">:</span>	<span class="n">Descriptor</span>	<span class="mi">0</span><span class="p">,</span> 		<span class="mi">256</span><span class="p">,</span>		<span class="n">DA_DRW</span>	<span class="p">;</span><span class="err">堆栈段</span><span class="p">(</span><span class="err">可读写</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">----------------------------------------------------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="n">GDT_Len</span>		<span class="n">equ</span>	<span class="err">$</span> <span class="o">-</span> 	<span class="n">GDT</span>		<span class="p">;</span><span class="n">GDT长度</span>
+</span></span><span class="line"><span class="cl"><span class="n">GDT_Ptr</span>		<span class="n">word</span>	<span class="n">GDT_Len</span><span class="o">-</span><span class="mi">1</span>		<span class="p">;</span><span class="n">VGDT</span>
+</span></span><span class="line"><span class="cl">		<span class="n">dword</span>	<span class="mi">0</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl"><span class="n">_RegSs</span>		<span class="n">word</span>	<span class="mi">0</span>			<span class="p">;</span><span class="err">用于保存旧的</span><span class="nl">SS</span><span class="p">:</span><span class="n">SP</span>
+</span></span><span class="line"><span class="cl"><span class="n">_RegSp</span>		<span class="n">word</span>	<span class="mi">0</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">----------------------------------------------------------------------------</span>
+</span></span><span class="line"><span class="cl"><span class="n">NormalSelector</span>	<span class="n">equ</span>	<span class="n">Normal</span> <span class="o">-</span> <span class="n">GDT</span>		<span class="p">;</span><span class="err">规范段描述符选择子</span>
+</span></span><span class="line"><span class="cl"><span class="n">Code16Selector</span>	<span class="n">equ</span>	<span class="n">Code16Desc</span> <span class="o">-</span> <span class="n">GDT</span>	<span class="p">;</span><span class="mi">16</span><span class="err">位代码段选择子</span>
+</span></span><span class="line"><span class="cl"><span class="n">Code32Selector</span>	<span class="n">equ</span>	<span class="n">Code32Desc</span> <span class="o">-</span> <span class="n">GDT</span>	<span class="p">;</span><span class="mi">32</span><span class="err">位代码段选种子</span>
+</span></span><span class="line"><span class="cl"><span class="n">DataSrcSelector</span>	<span class="n">equ</span>	<span class="n">DataSDesc</span><span class="o">-</span> <span class="n">GDT</span>		<span class="p">;</span><span class="err">源数据段选择子</span>
+</span></span><span class="line"><span class="cl"><span class="n">VideoSelector</span>	<span class="n">equ</span>	<span class="n">VideoDesc</span> <span class="o">-</span> <span class="n">GDT</span>		<span class="p">;</span><span class="err">视频段选择子</span>
+</span></span><span class="line"><span class="cl"><span class="n">DataMessSelector</span> <span class="n">equ</span>	<span class="n">DataMessDesc</span> <span class="o">-</span> <span class="n">GDT</span>	<span class="p">;</span><span class="err">显示消息段的选择子</span>
+</span></span><span class="line"><span class="cl"><span class="n">StackSelector</span>	<span class="n">equ</span>	<span class="n">StackDesc</span> <span class="o">-</span> <span class="n">GDT</span>		<span class="p">;</span><span class="err">堆栈段选择子</span>
+</span></span><span class="line"><span class="cl"><span class="n">DataSeg</span>		<span class="n">Ends</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">DataMess</span>	<span class="n">Segment</span>	<span class="n">use16</span>
+</span></span><span class="line"><span class="cl">	<span class="n">SzMessage</span>	<span class="n">byte</span>	<span class="s">&#34;I entered a protected mode I&#39;m Joen&#34;</span><span class="p">,</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl"><span class="n">DataMess</span>	<span class="n">Ends</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">============================================================================</span>
+</span></span><span class="line"><span class="cl">	<span class="p">;</span><span class="err">保护模式下使用的堆栈段</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">============================================================================</span>
+</span></span><span class="line"><span class="cl"><span class="n">StackSeg</span>	<span class="n">Segment</span>	<span class="n">para</span> <span class="n">Stack</span> <span class="n">use16</span>	<span class="p">;</span><span class="err">堆栈段</span>
+</span></span><span class="line"><span class="cl">	<span class="n">byte</span>	<span class="mi">256</span> <span class="nf">dup</span><span class="p">(</span> <span class="mi">0</span> <span class="p">)</span>	
+</span></span><span class="line"><span class="cl"><span class="n">StackSeg</span>	<span class="n">Ends</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">============================================================================</span>
+</span></span><span class="line"><span class="cl">	<span class="p">;</span><span class="mi">16</span><span class="err">位代码段</span><span class="p">,</span> <span class="err">由保护模式跳入</span><span class="p">,</span> <span class="err">然后返回到实模式</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">============================================================================</span>
+</span></span><span class="line"><span class="cl"><span class="n">Code16Seg</span>	<span class="n">Segment</span>	<span class="n">use16</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl"><span class="n">_RetReal</span>	<span class="n">Proc</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">----------------------------------------------------------------------------</span>
+</span></span><span class="line"><span class="cl">	<span class="p">;</span><span class="err">在屏幕上显示一个字符串</span>	
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ax</span><span class="p">,</span> <span class="n">DataMessSelector</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ds</span><span class="p">,</span> <span class="n">ax</span>				<span class="p">;</span><span class="n">ds</span><span class="o">--&gt;</span><span class="err">消息段</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">si</span><span class="p">,</span> <span class="n">offset</span> <span class="n">SzMessage</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ax</span><span class="p">,</span> <span class="n">VideoSelector</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">es</span><span class="p">,</span> <span class="n">ax</span>				<span class="p">;</span><span class="n">es</span><span class="o">--&gt;</span><span class="err">视频段</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">di</span><span class="p">,</span> <span class="mi">80</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="mi">11</span><span class="o">+</span><span class="mi">10</span><span class="o">*</span><span class="mi">2</span>		<span class="p">;</span><span class="mi">15</span><span class="err">行</span><span class="mi">10</span><span class="err">列</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">cx</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">SzMessage</span>
+</span></span><span class="line"><span class="cl"><span class="err">@@</span><span class="o">:</span>	<span class="n">lodsb</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ah</span><span class="p">,</span> <span class="mo">07</span><span class="n">h</span>				<span class="p">;</span><span class="err">属性</span>
+</span></span><span class="line"><span class="cl">	<span class="n">stosw</span>
+</span></span><span class="line"><span class="cl">	<span class="n">loop</span>	<span class="err">@</span><span class="n">b</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">----------------------------------------------------------------------------</span>
+</span></span><span class="line"><span class="cl">	<span class="p">;</span><span class="err">关闭保护模式</span><span class="p">,</span> <span class="err">准备返回实模式</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ax</span><span class="p">,</span> <span class="n">NormalSelector</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ds</span><span class="p">,</span> <span class="n">ax</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">es</span><span class="p">,</span> <span class="n">ax</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ss</span><span class="p">,</span> <span class="n">ax</span>				<span class="p">;</span><span class="err">规范选择子</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">eax</span><span class="p">,</span> <span class="n">cr0</span>
+</span></span><span class="line"><span class="cl">	<span class="n">and</span>	<span class="n">al</span><span class="p">,</span> <span class="mf">0f</span><span class="n">eh</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">cr0</span><span class="p">,</span> <span class="n">eax</span>			<span class="p">;</span><span class="err">关闭分段标记</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="p">;</span><span class="err">通过这个跳转刷新段选择子影子寄存器</span><span class="p">,</span> <span class="err">真正进入实模式</span>
+</span></span><span class="line"><span class="cl">	<span class="n">jmp</span>	<span class="n">far</span> <span class="n">ptr</span> <span class="n">_ToReal</span>			
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl"><span class="n">_RetReal</span> 	<span class="n">Endp</span>	
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl"><span class="n">Code16Seg</span>	<span class="n">Ends</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">============================================================================</span>
+</span></span><span class="line"><span class="cl">	<span class="p">;</span><span class="mi">32</span><span class="err">位代码段</span><span class="p">,</span> <span class="err">由实模式跳入</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">============================================================================</span>
+</span></span><span class="line"><span class="cl"><span class="n">Code32Seg</span>	<span class="n">Segment</span>	<span class="n">use32</span> 
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">============================================================================</span>
+</span></span><span class="line"><span class="cl">	<span class="p">;</span><span class="err">将</span><span class="n">_dwValue中的值最低位转换成ASCII并填写上属性</span><span class="p">,</span> <span class="err">在</span><span class="n">EAX中返回</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">============================================================================</span>
+</span></span><span class="line"><span class="cl"><span class="n">_ToAscii</span>	<span class="n">Proc</span>  <span class="n">_dwValue</span>
+</span></span><span class="line"><span class="cl">	<span class="n">local</span>	<span class="n">_byBuf</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">:</span><span class="n">byte</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">eax</span><span class="p">,</span> <span class="n">_dwValue</span>
+</span></span><span class="line"><span class="cl">	<span class="n">and</span>	<span class="n">al</span><span class="p">,</span> <span class="mf">0f</span><span class="n">h</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span><span class="k">if</span>	<span class="n">al</span> <span class="o">&gt;</span> <span class="mi">9</span> 
+</span></span><span class="line"><span class="cl">		<span class="n">add</span>	<span class="n">al</span><span class="p">,</span> <span class="sc">&#39;A&#39;</span>			<span class="p">;</span><span class="err">转换低位</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span><span class="n">Else</span>
+</span></span><span class="line"><span class="cl">		<span class="n">add</span>	<span class="n">al</span><span class="p">,</span> <span class="sc">&#39;0&#39;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span><span class="n">Endif</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">byte</span> <span class="n">ptr</span> <span class="p">[</span><span class="n">_byBuf</span><span class="p">],</span> <span class="n">al</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">byte</span> <span class="n">ptr</span> <span class="p">[</span><span class="n">_byBuf</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="mi">7</span>		<span class="p">;</span><span class="err">属性位</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">xchg</span>	<span class="n">ah</span><span class="p">,</span> <span class="n">al</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span><span class="k">if</span>	<span class="n">al</span> <span class="o">&gt;</span> <span class="mi">9</span>
+</span></span><span class="line"><span class="cl">		<span class="n">add</span>	<span class="n">al</span><span class="p">,</span> <span class="sc">&#39;A&#39;</span>			<span class="p">;</span><span class="err">转换高位</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span><span class="n">Else</span>
+</span></span><span class="line"><span class="cl">		<span class="n">add</span>	<span class="n">al</span><span class="p">,</span> <span class="sc">&#39;0&#39;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span><span class="n">Endif</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">byte</span> <span class="n">ptr</span> <span class="p">[</span><span class="n">_byBuf</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="n">al</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">byte</span> <span class="n">ptr</span> <span class="p">[</span><span class="n">_byBuf</span><span class="o">+</span><span class="mi">3</span><span class="p">],</span> <span class="mi">7</span>		<span class="p">;</span><span class="err">属性</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">eax</span><span class="p">,</span> <span class="n">dword</span> <span class="n">ptr</span> <span class="p">[</span><span class="n">_byBuf</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">	<span class="n">ret</span>
+</span></span><span class="line"><span class="cl"><span class="n">_ToAscii</span> 	<span class="n">Endp</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">_Entry</span>		<span class="n">Proc</span>				<span class="p">;</span><span class="err">由实模式跳入</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ax</span><span class="p">,</span> <span class="n">StackSelector</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ss</span><span class="p">,</span> <span class="n">ax</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">esp</span><span class="p">,</span> <span class="mi">256</span>			<span class="p">;</span><span class="err">设置</span><span class="n">ss</span><span class="o">-&gt;</span><span class="n">esp</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ax</span><span class="p">,</span> <span class="n">DataSrcSelector</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ds</span><span class="p">,</span> <span class="n">ax</span>				<span class="p">;</span><span class="err">设置源数据段</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ax</span><span class="p">,</span> <span class="n">VideoSelector</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">es</span><span class="p">,</span> <span class="n">ax</span>				<span class="p">;</span><span class="err">设置目标视频段</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">xor</span>	<span class="n">esi</span><span class="p">,</span> <span class="n">esi</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">edi</span><span class="p">,</span> <span class="mi">80</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="mi">10</span><span class="o">+</span><span class="mi">10</span><span class="o">*</span><span class="mi">2</span>		<span class="p">;</span><span class="err">第</span><span class="mi">10</span><span class="err">行</span><span class="mi">10</span><span class="err">列</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ecx</span><span class="p">,</span> <span class="mi">16</span>				<span class="p">;</span><span class="err">限长是</span><span class="mi">16</span>
+</span></span><span class="line"><span class="cl">	<span class="n">cld</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">----------------------------------------------------------------------------</span>	
+</span></span><span class="line"><span class="cl"><span class="err">@@</span><span class="o">:</span>	<span class="n">lodsb</span>					<span class="p">;</span><span class="err">转换</span><span class="mi">100000</span><span class="n">h开始的20个字节数据</span>
+</span></span><span class="line"><span class="cl">	<span class="n">Invoke</span>	<span class="n">_ToAscii</span><span class="p">,</span> <span class="n">eax</span>
+</span></span><span class="line"><span class="cl">	<span class="n">stosd</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ah</span><span class="p">,</span> <span class="mi">7</span>				<span class="p">;</span><span class="err">属性</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">al</span><span class="p">,</span> <span class="mi">20</span><span class="n">h</span>				<span class="p">;</span><span class="err">空格</span>
+</span></span><span class="line"><span class="cl">	<span class="n">stosw</span>
+</span></span><span class="line"><span class="cl">	<span class="n">loop</span>	<span class="err">@</span><span class="n">b</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">----------------------------------------------------------------------------</span>
+</span></span><span class="line"><span class="cl">	<span class="p">;</span><span class="err">跳到</span><span class="mi">16</span><span class="err">位代码段</span><span class="p">,</span> <span class="err">准备返回</span><span class="n">Dos</span>	
+</span></span><span class="line"><span class="cl">	<span class="n">Jmp32</span>	<span class="n">Code16Selector</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">offset</span> <span class="n">_RetReal</span><span class="o">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="n">_Entry</span> 		<span class="n">Endp</span>
+</span></span><span class="line"><span class="cl"><span class="n">Code32Seg_Entry</span>	<span class="o">=</span> <span class="n">_Entry</span> <span class="o">-</span> <span class="n">Code32Seg</span>		<span class="p">;</span><span class="err">定义段内入口</span>	
+</span></span><span class="line"><span class="cl"><span class="n">Code32Len</span>	<span class="o">=</span> <span class="err">$</span> <span class="o">-</span>  <span class="n">Code32Seg</span>		<span class="p">;</span><span class="err">段长度</span>
+</span></span><span class="line"><span class="cl"><span class="n">Code32Seg</span>	<span class="n">Ends</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">============================================================================</span>
+</span></span><span class="line"><span class="cl">	<span class="p">;</span><span class="mi">16</span><span class="err">位段</span><span class="p">,</span> <span class="err">由这里进入保护模式</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">============================================================================</span>
+</span></span><span class="line"><span class="cl"><span class="n">StartCode</span>	<span class="n">Segment</span>	<span class="n">use16</span> 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">Jmain</span>	<span class="n">Proc</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">----------------------------------------------------------------------------</span>	
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">eax</span><span class="p">,</span> <span class="n">DataSeg</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ds</span><span class="p">,</span> <span class="n">ax</span>
+</span></span><span class="line"><span class="cl">	<span class="n">shl</span>	<span class="n">eax</span><span class="p">,</span> <span class="mi">4</span>
+</span></span><span class="line"><span class="cl">	<span class="n">add</span>	<span class="n">eax</span><span class="p">,</span> <span class="n">offset</span> <span class="n">GDT</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">dword</span> <span class="n">ptr</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">GDT_Ptr</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="n">eax</span>	<span class="p">;</span><span class="err">初始化</span><span class="n">VGDT描述符</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">----------------------------------------------------------------------------</span>	
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">eax</span><span class="p">,</span> <span class="n">Code32Seg</span>			<span class="p">;</span><span class="err">初始化</span><span class="mi">32</span><span class="err">位代码段</span>
+</span></span><span class="line"><span class="cl">	<span class="n">shl</span>	<span class="n">eax</span><span class="p">,</span> <span class="mi">4</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">word</span> <span class="n">ptr</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">Code32Desc</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="n">ax</span>	<span class="p">;</span><span class="err">段基址低地址</span>
+</span></span><span class="line"><span class="cl">	<span class="n">shr</span>	<span class="n">eax</span><span class="p">,</span> <span class="mi">16</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">byte</span> <span class="n">ptr</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">Code32Desc</span><span class="o">+</span><span class="mi">4</span><span class="p">],</span> <span class="n">al</span>	<span class="p">;</span><span class="err">段基址高地址低位</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">byte</span> <span class="n">ptr</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">Code32Desc</span><span class="o">+</span><span class="mi">7</span><span class="p">],</span> <span class="n">ah</span>	<span class="p">;</span><span class="err">段基址高地址高位</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">----------------------------------------------------------------------------</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">eax</span><span class="p">,</span> <span class="n">Code16Seg</span>			<span class="p">;</span><span class="err">初始化</span><span class="mi">16</span><span class="err">位代码段</span>
+</span></span><span class="line"><span class="cl">	<span class="n">shl</span>	<span class="n">eax</span><span class="p">,</span> <span class="mi">4</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">word</span> <span class="n">ptr</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">Code16Desc</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="n">ax</span>	<span class="p">;</span><span class="err">段基址低地址</span>
+</span></span><span class="line"><span class="cl">	<span class="n">shr</span>	<span class="n">eax</span><span class="p">,</span> <span class="mi">16</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">byte</span> <span class="n">ptr</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">Code16Desc</span><span class="o">+</span><span class="mi">4</span><span class="p">],</span> <span class="n">al</span>	<span class="p">;</span><span class="err">段基址高地址低位</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">byte</span> <span class="n">ptr</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">Code16Desc</span><span class="o">+</span><span class="mi">7</span><span class="p">],</span> <span class="n">ah</span>	<span class="p">;</span><span class="err">段基址高地址高位</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">----------------------------------------------------------------------------</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">eax</span><span class="p">,</span> <span class="n">DataMess</span>			<span class="p">;</span><span class="err">初始化一个数据段</span><span class="p">,</span> <span class="err">用于显示消息</span>
+</span></span><span class="line"><span class="cl">	<span class="n">shl</span>	<span class="n">eax</span><span class="p">,</span> <span class="mi">4</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">word</span> <span class="n">ptr</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">DataMessDesc</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="n">ax</span><span class="p">;</span><span class="err">段基址低地址</span>
+</span></span><span class="line"><span class="cl">	<span class="n">shr</span>	<span class="n">eax</span><span class="p">,</span> <span class="mi">16</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">byte</span> <span class="n">ptr</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">DataMessDesc</span><span class="o">+</span><span class="mi">4</span><span class="p">],</span> <span class="n">al</span><span class="p">;</span><span class="err">段基址高地址低位</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">byte</span> <span class="n">ptr</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">DataMessDesc</span><span class="o">+</span><span class="mi">7</span><span class="p">],</span> <span class="n">ah</span><span class="p">;</span><span class="err">段基址高地址高位</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">----------------------------------------------------------------------------</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">word</span> <span class="n">ptr</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">_RegSs</span><span class="p">],</span> <span class="n">ss</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">word</span> <span class="n">ptr</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">_RegSp</span><span class="p">],</span> <span class="n">sp</span>	<span class="p">;</span><span class="err">保存下</span><span class="nl">SS</span><span class="p">:</span><span class="n">SP</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">eax</span><span class="p">,</span> <span class="n">StackSeg</span>			<span class="p">;</span><span class="err">初始化堆栈段</span>
+</span></span><span class="line"><span class="cl">	<span class="n">shl</span>	<span class="n">eax</span><span class="p">,</span> <span class="mi">4</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">word</span> <span class="n">ptr</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">StackDesc</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="n">ax</span>	<span class="p">;</span><span class="err">段基址低地址</span>
+</span></span><span class="line"><span class="cl">	<span class="n">shr</span>	<span class="n">eax</span><span class="p">,</span> <span class="mi">16</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">byte</span> <span class="n">ptr</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">StackDesc</span><span class="o">+</span><span class="mi">4</span><span class="p">],</span><span class="n">al</span>	<span class="p">;</span><span class="err">段基址高地址低位</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">byte</span> <span class="n">ptr</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">StackDesc</span><span class="o">+</span><span class="mi">7</span><span class="p">],</span> <span class="n">ah</span>	<span class="p">;</span><span class="err">段基址高地址高位</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">----------------------------------------------------------------------------</span>
+</span></span><span class="line"><span class="cl">	<span class="n">lgdt</span>	<span class="n">fword</span> <span class="n">ptr</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">GDT_Ptr</span><span class="p">]</span>		<span class="p">;</span><span class="err">装在</span><span class="n">VGDTR</span>
+</span></span><span class="line"><span class="cl">	<span class="n">cli</span>
+</span></span><span class="line"><span class="cl">	<span class="n">_EnableA20</span>				<span class="p">;</span><span class="err">关中断</span> <span class="err">开</span><span class="n">A20地址线</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">eax</span><span class="p">,</span> <span class="n">cr0</span>
+</span></span><span class="line"><span class="cl">	<span class="n">or</span>	<span class="n">eax</span><span class="p">,</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">cr0</span><span class="p">,</span> <span class="n">eax</span>			<span class="p">;</span><span class="err">开启分段进入保护模式</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span><span class="o">----------------------------------------------------------------------------</span>
+</span></span><span class="line"><span class="cl">	<span class="p">;</span><span class="err">刷新指令预读取序列</span><span class="p">,</span> <span class="err">真正进入保护模式</span>
+</span></span><span class="line"><span class="cl">	<span class="n">Jmp16</span>	<span class="n">Code32Selector</span><span class="p">,</span>  <span class="o">&lt;</span> <span class="n">Code32Seg_Entry</span> <span class="o">&gt;</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl"><span class="n">_ToReal</span><span class="o">::</span><span class="p">;</span><span class="err">从保护模式又回来了</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ax</span><span class="p">,</span> <span class="n">DataSeg</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ds</span><span class="p">,</span> <span class="n">ax</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">sp</span><span class="p">,</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">_RegSp</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ss</span><span class="p">,</span> <span class="nl">ds</span><span class="p">:[</span><span class="n">_RegSs</span><span class="p">]</span>			<span class="p">;</span><span class="err">恢复</span><span class="nl">SS</span><span class="p">:</span><span class="n">SP</span>
+</span></span><span class="line"><span class="cl">	<span class="n">_DisableA20</span>				<span class="p">;</span><span class="err">关闭</span><span class="n">A20地址线</span>
+</span></span><span class="line"><span class="cl">	<span class="n">sti</span>
+</span></span><span class="line"><span class="cl">	<span class="n">mov</span>	<span class="n">ax</span><span class="p">,</span> <span class="mi">4</span><span class="n">c00h</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span>	<span class="mi">21</span><span class="n">h</span>
+</span></span><span class="line"><span class="cl"><span class="n">Jmain</span> 	<span class="n">Endp</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl"><span class="n">StartCode</span>	<span class="n">Ends</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">End</span>	<span class="n">Jmain</span>
+</span></span><span class="line"><span class="cl">	
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-09-11
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F3%E4%BB%BB%E5%8A%A1%E5%86%85%E6%97%A0%E7%89%B9%E6%9D%83%E7%BA%A7%E8%BD%AC%E7%A7%BB/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">保护模式3:任务内无特权级转移</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E7%94%B1%E5%AE%9E%E6%A8%A1%E5%BC%8F%E5%88%87%E6%8D%A2%E5%88%B0%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F%E5%AE%9E%E4%BE%8B1/">
+            <span class="next-text nav-default">保护模式1:由实模式切换到保护模式实例</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

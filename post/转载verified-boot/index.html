@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Verified Boot - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="在Android6.0 （Android M）userdebug版本上(eng版本不存在该问题)，发现使用adb remount 系统之后，还是不能对syste" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E8%BD%AC%E8%BD%BDverified-boot/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Verified Boot" />
+<meta property="og:description" content="在Android6.0 （Android M）userdebug版本上(eng版本不存在该问题)，发现使用adb remount 系统之后，还是不能对syste" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E8%BD%AC%E8%BD%BDverified-boot/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2017-12-07T00:00:00+00:00" />
+<meta property="article:modified_time" content="2017-12-07T00:00:00+00:00" />
+
+<meta itemprop="name" content="Verified Boot">
+<meta itemprop="description" content="在Android6.0 （Android M）userdebug版本上(eng版本不存在该问题)，发现使用adb remount 系统之后，还是不能对syste"><meta itemprop="datePublished" content="2017-12-07T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2017-12-07T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2767">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Verified Boot"/>
+<meta name="twitter:description" content="在Android6.0 （Android M）userdebug版本上(eng版本不存在该问题)，发现使用adb remount 系统之后，还是不能对syste"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Verified Boot</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2017-12-07 </span>
+        <div class="post-category">
+            <a href="/categories/android/"> android </a>
+            </div>
+          <span class="more-meta"> 约 2767 字 </span>
+          <span class="more-meta"> 预计阅读 6 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#启用">启用</a>
+      <ul>
+        <li><a href="#在编译系统中开启签名-bootimg-和-recoveryimg功能">在编译系统中开启签名 boot.img 和 recovery.img功能：</a>
+          <ul>
+            <li><a href="#buildtargetproductveritymk文件中添加">build/target/product/verity.mk文件中添加：</a></li>
+            <li><a href="#修改deviceqcommsm8996msm8996mk文件">修改device/qcom/msm8996/msm8996.mk文件：</a></li>
+          </ul>
+        </li>
+        <li><a href="#开启-lk-验证-boot-和-recovery-功能">开启 LK 验证 Boot 和 Recovery 功能：</a>
+          <ul>
+            <li><a href="#bootablebootloaderlkandroidbootmk-文件中">Bootable/bootloader/lk/AndroidBoot.mk 文件中：</a></li>
+          </ul>
+        </li>
+        <li><a href="#在-deviceoemproject_nameproject_namemk-中添加">在 device/OEM/project_name/project_name.mk 中添加：</a></li>
+        <li><a href="#在-deviceoemproject_namefstabqcom中添加verify标志">在 device/OEM/project_name/fstab.qcom中添加verify标志：</a></li>
+      </ul>
+    </li>
+    <li><a href="#签名key">签名key</a>
+      <ul>
+        <li><a href="#默认开发-key">默认开发 key</a></li>
+        <li><a href="#key-文件作用说明">Key 文件作用说明：</a></li>
+        <li><a href="#生成-oem-自己的公钥密钥对">生成 OEM 自己的公钥密钥对</a></li>
+        <li><a href="#为dm-verity-功能生成-verity-key">为DM-Verity 功能生成 verity key</a>
+          <ul>
+            <li><a href="#生成-generate_verity_key">生成 generate_verity_key</a></li>
+            <li><a href="#将-x509pem-转换成-verity-key">将 *.x509.pem 转换成 verity key</a></li>
+            <li><a href="#拷贝并重命名">拷贝并重命名</a></li>
+          </ul>
+        </li>
+        <li><a href="#生成-keystore">生成 keystore</a></li>
+        <li><a href="#在-lk-中的代码调用流程">在 LK 中的代码调用流程</a></li>
+      </ul>
+    </li>
+    <li><a href="#手机安全状态">手机安全状态</a>
+      <ul>
+        <li><a href="#locked-state">locked state:</a></li>
+        <li><a href="#verified-state">verified state:</a></li>
+        <li><a href="#unlock-state">unlock state:</a></li>
+      </ul>
+    </li>
+    <li><a href="#影响">影响</a></li>
+    <li><a href="#注意事项">注意事项</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>在Android6.0 （Android M）userdebug版本上(eng版本不存在该问题)，发现使用adb remount 系统之后，还是不能对system分区进行操作，提示没有写权限，为只读文件系统Read-only file system</p>
+<p>执行如下命令 1. adb root 2. adb disable-verity (最新的adb 工具包才支持adb disable-verity命令，如果是Linux开发环境，则可使用工程编译结果目录out/host/linux-x86/bin下的adb执行文件） 3. adb reboot 重启设备 (只要不刷机，以上步骤执行一次就行) 4. adb root 5. adb remount 现在可以对system分区进行读写了</p>
+<h1 id="启用">启用</h1>
+<h2 id="在编译系统中开启签名-bootimg-和-recoveryimg功能">在编译系统中开启签名 boot.img 和 recovery.img功能：</h2>
+<h3 id="buildtargetproductveritymk文件中添加">build/target/product/verity.mk文件中添加：</h3>
+<table><tbody><tr><td class="gutter"><div class="line">1</div></td><td class="code"><div class="line">PRODUCT_SUPPORTS_VERITY := true</div></td></tr></tbody></table>
+<h3 id="修改deviceqcommsm8996msm8996mk文件">修改device/qcom/msm8996/msm8996.mk文件：</h3>
+<table><tbody><tr><td class="gutter"><div class="line">1</div></td><td class="code"><div class="line">PRODUCT_SPPORTS_VERITY := true</div></td></tr></tbody></table>
+<h2 id="开启-lk-验证-boot-和-recovery-功能">开启 LK 验证 Boot 和 Recovery 功能：</h2>
+<h3 id="bootablebootloaderlkandroidbootmk-文件中">Bootable/bootloader/lk/AndroidBoot.mk 文件中：</h3>
+<table><tbody><tr><td class="gutter"><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></td><td class="code"><div class="line">ifeq($PRODUCT.$(INTERNAL_PRODUCT).PRODUCT_SUPPORTS_VERITY), true)</div><div class="line">VERIFIED_BOOT := VERIFIED_BOOT = 1</div><div class="line">else</div><div class="line">VERIFIED_BOOT := VERIFIED_BOOT = 0</div><div class="line">endif</div></td></tr></tbody></table>
+<h2 id="在-deviceoemproject_nameproject_namemk-中添加">在 device/OEM/project_name/project_name.mk 中添加：</h2>
+<table><tbody><tr><td class="gutter"><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></td><td class="code"><div class="line">PRODUCT_SUPPORTS_VERITY := true</div><div class="line">PRODUCT_SYSTEM_VERITY_PARTITION := /dev/block/bootdevice/by-name/system</div><div class="line">$(call inherit-product, build/target/product/verity.mk)</div><div class="line"></div><div class="line">PRODUCT_COPY_FILES += \</div><div class="line">frameworks/native/data/etc/android.software.verified_boot.xm:system/etc/permissions/android.software.verified_boot.xml</div></td></tr></tbody></table>
+<h2 id="在-deviceoemproject_namefstabqcom中添加verify标志">在 device/OEM/project_name/fstab.qcom中添加verify标志：</h2>
+<table><tbody><tr><td class="gutter"><div class="line">1</div></td><td class="code"><div class="line">/dev/block/bootdevice/by-name/system /system ext4 ro,barrier=1,discard wait,verify</div></td></tr></tbody></table>
+<h1 id="签名key">签名key</h1>
+<h2 id="默认开发-key">默认开发 key</h2>
+<p>包括公钥和私钥，它们位于：build/target/product/security/. 它们用来给 boot 和 recovery 签名，以及验证 system partition 的 metadata table. 它们的位置定义位于：build/target/product/verity.mk 文件中：</p>
+<table><tbody><tr><td class="gutter"><div class="line">1</div></td><td class="code"><div class="line">PRODUCT_VERITY_SIGNING_KDY := build/target/product/security/verity</div></td></tr></tbody></table>
+<h2 id="key-文件作用说明">Key 文件作用说明：</h2>
+<p>build/target/product/security/</p>
+<ul>
+<li>verity.pk8 – private key used to sign boot.img and system.img</li>
+<li>verity.x509.pem – certificate include public key</li>
+<li>verity_key – public key used in dm verity for system.img</li>
+</ul>
+<p>有些老的版本只有两个key文件：</p>
+<ul>
+<li>verity_private_dev_key – private key used to sign boot.img and system.img</li>
+<li>verity_key – public key used in dm verity for system image</li>
+</ul>
+<p>我们可以看到在 build/core/Makefile 文件中：</p>
+<table><tbody><tr><td class="gutter"><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></td><td class="code"><div class="line">$(INSTALLED_BOOTIMAGE_TARGET): $(MKBOOTIMG) $(INTERNAL_BOOTIMAGE_FILES) $(BOOT_SIGNER) $(BOOTIMAGE_EXTRA_DEPS)</div><div class="line">$(call pretty,"Target boot image: $@")</div><div class="line">$(hide) $(MKBOOTIMG) $(INTERNAL_BOOTIMAGE_ARGS) $(BOARD_MKBOOTIMG_ARGS) --output $@</div><div class="line">$(BOOT_SIGNER) /boot $@ $(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_VERITY_SIGNING_KEY).pk8 $(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_VERITY_SIGNING_KEY).x509.pem $@</div><div class="line">$(hide) $(call assert-max-image-size,$@,$(BOARD_BOOTIMAGE_PARTITION_SIZE))</div></td></tr></tbody></table>
+<h2 id="生成-oem-自己的公钥密钥对">生成 OEM 自己的公钥密钥对</h2>
+<p>在 Linux 系统中，确保所安装的 openssl 版本足够新，可以参看： /m8996/build/target/product/security_releasekey/README 文件。</p>
+<table><tbody><tr><td class="gutter"><div class="line">1</div><div class="line">2</div><div class="line">3</div></td><td class="code"><div class="line">&gt;openssl version</div><div class="line">OpenSSL 1.0.2d 9 Jul 2015</div><div class="line">&gt;development/tools/make_key mykey '/C=US/ST=California/L=Mountain View/O=Android/OU=Android/CN=Android/emailAddress=android@android.com'</div></td></tr></tbody></table>
+<p>不用输入密码，然后 mykey.pk8 和 mykey.x509.pem 将会在当前目录生成。</p>
+<h2 id="为dm-verity-功能生成-verity-key">为DM-Verity 功能生成 verity key</h2>
+<h3 id="生成-generate_verity_key">生成 generate_verity_key</h3>
+<p>使用下面的命令来生成 verity key 的工具 generate_verity_key：</p>
+<table><tbody><tr><td class="gutter"><div class="line">1</div><div class="line">2</div><div class="line">3</div></td><td class="code"><div class="line">source build/envsetup.sh</div><div class="line">choosecombo</div><div class="line">make generate_verity_key (mmm system/extras/verity/)</div></td></tr></tbody></table>
+<h3 id="将-x509pem-转换成-verity-key">将 *.x509.pem 转换成 verity key</h3>
+<p>generate_verity_key 的代码位于：system/extra/verity/generate_verity_key.c generate_verity_key 的用法：generate_verity_key | -convert</p>
+<table><tbody><tr><td class="gutter"><div class="line">1</div></td><td class="code"><div class="line">out/host/linux-x86/bin/generate_verity_key -convert mykey.x509.pem verity_key</div></td></tr></tbody></table>
+<h3 id="拷贝并重命名">拷贝并重命名</h3>
+<p>拷贝mykey.pk8，mykey.x509.pem，verity_key.pub 至 build/target/product/security/ 目录，将其重命名: verity.pk8， verity.x509.pem，verity_key ，并替换默认的开发 key。</p>
+<h2 id="生成-keystore">生成 keystore</h2>
+<p>在 LK 里面，有两个 keystore:</p>
+<ul>
+<li>oem_keystore: 编译到 LK 里面，它定义在 /bootloader/lk/platform/msm_shared/include/oem_keystore.h 中。</li>
+<li>user_keystore: 存储在”keystore”分区里面。 LK 将使用 OEM keystore 来验证 keystore 分区， 如果验证通过， 将从里面读取 user_keystore，然后用其验证 boot.img 和 recovery.img。</li>
+</ul>
+<p>Google 已经在后来的 release 里移除 user_keystore，不需要 keystore 分区。</p>
+<p>使用system/extras/verity/keystore_signer, 它实际上是调用openssl 的一个脚本，所以也可以直接调用 openssl来实现。</p>
+<table><tbody><tr><td class="gutter"><div class="line">1</div></td><td class="code"><div class="line">keystore_signer &lt;privatekey.pk8&gt; &lt;crefificate.x509.pem&gt; &lt;outfile&gt; &lt;publickey0.der&gt;</div></td></tr></tbody></table>
+<table><tbody><tr><td class="gutter"><div class="line">1</div><div class="line">2</div></td><td class="code"><div class="line">&gt;openssl rsa -in mykey.pk8 -inform DER -pubout -outform DER -out mypub.der</div><div class="line">&gt;java -Xmx512M -jar out/host/linux-x86/framework/KeystoreSigner.jar mykey.pk8 mykey.x509.pem keystore.img mypub.der</div></td></tr></tbody></table>
+<p>如果在没有 pk8 格式的老版本上，则可以使用下面的命令：</p>
+<table><tbody><tr><td class="gutter"><div class="line">1</div><div class="line">2</div></td><td class="code"><div class="line">&gt;keystore_signer &lt;PRIVATE_KEY&gt; &lt;KEYSTORE_IMG&gt; &lt;RSA_PUBLIC_KEY_DER&gt;</div><div class="line">&gt;java -Xmx512M -jar out/host/linux-x86/framework/KeystoreSigner.jar verity_private_dev_key keystore.img mypub.der</div></td></tr></tbody></table>
+<p>通过上述命令获取 keystore.img之后，可以通过fast boot来刷。</p>
+<table><tbody><tr><td class="gutter"><div class="line">1</div></td><td class="code"><div class="line">Fastboot flash keystore keystore.img</div></td></tr></tbody></table>
+<p>当然，如果没有keystore分区，这步可以忽略</p>
+<p>Oem_keystore可以通过下面的方法使用相同的key 通过下面的脚本将keystore.img生成oem_keystore.h文件</p>
+<table><tbody><tr><td class="gutter"><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></td><td class="code"><div class="line">function generate_oem_keystore_h()</div><div class="line">{</div><div class="line">echo \#ifndef __OEM_KEYSTORE_H</div><div class="line">echo \#define __OEM_KEYSTORE_H</div><div class="line">xxd -i $1 | sed -e 's/unsigned char .* = {/const unsigned char&nbsp;OEM_KEYSTORE[] = {/g' -e 's/unsigned int .* =.*;//g'</div><div class="line">echo \#endif</div><div class="line">}</div></td></tr></tbody></table>
+<table><tbody><tr><td class="gutter"><div class="line">1</div></td><td class="code"><div class="line">generate_oem_keystore_h keystore.img &gt; oem_keystore.h</div></td></tr></tbody></table>
+<p>将该oem_keystore.h文件拷贝到：bootable/bootloader/lk/platform/msm_shared/include</p>
+<h2 id="在-lk-中的代码调用流程">在 LK 中的代码调用流程</h2>
+<ul>
+<li>boot_linux_from_mmc</li>
+<li>boot_verifier_init</li>
+<li>verify_signed_bootimg -&gt; boot_verify_image -&gt; verify_image_with_sig</li>
+</ul>
+<h1 id="手机安全状态">手机安全状态</h1>
+<p>开启 Verified Boot 功能的设备有三种安全状态：locked, verified 和 unlocked。任何状态的转换都需要使用 fastboot 命令，同时也会擦除 /data 分区（分区置0），当手机启动的时候，新的状态才会改变，同时会将一个新的文件系统挂载到 /data。除此之外，安全状态的改变用户通过物理按键（开机键，音量上下键等）的方式来确认，另外，如果是转换到 unlocked 状态，需要在开发者选项者将 OEM unlock 打开（这步需要屏幕锁验证），同时通过 fastboot oem unlock 打开。</p>
+<h2 id="locked-state">locked state:</h2>
+<ul>
+<li>
+<p>用户不能使用 fastboot 命令下载或者擦除任何分区。</p>
+</li>
+<li>
+<p>boot 和 recovery 分区将会被 keystore 验证 （从 LK 里面的 OEM keystore开始）。</p>
+</li>
+<li>
+<p>唯一能使用的 fastboot 命令只有 fastboot oem unlock，但如果要使用该命令，还必须在开发者选项中将 OEM unlock打开（默认关闭）。</p>
+<h2 id="verified-state">verified state:</h2>
+</li>
+<li>
+<p>用户可以使用 fastboot 命令来下载或者擦除特定的分区（bootable/bootloader/lk/app/aboot/aboot.c中的 critical_flash_allowed_ptn 结构体）。</p>
+</li>
+<li>
+<p>不允许登记 keystore或者篡改 persisten data block。</p>
+</li>
+<li>
+<p>对于使用用户或者第三方软件来来，这是个比较合适的状态，特别是开发者需要频繁地烧写软件。</p>
+</li>
+<li>
+<p>如果使用了没有被OEM签名的 keystore，那需要处理开机时的警告信息。</p>
+<h2 id="unlock-state">unlock state:</h2>
+</li>
+<li>
+<p>所有的 fastboot 命令都可以使用。</p>
+</li>
+<li>
+<p>用户 keystore 可以被登记或者擦除。</p>
+</li>
+<li>
+<p>在这种状态下，boot和recovery不会被验证。同时开机时会有警告，需要按音量上键才能继续启动。</p>
+</li>
+</ul>
+<h1 id="影响">影响</h1>
+<ul>
+<li>软件集成和 OTA 升级，必须使用 block 方式做包和升级，相关工程师需要注意在适配。</li>
+<li>售后，用户自行刷三方固件以及 root 检测等。</li>
+<li>开机速度和 performance, Idol 4S 上实测，从校验开始到 system 分区挂载完成耗时 50 ms 以内，对开机 速度的影响可以忽略，当前没有任何证据表明会影响 performance。</li>
+<li>工程师日常开发调试。</li>
+</ul>
+<h1 id="注意事项">注意事项</h1>
+<ul>
+<li>
+<p>该功能在 eng 软件上是关闭的，刷 eng 的 boot.img 不会受影响。</p>
+</li>
+<li>
+<p>混刷 boot.img 和 system.img 会启动不了，使能后的 userdebug 或 user 版本的 boot.img 搭配的 eng 版本的 system.img 或者未使能前的 system.img 会开不起来，因为生成时用的 key 不同。</p>
+</li>
+<li>
+<p>可以通过开机后查看 system 分区的挂载信息来查看是否开启了 Verified Boot 功能：</p>
+  <table><tbody><tr><td class="gutter"><div class="line">1</div></td><td class="code"><div class="line">adb shell mount | grep /system</div></td></tr></tbody></table>
+<p>开启显示</p>
+  <table><tbody><tr><td class="gutter"><div class="line">1</div></td><td class="code"><div class="line">/dev/block/dm-0 /system ext4 ro,seclabel,relatime,discard,data=ordered 0 0</div></td></tr></tbody></table>
+<p>关闭显示</p>
+  <table><tbody><tr><td class="gutter"><div class="line">1</div></td><td class="code"><div class="line">/dev/block/bootdevice/by-name/system /system ext4 ro,seclabel,relatime,discard,data=ordered 0 0</div></td></tr></tbody></table>
+</li>
+<li>
+<p>通常会使用 userdebug 软件（或者刷 userdebug 版本的 boot.img) 来调试，但使能后，system 是无法挂载成 rw 状态的，不能 push</p>
+  <table><tbody><tr><td class="gutter"><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></td><td class="code"><div class="line">$ adb root</div><div class="line">Restarting adbd as root</div><div class="line">$ adb remount</div><div class="line">Reremount succeeded</div><div class="line">$ adb shell mount | grep /systtem</div><div class="line">/dev/block/dm-0 /system ext4 ro,seclabel,relatime,discard,data=ordered 0 0</div><div class="line">$ adb push out/target/product/project_name/system/xbin/su /system/xbin/su</div><div class="line">failed to copy 'out/target/product/project_name/system/xbin/su' to '/system/xbin/su': Read-only file system</div></td></tr></tbody></table>
+</li>
+<li>
+<p>在 userdebug 软件（或者刷 userdebug 版本的 boot.img）有两种方法可以关闭：</p>
+<ol>
+<li>
+<p>用 adb 命令，重启后生效：</p>
+ <table><tbody><tr><td class="gutter"><div class="line">1</div><div class="line">2</div></td><td class="code"><div class="line">$ adb disable-verity</div><div class="line">$ adb enable-verity</div></td></tr></tbody></table>
+<p>注意，如果重新刷 了 system.img 就要重新操作，因为关闭标志是写在 system.img 尾部的。当启用boot verity功能，一旦你修改了手机里的 system 分区，比如 push 进去一个 apk，再打开的话，手机会起不来。</p>
+</li>
+<li>
+<p>替换 eng.img ，也可以修改 fstab.qcom 文件，重新编译 userdebug 的 boot.img: 具体操作是修改 device/OEM/project_name/fstab.qcom文件，去掉 verify 标志，例如：</p>
+ <table><tbody><tr><td class="gutter"><div class="line">1</div><div class="line">2</div></td><td class="code"><div class="line">/dev/block/bootdevice/by-name/system /system ext4 ro,barrier=1,discard wait,verify</div><div class="line">/dev/block/bootdevice/by-name/system /system ext4 ro,barrier=1,discard wait</div></td></tr></tbody></table>
+</li>
+</ol>
+</li>
+<li>
+<p>user 软件没有办法，如果需要修改 system， 请刷 userdebug 或者 eng 的 boot.img。</p>
+</li>
+<li>
+<p>旧版的 adb 可能不支持 disable-verity 和 enable-verity 命令，请更新到最新的 Android SDK，或者使用工程编译出来的 adb (out/host/linux-x86/bin/adb)。</p>
+</li>
+</ul>
+<p><a href="http://blog.csdn.net/u011280717/article/details/51867673">http://blog.csdn.net/u011280717/article/details/51867673</a></p>
+<p><a href="http://luomingmao.com/2016/08/29/Verified-Boot">http://luomingmao.com/2016/08/29/Verified-Boot</a></p>
+<p><a href="http://blog.csdn.net/andrewblog/article/details/51879844">http://blog.csdn.net/andrewblog/article/details/51879844</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2017-12-07
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/github%E5%8A%A0%E5%BF%AB%E8%AE%BF%E9%97%AE/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">github加快访问</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/windows%E7%8E%AF%E5%A2%83%E4%B8%8B64%E4%BD%8D%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/">
+            <span class="next-text nav-default">windows环境下64位汇编语言程序设计</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

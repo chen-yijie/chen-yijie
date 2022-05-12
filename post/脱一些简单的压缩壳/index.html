@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>脱一些简单的压缩壳 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="脱一些简单的压缩壳. 首先看看一个壳的基本流程 1:保存入口参数, 一般都有这一步了 2:获取外壳所需的地址, 比如LoadLibrary, GetProcAddress 3:解密" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E8%84%B1%E4%B8%80%E4%BA%9B%E7%AE%80%E5%8D%95%E7%9A%84%E5%8E%8B%E7%BC%A9%E5%A3%B3/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="脱一些简单的压缩壳" />
+<meta property="og:description" content="脱一些简单的压缩壳. 首先看看一个壳的基本流程 1:保存入口参数, 一般都有这一步了 2:获取外壳所需的地址, 比如LoadLibrary, GetProcAddress 3:解密" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E8%84%B1%E4%B8%80%E4%BA%9B%E7%AE%80%E5%8D%95%E7%9A%84%E5%8E%8B%E7%BC%A9%E5%A3%B3/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2012-09-06T00:00:00+00:00" />
+<meta property="article:modified_time" content="2012-09-06T00:00:00+00:00" />
+
+<meta itemprop="name" content="脱一些简单的压缩壳">
+<meta itemprop="description" content="脱一些简单的压缩壳. 首先看看一个壳的基本流程 1:保存入口参数, 一般都有这一步了 2:获取外壳所需的地址, 比如LoadLibrary, GetProcAddress 3:解密"><meta itemprop="datePublished" content="2012-09-06T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2012-09-06T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1274">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="脱一些简单的压缩壳"/>
+<meta name="twitter:description" content="脱一些简单的压缩壳. 首先看看一个壳的基本流程 1:保存入口参数, 一般都有这一步了 2:获取外壳所需的地址, 比如LoadLibrary, GetProcAddress 3:解密"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">脱一些简单的压缩壳</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2012-09-06 </span>
+        <div class="post-category">
+            <a href="/categories/%E9%80%86%E5%90%91%E8%84%B1%E5%A3%B3/"> 逆向脱壳 </a>
+            </div>
+          <span class="more-meta"> 约 1274 字 </span>
+          <span class="more-meta"> 预计阅读 3 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>脱一些简单的压缩壳.</p>
+<p>首先看看一个壳的基本流程</p>
+<p>1:保存入口参数, 一般都有这一步了</p>
+<p>2:获取外壳所需的地址, 比如LoadLibrary, GetProcAddress</p>
+<p>3:解密源程序的各个区块</p>
+<p>4:IAT的初始化, 这个所有的壳都必须做的事情, 这一步也是斗争最激烈的战场</p>
+<p>5:重定位的处理, EXE加密就没有了, DLL有这一步.</p>
+<p>6:Hook Api函数, 外壳为了能够不停的得到控制权, 所以一般都会将原来IAT的地址替换成外壳的地址.</p>
+<p>7:跳到源程序的oep..</p>
+<p>根据上面的情况我们可以看出来, 我们只要的第七步dump程序出来就可以了.. 这时间时机很好, 各项全局变量也</p>
+<p>没有初始化. 挺好. 但是现在到第7步的程序, 一般IAT表都已经被壳给处理了, 所以在oep处, 我们还需要做一些工作.</p>
+<p>找OEP.</p>
+<p>1: 根据跨段指令寻找OEP. 这个主要是根据外壳程序每次处理的步骤一个漏洞.</p>
+<p>2: 程序退出法找oep, 这个对窗口程序比较有效果, 运行程序, 然后绑定上去, 中断, 让所有的跳转都不往回跳转, 然后程序就会走到退出的位置, 就是这样. 退出的位置也在oep附近了.</p>
+<p>3: esp定律寻找oep, 这个更加快.esp定律还用两种方法, 一种是在堆栈顶部下硬件读取断点, 断在popad的地方, 另外一种是对堆栈底部下硬件写入断点, 这种就刚好停在入口了.</p>
+<p>dump:</p>
+<p>dump这里没什么好说的, 除了一些限制我们dump的手段外, 就是这个修复IAT了, 主要是这个麻烦点. 不过手工修复几次, 然后用ImportREC搞几次, 应该就印象比较深刻了.</p>
+<p>简单的壳就是这样了. 呵呵.</p>
+<p>DLL文件的脱壳.</p>
+<p>想都想得到, 对于DLL文件的脱壳, 除了相等的EXE的难度外, 另外还需要处理一个重定位表, 这个表处理套路其实也很简单.</p>
+<p>对于DLL来说, 入口会在Load和Free的时候都调用, 所以如果我们遇到未知的壳, 又想简单找入口, 用DLL会比较简单, 在Free那次断在入口.跑几步就到oep了.</p>
+<p>另外一个DLL文件的话, 有一个重定位表的处理, 这个的话在代码段找一个有重定位的项目, 在代码段解压出来还没有重定位的时候, 在一个重定位项目上面下个</p>
+<p>内存写入断点, 这样很容易就可以找到我们需要定位的地方.</p>
+<p>exe文件脱壳过程:</p>
+<p>1:找oep, 因为我们这里使用的壳非常的简单, 主要是用于实验性目的, 就用upx了. upx的oep的话, 是非常好找的. esp定律就行.</p>
+<p>2:到oep, 使用LordPE dump出来就可以了.</p>
+<p>3:ImportRec修复IAT表 OK就这么简单.</p>
+<p>dll文件脱壳过程:</p>
+<p>1:找oep, dll的oep比较好找, 一般在退出程序free的时候找一次就可以.</p>
+<p>2:dll dump的时候和exe不大一样, 首先在跑到oep之前, 我们应该跳过dll的重定位代码, 不要给做重定位. dump一份出来</p>
+<p>3:dump了一份没有重定位的代码, 然后重新运行exe跑到oep, 这次是使用importRec修复IAT. 和exe一样</p>
+<p>4:dump出来以后, 这次我们要将DLL的重定位数据抽取一份出来, 这个要具体分析外壳的重定位格式和代码.</p>
+<p>4:重定位信息修复出来以后, 使用看雪加密解密3的一个工具, 将抽取出来的重定位表, 再次导入我们dump出来的DLL中.</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2012-09-06
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E6%89%8B%E8%84%B1softdefender1-12%E7%89%88%E6%9C%AC%E5%A3%B3/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">手脱SoftDefender1.12版本壳</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E5%90%84%E7%A7%8D%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%8C%89%E9%92%AE%E4%BA%8B%E4%BB%B6/">
+            <span class="next-text nav-default">各种程序的按钮事件</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>区块链 on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+    <link>https://xchen.com/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/</link>
+    <description>Recent content in 区块链 on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Fri, 29 Jun 2018 00:00:00 +0000</lastBuildDate><atom:link href="https://xchen.com/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>EOSIO 1.0.7 编译配置运行</title>
+      <link>https://xchen.com/post/eosio-1-0-7-%E7%BC%96%E8%AF%91%E9%85%8D%E7%BD%AE%E8%BF%90%E8%A1%8C/</link>
+      <pubDate>Fri, 29 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/eosio-1-0-7-%E7%BC%96%E8%AF%91%E9%85%8D%E7%BD%AE%E8%BF%90%E8%A1%8C/</guid>
+      <description>EOS主网已经上线，但是市面上还没有特别好用的钱包，所以只能自己动手丰衣足食了，在编译运行EOS代码的时候遇到不少的问题，这边记录一下。 使用</description>
+    </item>
+    
+  </channel>
+</rss>

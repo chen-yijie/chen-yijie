@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>sdk on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+    <link>https://xchen.com/categories/sdk/</link>
+    <description>Recent content in sdk on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Fri, 25 Jun 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://xchen.com/categories/sdk/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Visual Leak Detector内存泄漏检测</title>
+      <link>https://xchen.com/post/visual-leak-detector%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E6%A3%80%E6%B5%8B/</link>
+      <pubDate>Fri, 25 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/visual-leak-detector%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E6%A3%80%E6%B5%8B/</guid>
+      <description>本来想写点东西，发现用Visual Leak Detector检测内存泄漏实在是太简单，都不需要说什么。 直接在https://kinddragon.g</description>
+    </item>
+    
+    <item>
+      <title>win10 disable aslr(win10关闭ASLR)</title>
+      <link>https://xchen.com/post/win10-disable-aslrwin10%E5%85%B3%E9%97%ADaslr/</link>
+      <pubDate>Tue, 26 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/win10-disable-aslrwin10%E5%85%B3%E9%97%ADaslr/</guid>
+      <description>网上关闭ASLR的文章都是针对win7的，操作MoveImages来打到关闭系统的ASLR，但是这个办法在win10上面不好使。[HKEY_</description>
+    </item>
+    
+    <item>
+      <title>VSCode高端玩法</title>
+      <link>https://xchen.com/post/vscode%E9%AB%98%E7%AB%AF%E7%8E%A9%E6%B3%95/</link>
+      <pubDate>Fri, 21 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/vscode%E9%AB%98%E7%AB%AF%E7%8E%A9%E6%B3%95/</guid>
+      <description>VSCode的高端玩法 搜索历史：搜索框中alt+上下即可遍历 包裹代码块：surround插件 快速跳转：jumpy Ctrl+K再按Ctrl+S</description>
+    </item>
+    
+    <item>
+      <title>windows环境下64位汇编语言程序设计</title>
+      <link>https://xchen.com/post/windows%E7%8E%AF%E5%A2%83%E4%B8%8B64%E4%BD%8D%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/</link>
+      <pubDate>Thu, 08 Jun 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/windows%E7%8E%AF%E5%A2%83%E4%B8%8B64%E4%BD%8D%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/</guid>
+      <description>进入x64时代用汇编写程序的越来越少了, 经常去的几个汇编论坛也越来越没人气. 也是,现在很少事情非得找到一个用汇编来写的理由了. 所以慢慢也就没</description>
+    </item>
+    
+    <item>
+      <title>vs2015使用qt静态库5.7</title>
+      <link>https://xchen.com/post/vs2015%E4%BD%BF%E7%94%A8qt%E9%9D%99%E6%80%81%E5%BA%935-7/</link>
+      <pubDate>Fri, 30 Dec 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/vs2015%E4%BD%BF%E7%94%A8qt%E9%9D%99%E6%80%81%E5%BA%935-7/</guid>
+      <description>MFC库现在基本上没落了， 用的人越来越少，现在一般做GUI开发都是使用Qt， Qt这个东西实现比MFC不知道高到哪里去了， 使用起来更符合直觉，</description>
+    </item>
+    
+    <item>
+      <title>hex_to_ascii</title>
+      <link>https://xchen.com/post/hex_to_ascii/</link>
+      <pubDate>Tue, 27 Dec 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/hex_to_ascii/</guid>
+      <description>总是在不经意间需要使用的函数有很多.. 字符串转换方面是个大头.. 刚好这边有两个非常好用的函数, 收集起来.. char *hex_to_ascii(char *dest, const char src[], int size) { char *ret = dest; int i; for (i</description>
+    </item>
+    
+    <item>
+      <title>IDA 6.6中文字体解决办法</title>
+      <link>https://xchen.com/post/ida-6-6%E4%B8%AD%E6%96%87%E5%AD%97%E4%BD%93%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/</link>
+      <pubDate>Fri, 12 Sep 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/ida-6-6%E4%B8%AD%E6%96%87%E5%AD%97%E4%BD%93%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/</guid>
+      <description>这个是编码问题，需要手动添加GBK编码之类。先找到Options-&amp;gt;ASCII String Style..。选择Change Encoding。打开</description>
+    </item>
+    
+    <item>
+      <title>windows API操作链表</title>
+      <link>https://xchen.com/post/windows-api%E6%93%8D%E4%BD%9C%E9%93%BE%E8%A1%A8/</link>
+      <pubDate>Mon, 06 Jan 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/windows-api%E6%93%8D%E4%BD%9C%E9%93%BE%E8%A1%A8/</guid>
+      <description>今天逆向的时候, 又看到有人用了几个api函数, 记录下. IsProcessorFeaturePresent判断系统的一些特性. 还有下面这个链表</description>
+    </item>
+    
+    <item>
+      <title>特殊窗口</title>
+      <link>https://xchen.com/post/%E7%89%B9%E6%AE%8A%E7%AA%97%E5%8F%A3/</link>
+      <pubDate>Thu, 26 Dec 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E7%89%B9%E6%AE%8A%E7%AA%97%E5%8F%A3/</guid>
+      <description>以前我们有时候会创建一个隐藏的窗口, 然后让他们和其他窗口进行通信. 确实有这种需求啊. 今天在看某软件的时候发现一个办法. 当然这个办法在MSDN</description>
+    </item>
+    
+    <item>
+      <title>IDA脚本的编写方法</title>
+      <link>https://xchen.com/post/ida%E8%84%9A%E6%9C%AC%E7%9A%84%E7%BC%96%E5%86%99%E6%96%B9%E6%B3%95/</link>
+      <pubDate>Tue, 27 Aug 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/ida%E8%84%9A%E6%9C%AC%E7%9A%84%E7%BC%96%E5%86%99%E6%96%B9%E6%B3%95/</guid>
+      <description>IDA cfg 目录下-&amp;gt; idagui.cfg ,把DISPLAY_PATCH_SUBMENU = NO 修改这个 NO 为 YES这样在编辑菜单下会多出一个 PATCH Program 的选项，然后就可以用</description>
+    </item>
+    
+    <item>
+      <title>IDA 自定义结构体快捷键操作方法</title>
+      <link>https://xchen.com/post/ida-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BB%93%E6%9E%84%E4%BD%93%E5%BF%AB%E6%8D%B7%E9%94%AE%E6%93%8D%E4%BD%9C%E6%96%B9%E6%B3%95/</link>
+      <pubDate>Tue, 13 Aug 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/ida-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BB%93%E6%9E%84%E4%BD%93%E5%BF%AB%E6%8D%B7%E9%94%AE%E6%93%8D%E4%BD%9C%E6%96%B9%E6%B3%95/</guid>
+      <description>简单记录下，在IDA里面自定义结构体的快捷方法。 1、Shift + F1：打开本地类型； 2、insert：插入自定义的结构体, 可以是联合体 3、S</description>
+    </item>
+    
+    <item>
+      <title>CreateDialogParam非模态对话框</title>
+      <link>https://xchen.com/post/createdialogparam%E9%9D%9E%E6%A8%A1%E6%80%81%E5%AF%B9%E8%AF%9D%E6%A1%86/</link>
+      <pubDate>Fri, 23 Nov 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/createdialogparam%E9%9D%9E%E6%A8%A1%E6%80%81%E5%AF%B9%E8%AF%9D%E6%A1%86/</guid>
+      <description>恩, 非模态对话框有时候还是有些应用的. // WinTest.cpp : Defines the entry point for the application. // #include &amp;ldquo;stdafx.h&amp;rdquo; #include &amp;ldquo;resource.h&amp;rdquo; BOOL InitDialog(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam); BOOL CALLBACK DialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam); int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) { HWND hWndDlg = NULL; MSG msg;</description>
+    </item>
+    
+    <item>
+      <title>指针的几个小问题</title>
+      <link>https://xchen.com/post/%E6%8C%87%E9%92%88%E7%9A%84%E5%87%A0%E4%B8%AA%E5%B0%8F%E9%97%AE%E9%A2%98/</link>
+      <pubDate>Thu, 03 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%8C%87%E9%92%88%E7%9A%84%E5%87%A0%E4%B8%AA%E5%B0%8F%E9%97%AE%E9%A2%98/</guid>
+      <description>本来一切都安好的, 听唐老师讲了几节指针的课, 发现有很多问题过去并不是很清晰啊, 还有一些认为想当然的问题也遇到了挑战. 最近做笔记比较少. 写下本</description>
+    </item>
+    
+    <item>
+      <title>C语言结构体的内存结构</title>
+      <link>https://xchen.com/post/c%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/</link>
+      <pubDate>Fri, 28 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/c%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/</guid>
+      <description>原来一直没有试验过用结构体作为参数传递和返回, 一直说结构体作为参数传递很慢撒的, 所以也没有 去关心过结构体在内存中的存储形式, 这下上课讲到这个</description>
+    </item>
+    
+    <item>
+      <title>写自定位代码</title>
+      <link>https://xchen.com/post/%E5%86%99%E8%87%AA%E5%AE%9A%E4%BD%8D%E4%BB%A3%E7%A0%81/</link>
+      <pubDate>Sun, 24 Jul 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%86%99%E8%87%AA%E5%AE%9A%E4%BD%8D%E4%BB%A3%E7%A0%81/</guid>
+      <description>我刚才其实已经写了一篇了, 然后不知怎么的不见了, 所以我不想说话了. 自己看源码 源码下载地址： http://www.joenchen.com/JoenTools/LocateAddr.rar .586 .model flat, stdcall option casemap:none Include Windows.inc Include kernel32.inc Includelib kernel32.lib ;=========================================================================== .Code REMOTE_CODE_START equ this byte Include GetApiAddr.inc Include GetApiAddr.asm ;=========================================================================== ;</description>
+    </item>
+    
+    <item>
+      <title>打造超小PE文件</title>
+      <link>https://xchen.com/post/%E6%89%93%E9%80%A0%E8%B6%85%E5%B0%8Fpe%E6%96%87%E4%BB%B6/</link>
+      <pubDate>Sun, 17 Jul 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%89%93%E9%80%A0%E8%B6%85%E5%B0%8Fpe%E6%96%87%E4%BB%B6/</guid>
+      <description>PE文件能够多小?? 一次一次的打破了我的想象, 网上有人发了133B的PE文件, 我就在想他是如何做到的? 分析了下. 相当的给力. 不知道还能不能够</description>
+    </item>
+    
+    <item>
+      <title>好用的字符串宏</title>
+      <link>https://xchen.com/post/%E5%A5%BD%E7%94%A8%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%AE%8F/</link>
+      <pubDate>Wed, 06 Jul 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%A5%BD%E7%94%A8%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%AE%8F/</guid>
+      <description>字符串对于每一个程序都是非常重要的, 在masm里面如果利用好字符串宏, 那写代码就非常舒服和方便了, 这几个字符串宏是我平时使用的非常多的宏, 包</description>
+    </item>
+    
+  </channel>
+</rss>

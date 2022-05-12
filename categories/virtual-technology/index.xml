@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>virtual-technology on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+    <link>https://xchen.com/categories/virtual-technology/</link>
+    <description>Recent content in virtual-technology on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 15 Aug 2013 00:00:00 +0000</lastBuildDate><atom:link href="https://xchen.com/categories/virtual-technology/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>基于VT技术的OllyDbg插件Ddvp</title>
+      <link>https://xchen.com/post/%E5%9F%BA%E4%BA%8Evt%E6%8A%80%E6%9C%AF%E7%9A%84ollydbg%E6%8F%92%E4%BB%B6ddvp/</link>
+      <pubDate>Thu, 15 Aug 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%9F%BA%E4%BA%8Evt%E6%8A%80%E6%9C%AF%E7%9A%84ollydbg%E6%8F%92%E4%BB%B6ddvp/</guid>
+      <description>随着软件产业的发展, 在Windows平台上, 为了防止软件被逆向, 破解, 出现了很多保护软件的手段, 其中一种就是反调试, 在反调试领域, 最强的莫过</description>
+    </item>
+    
+    <item>
+      <title>DbgkCreateThread</title>
+      <link>https://xchen.com/post/dbgkcreatethread/</link>
+      <pubDate>Tue, 27 Nov 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/dbgkcreatethread/</guid>
+      <description>首先我们需要替换的是 rdmsr, wrmsr替换掉系统的sysenter跳转地址. 这样整个SSDT表函数都处于被我们的监控当中. 一个新的进程创建线程的时</description>
+    </item>
+    
+    <item>
+      <title>DbgkExitThread, DbgkExitProcess</title>
+      <link>https://xchen.com/post/dbgkexitthread-dbgkexitprocess/</link>
+      <pubDate>Tue, 27 Nov 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/dbgkexitthread-dbgkexitprocess/</guid>
+      <description>线程创建和进程要做的事情稍微多一点, 但是线程退出和进程退出要做的事情就不多了. 再加上上一篇我们已经分析了几个调试辅助函数, 所以这篇有营养的内</description>
+    </item>
+    
+    <item>
+      <title>VT VMCS结构信息</title>
+      <link>https://xchen.com/post/vt-vmcs%E7%BB%93%E6%9E%84%E4%BF%A1%E6%81%AF/</link>
+      <pubDate>Thu, 18 Oct 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/vt-vmcs%E7%BB%93%E6%9E%84%E4%BF%A1%E6%81%AF/</guid>
+      <description>熟悉Intel VT的人都知道. 使用VT的过程, 基本上就是操作VMCS结构的过程. 这个结构非常的大. 非常复杂, 基本上和VT有关的东西都在这里.</description>
+    </item>
+    
+    <item>
+      <title>bochs调试VT代码</title>
+      <link>https://xchen.com/post/bochs%E8%B0%83%E8%AF%95vt%E4%BB%A3%E7%A0%81/</link>
+      <pubDate>Wed, 17 Oct 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/bochs%E8%B0%83%E8%AF%95vt%E4%BB%A3%E7%A0%81/</guid>
+      <description>这边使用bochs调试代码实在是太郁闷了. 今天我索性要将我所有bochs上遇到的调试问题说一下.想要用bochs调试(VT)代码一定要耐心,</description>
+    </item>
+    
+    <item>
+      <title>NewBluePill打印系统</title>
+      <link>https://xchen.com/post/newbluepill%E6%89%93%E5%8D%B0%E7%B3%BB%E7%BB%9F/</link>
+      <pubDate>Tue, 25 Sep 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/newbluepill%E6%89%93%E5%8D%B0%E7%B3%BB%E7%BB%9F/</guid>
+      <description>最近十一想着不要浪费, 就顺着敲敲NewBluePill的代码吧. 脱壳的话, 又没有什么进展, 表面那层壳好拖, 随便找个脚本就完事了. 自己手工脱也</description>
+    </item>
+    
+  </channel>
+</rss>

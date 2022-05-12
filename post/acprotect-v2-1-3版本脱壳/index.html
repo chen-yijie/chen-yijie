@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>ACProtect v2.1.3版本脱壳. - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="我还是使用delphi7的例子..首先上来还是找OEP.. 这个OEP被偷的很过分啊, 如果不是使用退出法找到OEP.. 估计其他类似的程序够呛." /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/acprotect-v2-1-3%E7%89%88%E6%9C%AC%E8%84%B1%E5%A3%B3/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="ACProtect v2.1.3版本脱壳." />
+<meta property="og:description" content="我还是使用delphi7的例子..首先上来还是找OEP.. 这个OEP被偷的很过分啊, 如果不是使用退出法找到OEP.. 估计其他类似的程序够呛." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/acprotect-v2-1-3%E7%89%88%E6%9C%AC%E8%84%B1%E5%A3%B3/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2012-09-07T00:00:00+00:00" />
+<meta property="article:modified_time" content="2012-09-07T00:00:00+00:00" />
+
+<meta itemprop="name" content="ACProtect v2.1.3版本脱壳.">
+<meta itemprop="description" content="我还是使用delphi7的例子..首先上来还是找OEP.. 这个OEP被偷的很过分啊, 如果不是使用退出法找到OEP.. 估计其他类似的程序够呛."><meta itemprop="datePublished" content="2012-09-07T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2012-09-07T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1155">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="ACProtect v2.1.3版本脱壳."/>
+<meta name="twitter:description" content="我还是使用delphi7的例子..首先上来还是找OEP.. 这个OEP被偷的很过分啊, 如果不是使用退出法找到OEP.. 估计其他类似的程序够呛."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">ACProtect v2.1.3版本脱壳.</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2012-09-07 </span>
+        <div class="post-category">
+            <a href="/categories/%E9%80%86%E5%90%91%E8%84%B1%E5%A3%B3/"> 逆向脱壳 </a>
+            </div>
+          <span class="more-meta"> 约 1155 字 </span>
+          <span class="more-meta"> 预计阅读 3 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>我还是使用delphi7的例子..首先上来还是找OEP.. 这个OEP被偷的很过分啊, 如果不是使用退出法找到OEP.. 估计其他类似的程序够呛..</p>
+<p>当然这个壳的话, 基本上也没有什么难度, 主要难度还是集中在Code Replace, 脱壳很容易, 这个壳没有合并程序的区段, 很容易还原成完整的区段, 另外这个壳没有将IAT加密, IAT也可以很轻易的就dump一份出来.</p>
+<p>首先Ollydbg跑起来, 在idata断下断点, 一般这时候就是填写IAT的地方. 同时可以得到一个信息就是Code段已经解压的差不多了. 在idata断下来以后, 我们需要做的事情全部都在这里了.. 在断点下面一点点, 就是这个代码.</p>
+<p>0046C298 8BF3 mov esi, ebx</p>
+<p>0046C29A 8BFB mov edi, ebx</p>
+<p>0046C29C AC lods byte ptr [esi]</p>
+<p>0046C29D C0C0 03 rol al, 3</p>
+<p>0046C2A0 AA stos byte ptr es:[edi] ; 解密导入DLL的名称</p>
+<p>0046C2A1 803F 00 cmp byte ptr [edi], 0</p>
+<p>0046C2A4 ^ 75 F6 jnz short delphi71.0046C29C</p>
+<p>是的, 这里就是解密要导入DLL的名称.. 然后在下面一点点</p>
+<p>0046C2F7 60 pushad</p>
+<p>0046C2F8 2BC0 sub eax, eax</p>
+<p>0046C2FA 8803 mov byte ptr [ebx], al ; 将导入DLL的名称清空</p>
+<p>0046C2FC 43 inc ebx</p>
+<p>0046C2FD 3803 cmp byte ptr [ebx], al</p>
+<p>0046C2FF ^ 75 F9 jnz short delphi71.0046C2FA</p>
+<p>有将导入DLL的名称清空, 太猥琐了,直接nop.完了之后是这里解密函数名称字符串.</p>
+<p>0046C356 8BF3 mov esi, ebx</p>
+<p>0046C358 8BFB mov edi, ebx</p>
+<p>0046C35A AC lods byte ptr [esi] ; 这里是解密函数名称</p>
+<p>0046C35B C0C0 03 rol al, 3</p>
+<p>0046C35E AA stos byte ptr es:[edi]</p>
+<p>0046C35F 803F 00 cmp byte ptr [edi], 0</p>
+<p>同样有一个地方在将这个字符串清空..猥琐之极.nop掉.</p>
+<p>0046C39F 60 pushad</p>
+<p>0046C3A0 2BC0 sub eax, eax</p>
+<p>0046C3A2 8803 mov byte ptr [ebx], al ;将导入函数名称清空.</p>
+<p>0046C3A4 43 inc ebx</p>
+<p>0046C3A5 3803 cmp byte ptr [ebx], al</p>
+<p>0046C3A7 ^ 75 F9 jnz short delphi71.0046C3A2</p>
+<p>0046C3A9 61 popad</p>
+<p>再下面这里是有对一些特殊函数特殊照顾的, 比如MessageBoxA什么的.这里我们也可以nop掉.</p>
+<p>0046C3B2 3B85 18104100 cmp eax, dword ptr [ebp+411018] ;user32.MessageBoxA</p>
+<p>0046C3B8 74 20 je short delphi71.0046C3DA</p>
+<p> </p>
+<p>这样就舒服了. 当然这样的函数有好几个, 注意观察下. 连续着的, 都nop掉.完了之后就是填写函数地址了</p>
+<p> </p>
+<p>0046C435 61 popad</p>
+<p>0046C436 8907 mov dword ptr [edi], eax ; 这句代码是填写函数地址.</p>
+<p>0046C438 8385 00794000 0&gt;add dword ptr [ebp+407900], 4</p>
+<p>; 假如我们直接忽略, 就连Import Rec</p>
+<p>也不用了如果我们把这一句nop掉的话, 那就舒服了. 直接连Import Rec修复也不用了. 完完整整的IAT表信息.. 赞一个.这时间IAT表已经解密完成了. 我们差的就是跳到oep了. 但是ACProtect这个壳的话, oep被偷取了. 这时间我们在.code段下个断点, 会发现断点在delphi7程序入口的第一个CALL. 我们在堆栈上回溯下, 会发现调用的代码,这也就是被偷取的变形的代码, 当然不要被一些花指令给迷惑, 我们应该看到ff15.. 太熟悉了这个..call [xxxxx].恩应该就是它, 没错了. 我们在回到delphi7程序中看看这边的代码是什么.. 直接patch&hellip;OK这样就差不多了.完了之后就已经可以跑起来了. 就是这个stolen oep需要处理下, 不然看着很恶心. 所以直接copy delphi7的代码过来就好了. 这下看着比较舒服了..</p>
+<p>其实这个壳, 现在已经没有什么价值了. 甚至于我用VC8编译的程序加壳以后都没法跑..权当练手把.</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2012-09-07
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/themida%E8%84%B1%E5%A3%B32iat%E5%A1%AB%E5%86%99%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-2/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Themida脱壳2(IAT填写代码分析)</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E6%89%8B%E8%84%B1softdefender1-12%E7%89%88%E6%9C%AC%E5%A3%B3/">
+            <span class="next-text nav-default">手脱SoftDefender1.12版本壳</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>保护模式1:由实模式切换到保护模式实例 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="简单的由实模式切换到保护模式的例子, 在MASM9下面写的, 运行的时候必须在Dos下面运行. 保护模式确实是比较复杂啊, 对这个保护模式的复杂度又" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E7%94%B1%E5%AE%9E%E6%A8%A1%E5%BC%8F%E5%88%87%E6%8D%A2%E5%88%B0%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F%E5%AE%9E%E4%BE%8B1/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="保护模式1:由实模式切换到保护模式实例" />
+<meta property="og:description" content="简单的由实模式切换到保护模式的例子, 在MASM9下面写的, 运行的时候必须在Dos下面运行. 保护模式确实是比较复杂啊, 对这个保护模式的复杂度又" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E7%94%B1%E5%AE%9E%E6%A8%A1%E5%BC%8F%E5%88%87%E6%8D%A2%E5%88%B0%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F%E5%AE%9E%E4%BE%8B1/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-09-10T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-09-10T00:00:00+00:00" />
+
+<meta itemprop="name" content="保护模式1:由实模式切换到保护模式实例">
+<meta itemprop="description" content="简单的由实模式切换到保护模式的例子, 在MASM9下面写的, 运行的时候必须在Dos下面运行. 保护模式确实是比较复杂啊, 对这个保护模式的复杂度又"><meta itemprop="datePublished" content="2011-09-10T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-09-10T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1090">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="保护模式1:由实模式切换到保护模式实例"/>
+<meta name="twitter:description" content="简单的由实模式切换到保护模式的例子, 在MASM9下面写的, 运行的时候必须在Dos下面运行. 保护模式确实是比较复杂啊, 对这个保护模式的复杂度又"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">保护模式1:由实模式切换到保护模式实例</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-09-10 </span>
+        <div class="post-category">
+            <a href="/categories/prote/"> prote </a>
+            </div>
+          <span class="more-meta"> 约 1090 字 </span>
+          <span class="more-meta"> 预计阅读 3 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>简单的由实模式切换到保护模式的例子, 在MASM9下面写的, 运行的时候必须在Dos下面运行.<br>
+ </p>
+<p>   保护模式确实是比较复杂啊, 对这个保护模式的复杂度又有了更深刻的理解, 当然这个例子代码不是很长, 只出生后了GDT, 然后在保护模式下写了个字符串而已.. 但是确实是进入了保护模式!<br>
+   这个保护模式的复杂, 我觉得一个由于本来保护模式就比较抽象难以理解, 吓到了不少的人, 在一个现在确实很少这方面的资料啊, 能够找到的资料大部分代码都是比较比较陈旧的, 比如用TASM写, 说实话. 这个东西我是从没有倒腾过. 好在语法和MASM差别不是很大, 万幸..<br>
+   一步一步的摸索, 遇到很多问题,. 当然也得到了唐老师的悉心指点,和童哥的热心帮助..  灰常给力..<br>
+   源码是Masm9下面写的, 也就是VS2008里面Copy出来那个版本了, 谁说写Dos下的程序只能用masm5呢?? 又好东西干嘛不用.. 你可以在这里下载源码的, 只要你电脑上设置好MASM的环境变量, 里面的makefile直接编译就可以的.. 又问题可以发个Email:JoenChen@foxmail.com</p>
+<p>        <a href="http://www.joenchen.com/JoenTools/Protect1.rar">http://www.joenchen.com/JoenTools/Protect1.rar</a></p>
+<p>;============================================================================
+;简单的切换到保护模式实例
+;MASM9.00  + link 5.60  TAB = 8
+;编译: 	ml /c /omf pm.asm
+;链接:	link pm.obj;
+;============================================================================
+.686p
+Include pm.inc				;保护模式的结构定义</p>
+<p>DataSeg	Segment	use16
+GDT	label	byte				;全局描述符表
+Dummy:		Descriptor	0, 0, 0		;空的描述符
+;============================================================================
+;				;段基址	  	;段界限		;属性
+CodeDesc:	Descriptor 	0,		0ffffh, 	DA_C	;非一致代码段16位
+VideoDesc:	Descriptor	0b8000h,	0ffffh, 	DA_DRW	;显存段(可读写)</p>
+<p>GDT_Len		equ	$-GDT			;GDT长度</p>
+<p>GDT_Ptr		word	GDT_Len -1		;GDTR伪描述符
+dword	0</p>
+<p>SelectorCode	equ	CodeDesc - GDT		;代码段选择子偏移
+SelectorVideo	equ	VideoDesc - GDT		;视频段选择子偏移
+;============================================================================</p>
+<p>DataSeg	Ends
+;============================================================================
+;程序入口段, 初始化GDTR 和一个代码段描述符, 然后跳到保护模式
+;============================================================================
+CodeSeg	Segment	use16				;16位代码段
+Jmain	Proc</p>
+<pre><code>xor	eax, eax
+mov	ax, DataSeg
+mov	ds, ax
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;初始化	CodeDesc描述符的基址
+xor	eax, eax
+mov	ax, cs
+shl	eax, 4
+mov	word ptr ds:[CodeDesc+2], ax	;段基址低地址
+shr	eax, 16
+mov	byte ptr ds:[CodeDesc+4], al	;段基址高地址低位
+mov	byte ptr ds:[CodeDesc+7], ah	;段基址高地址高位</p>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;初始化并加载GDTR伪描述符
+xor	eax, eax
+mov	ax, ds
+shl	eax, 4				;GTDR伪描述符的段地址
+add	eax, offset GDT
+mov	dword ptr ds:[GDT_Ptr+2], eax	;GTDR伪描述符基址</p>
+<pre><code>lgdt	fword ptr ds:\[GDT\_Ptr\]
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+cli
+_EnableA20				;打开A20地址线</p>
+<pre><code>mov	eax, cr0
+or	eax, 1
+mov	cr0, eax			;开启Cr0的分段标记正式进入保护模式
+
+;这行代码有着特殊的意义, 由此进入保护模式
+Jmp16	SelectorCode,  &amp;lt;offset \_Protect &amp;gt;
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;现在已经进入了保护模式(进入历史性的时刻)
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;进入保护模式就写一个字符就可以
+_Protect:
+mov	ax, SelectorVideo
+mov	es, ax
+mov	edi, (80*11+40) * 2		;屏幕的第11行第40列
+mov	ah, 0ch				;属性
+mov	al, 'J'				;字符
+mov	word ptr es:[edi], ax		;写入一个字符串 Joen
+add	edi,2
+mov	al, 'o'
+mov	word ptr es:[edi], ax
+add	edi,2
+mov	al, 'e'
+mov	word ptr es:[edi], ax
+add	edi,2
+mov	al, 'n'
+mov	word ptr es:[edi], ax</p>
+<pre><code>mov	eax, cr0
+and	al, 0feh			;关闭PE分段位, 进入实模式
+mov	cr0, eax
+
+Jmp16	&amp;lt;SEG \_Real&amp;gt;, &amp;lt; offset \_Real &amp;gt;	;又跳回实模式
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;又跳回实模式了
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+_Real:	mov	ax, cs
+mov	ds, ax
+mov	es, ax
+mov	ss, ax
+_DisableA20				;关闭A20地址线
+sti
+mov	ax, 4c00h
+int	21h				;退出程序
+Jmain 	Endp
+CodeSeg	Ends
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+End	Jmain</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-09-10
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/protect2/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">保护模式2:保护模式下32位代码段和16位代码段切换</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E4%BB%A3%E7%A0%81/">
+            <span class="next-text nav-default">引导扇区代码</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

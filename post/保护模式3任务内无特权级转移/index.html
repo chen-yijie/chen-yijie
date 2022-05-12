@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>保护模式3:任务内无特权级转移 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="在前面那篇文章中已经有从16位代码到32位代码的转换, 其实那就是任务内无特权级转换, 那么对于控制转移还没有特别提到. 这篇和下一篇就专门讲控制" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F3%E4%BB%BB%E5%8A%A1%E5%86%85%E6%97%A0%E7%89%B9%E6%9D%83%E7%BA%A7%E8%BD%AC%E7%A7%BB/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="保护模式3:任务内无特权级转移" />
+<meta property="og:description" content="在前面那篇文章中已经有从16位代码到32位代码的转换, 其实那就是任务内无特权级转换, 那么对于控制转移还没有特别提到. 这篇和下一篇就专门讲控制" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F3%E4%BB%BB%E5%8A%A1%E5%86%85%E6%97%A0%E7%89%B9%E6%9D%83%E7%BA%A7%E8%BD%AC%E7%A7%BB/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-09-14T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-09-14T00:00:00+00:00" />
+
+<meta itemprop="name" content="保护模式3:任务内无特权级转移">
+<meta itemprop="description" content="在前面那篇文章中已经有从16位代码到32位代码的转换, 其实那就是任务内无特权级转换, 那么对于控制转移还没有特别提到. 这篇和下一篇就专门讲控制"><meta itemprop="datePublished" content="2011-09-14T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-09-14T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2837">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="保护模式3:任务内无特权级转移"/>
+<meta name="twitter:description" content="在前面那篇文章中已经有从16位代码到32位代码的转换, 其实那就是任务内无特权级转换, 那么对于控制转移还没有特别提到. 这篇和下一篇就专门讲控制"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">保护模式3:任务内无特权级转移</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-09-14 </span>
+        <div class="post-category">
+            <a href="/categories/prote/"> prote </a>
+            </div>
+          <span class="more-meta"> 约 2837 字 </span>
+          <span class="more-meta"> 预计阅读 6 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>在前面那篇文章中已经有从16位代码到32位代码的转换, 其实那就是任务内无特权级转换, 那么对于控制转移还没有特别提到. 这篇和下一篇就专门讲控制转移的&hellip;</p>
+<p>代码实现逻辑: 首先在dos下初始化GDT和LDT表, 然后装载GDTR, 从实模式切换到保护模式,当然是关中断的.. 转移到保护模式后, 就装在LDTR, 装在堆栈. 装载各个选择子.. 都是指向LDT中的.. 描述符.. GDT只有进入和返回用到..然后在gdt中利用jmp指令转移到LDT中的一个16位段, 在16位段显示了一个字符串.. 然后就跳到LDT中的32位段. 大部分工作都在LDT的32位段中搞的..</p>
+<p>原来写代码一直比较倾向于MASM9. 这里如果我们跳到32位段以后. 只要自己不切换段, 那么写代码就和Win32没有什么区别了, 只是没有那么多API给调用. 全部自己搞..</p>
+<p>在这个32位段中做的事情说起来也很简单, 就是显示所有LDT局部描述符表中的描述符.. 我总共定义了6个段. 显示这6个段的基址偏远. 和属性. 只是代码有点多了. 逻辑倒是比较简单!</p>
+<p>因为代码中我们要把LDT当成数据段来访问. 所以想要访问LDT, 或者GDT那么必须使用<strong>别名技术</strong>.</p>
+<p><strong>因为没有办法把系统段描述符的选择子装载到段寄存器的.</strong></p>
+<p>有图有真相, 下面这个截图就是在Bochs中跑起来的样子, 是不是很有成就感啊.. 呵呵搞定这个LDT和转移, 就可以开始向调用门什么的开始进军了.. 太暴力了!!  还是上代码吧.. 当然惯例. 贴一个下载地址.. <br>
+        <a href="http://www.joenchen.com/JoenTools/Protect3.rar">http://www.joenchen.com/JoenTools/Protect3.rar</a></p>
+<p><img src="images/Protect3.jpg" alt="">  </p>
+<p>;============================================================================
+;使用jmp, Call实现任务内无特权级变换实例(使用了LDT)
+;编译选项请参见 makefile  TAB = 8
+;============================================================================
+.686p
+Include pm.inc
+option casemap:none</p>
+<p>Stack_Len	equ	1024	;堆栈大小
+;============================================================================
+;全局描述符
+GdtDataSeg	Segment	use16
+GDT	label	byte				;全局描述符表
+Dummy:		Descriptor	0, 0, 0		;空的描述符
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;				;段基址	  	;段界限		;属性
+Normal:		Descriptor	0, 		0ffffh,		DA_DRW 	;规范段描述符
+g_Code16Desc:	Descriptor 	0,		0ffffh, 	DA_C	;非一致代码段16位
+g_LdtTable:	Descriptor	0,	 	LdtLen-1, 	DA_LDT	;局部描述符表段的描述符</p>
+<p>GDTLen	equ	$ - GDT				;GDT长度
+GDT_Ptr		word	GDTLen-1		;VGDT
+dword	0
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+NormalSelector	equ	Normal 		- GDT				;规范段选择子
+Code16Selector	equ	g_Code16Desc 	- GDT				;代码段选择子
+LdtSelector	equ	g_LdtTable	- GDT				;LDT段的选择子
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+_RegSp		word	?			;用于保存SS:SP
+_RegSs		word	?
+GdtDataSeg	Ends
+;============================================================================
+LdtDataSeg	Segment	 use16			;局部描述符表
+LDT	label	byte
+;段基址	  	;段界限		;属性
+L_Code16Desc:	Descriptor 	0,	L_Code16SegLen, 	DA_C	;非一致代码段16位
+L_Code32Desc:	Descriptor 	0,	L_Code32SegLen, DA_C + DA_32  	;非一致代码段32位
+L_VideoDesc:	Descriptor	0b8000h,	0ffffh, 	DA_DRW	;显存段(可读写)
+L_AliasDesc:	Descriptor	0,    	      	LdtLen-1,DA_DRW or DA_DPL3;LDT别名段(可读写, 别名技术)
+L_DataDesc:	Descriptor	0, 		0ffffh, 	DA_DR	;数据段, 可读
+L_StackDesc:	Descriptor	0, 		Stack_Len-1, 	DA_DRW	;堆栈段</p>
+<p>LdtLen 		= $ - LDT
+LdtCount	= ( $ - LDT ) / 8					;LDT描述符数量除以8是因为一个描述符8字节
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+L_Code16Selector	equ	L_Code16Desc - LDT + SA_TIL		;LDT16位代码段选择子这里需要+4表示TI位为1
+L_Code32Selector	equ	L_Code32Desc - LDT + SA_TIL		;LDT32位代码段
+L_VideoSelector		equ	L_VideoDesc  - LDT + SA_TIL		;LDT视频段选择子
+L_AliasSelector		equ	L_AliasDesc  - LDT + SA_TIL + SA_RPL3	;LDT别名数据段, 3环可访问
+L_DataSelector		equ	L_DataDesc   - LDT + SA_TIL		;LDT数据段选择子
+L_StackSelector		equ	L_StackDesc  - LDT + SA_TIL		;LDT堆栈段选择子
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+LdtDataSeg	Ends</p>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+L_StackSeg	Segment	use16				;保护模式下的堆栈
+byte	Stack_Len dup(0)
+L_StackSeg	Ends
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+L_DataSeg	Segment	use16				;16位数据段
+SzPrompt	byte	&quot;Show LDT Segment Information. Protect By Joen!&quot;, 0
+SzBase		byte	&quot;LDT Base:    &quot;, &quot;LDT Limit:    &quot;, &quot;LDT Attribute:    &quot;, 0
+L_DataSeg	Ends
+;============================================================================
+;局部描述符中的16位段
+;============================================================================
+L_Code16Seg	Segment	use16</p>
+<p>_ShowMessage	Proc	far	uses bx si		;显示一条信息</p>
+<pre><code>lea	si, SzPrompt
+mov	di, 5\*80\*2+5\*2				;5行5列
+mov	cx, sizeof SzPrompt
+cld
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;显示一条提示信息
+@@:	lodsb
+mov	ah, 07h					;属性
+stosw
+loop	@b</p>
+<pre><code>ret
+</code></pre>
+<p>_ShowMessage 	Endp</p>
+<p>L_Code16SegLen	= $ - L_Code16Seg			;段长度
+L_Code16Seg	Ends</p>
+<p>;============================================================================
+;局部描述符中的32位段
+;============================================================================
+L_Code32Seg	Segment	use32</p>
+<p>;;将al中的数字转成ASCII加上显示属性并在EAX中返回
+_HexToAscii	Proc 	 uses ebx</p>
+<pre><code>mov	bl, al
+
+and	al, 0fh
+add	al, 90h
+daa
+adc	al, 40h
+daa
+mov	ah, 7h
+shl	eax, 16					;转换低位		
+
+mov	al, bl
+shr	al, 4
+and	al, 0fh
+add	al, 90h
+daa
+adc	al, 40h					;将高位转成ASCII
+daa
+mov	ah, 07h					;属性
+
+ret
+</code></pre>
+<p>_HexToAscii 	Endp
+;============================================================================
+;换行, _dwValue传递当前的行列号, 计算好在Eax中返回下一行开始
+;============================================================================
+_PrintLn	Proc	uses ebx  _dwValue:dword
+mov	eax, _dwValue
+mov	bl, 160
+div	bl
+and	eax, 0FFh
+inc	eax
+mov	bl, 160
+mul	bl
+ret
+_PrintLn 	Endp
+;============================================================================
+;显示一条信息_lpStr:字符串首地址
+;_dwXY开始显示地址
+;============================================================================
+_PrintMessage	Proc	uses esi edi  _lpStr:dword, _dwXY:dword</p>
+<pre><code>mov	esi, \_lpStr
+xor	ecx, ecx
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+@@:	mov	al, byte ptr ds:[esi]
+inc	esi
+inc	ecx
+or	al, al
+jnz	@b					;ecx == 字符串长度
+dec	ecx
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+mov	esi, _lpStr
+mov	edi, _dwXY
+@@:	lodsb
+mov	ah, 07h					;属性
+stosw
+loop	@b
+ret
+_PrintMessage 	Endp</p>
+<p>_PrintLdt	Proc	far</p>
+<pre><code>lea	eax, SzBase
+Invoke	\_PrintMessage, eax, 7\*80\*2+5\*2		;第7行5列打印一个字符串
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;循环遍历所有的ldt表项
+xor	esi, esi
+xor	ebx, ebx</p>
+<pre><code>Invoke	\_PrintLn, 7\*80\*2+5\*2			;换行
+mov	edi, eax
+add	edi, 5 \* 2				;从第5行开始显示
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;打印基址
+@@:	mov	al, 'x'
+mov	ah, 07h					;打印Ox
+shl	eax, 16
+mov	al, '0'
+mov	ah, 07h
+stosd</p>
+<pre><code>mov	al, byte ptr fs:\[esi+7\]			;基址bit4
+call	\_HexToAscii
+stosd
+mov	al, byte ptr fs:\[esi+4\]			;基址bit2
+call	\_HexToAscii
+stosd
+mov	al, byte ptr fs:\[esi+3\]			;基址bit1
+call	\_HexToAscii
+stosd
+mov	al, byte ptr fs:\[esi+2\]			;基址bit0
+call	\_HexToAscii
+stosd
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;转换限长
+add	edi, 3 * 2				;再过来5个格子
+mov	al, 'x'
+mov	ah, 07h					;打印Ox
+shl	eax, 16
+mov	al, '0'
+mov	ah, 07h
+stosd</p>
+<pre><code>mov	al, byte ptr fs:\[esi+6\]			;基址的高4位
+and	al, 0fh
+call	\_HexToAscii
+shr	eax, 16
+stosw
+
+mov	al, byte ptr fs:\[esi+1\]			;限长高位
+call	\_HexToAscii
+stosd		
+
+mov	al, byte ptr fs:\[esi\]			;限长低位
+call	\_HexToAscii
+stosd
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;转换属性
+add	edi, 7 * 2				;再过来7个格子
+mov	al, 'x'
+mov	ah, 07h					;打印Ox
+shl	eax, 16
+mov	al, '0'
+mov	ah, 07h
+stosd</p>
+<pre><code>mov	al, byte ptr fs:\[esi+6\]
+shr	al, 4
+call	\_HexToAscii				;转换属性高位
+shr	eax, 16
+stosw
+
+mov	al, byte ptr fs:\[esi+5\]			;转换属性低位
+call	\_HexToAscii
+stosd
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+Invoke	_PrintLn, edi
+mov	edi, eax				;再换行
+add	edi, 5 * 2				;从第5行开始显示
+add	esi, 8					;描述符的大小
+inc	ebx
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+cmp	ebx, LdtCount				;遍历完所有的LDT描述符么?
+jb	@b
+Jmp32	g_Code16Desc, _LdtRet			;32位段-&gt;16位段</p>
+<p>_PrintLdt 	Endp</p>
+<p>L_Code32SegLen	 = $ - L_Code32Seg			;段长度
+L_Code32Seg_Entry= _PrintLdt - L_Code32Seg		;定义段内入口
+L_Code32Seg	Ends</p>
+<p>;============================================================================
+;16位段, 由实模式跳入
+;============================================================================
+g_Code16Seg	Segment	use16</p>
+<p>_Entry:
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+mov	ax, LdtSelector
+lldt	ax					;装载ldt</p>
+<pre><code>mov	ax, L\_StackSelector
+mov	ss, ax
+mov	sp, Stack\_Len				;初始化堆栈
+
+mov	ax, L\_DataSelector
+mov	ds, ax					;初始化数据段
+
+mov	ax, L\_VideoSelector
+mov	es, ax					;es--&amp;gt;视频段
+
+mov	ax, L\_AliasSelector
+mov	fs, ax					;fs--&amp;gt;Ldt别名段
+
+;CALLLDT中的16位段
+CALL16	L\_Code16Selector, &amp;lt; \_ShowMessage &amp;gt;	;显示一个字符串
+
+;16位段-&amp;gt;32位段
+Jmp16	L\_Code32Selector, &amp;lt; L\_Code32Seg\_Entry &amp;gt;	;打印LDT段信息
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;准备退回实模式
+_LdtRet:mov	ax, NormalSelector
+mov	fs, ax					;规范选择子
+mov	es, ax
+mov	ds, ax
+mov	ss, ax</p>
+<pre><code>mov	eax, cr0				;关PE位, 进入实模式
+and	al, 0feh
+mov	cr0, eax
+
+;刷新段选择子缓冲区, 退回实模式
+Jmp16	&amp;lt;seg StartCode &amp;gt;, &amp;lt; offset \_RetProtect &amp;gt;
+</code></pre>
+<p>g_Code16Seg	Ends
+;============================================================================
+;这里是代码入口, 由此跳入保护模式
+;============================================================================
+StartCode	Segment	use16
+_InitGdt	Proc	uses es				;初始化全局描述符表</p>
+<pre><code>xor	eax, eax
+mov	ax, GdtDataSeg
+mov	es, ax					;es--&amp;gt;全局描述符表
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+shl	eax, 4
+add	eax, offset GDT
+mov	dword ptr es:[GDT_Ptr+2], eax		;初始化VGDT描述符
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+mov	ax, g_Code16Seg				;初始化十六位的代码段
+shl	eax, 4
+mov	word ptr es:[g_Code16Desc+2], ax	;段基址低位
+shr	eax, 16
+mov	byte ptr es:[g_Code16Desc+4], al	;段基址高地址低位
+mov	byte ptr es:[g_Code16Desc+7], ah	;段基址高地址高位
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+mov	ax, LdtDataSeg				;初始化LDT描述符
+shl	eax, 4
+mov	word ptr es:[g_LdtTable+2], ax		;段基址低位
+shr	eax, 16
+mov	byte ptr es:[g_LdtTable+4], al		;段基址高地址低位
+mov	byte ptr es:[g_LdtTable+7], ah		;段基址高地址高位
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+lgdt	fword ptr es:[GDT_Ptr]			;装载GDT
+ret
+_InitGdt 	Endp
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+_InitLdt	Proc					;初始化局部描述符</p>
+<pre><code>xor	eax, eax
+mov	ax, LdtDataSeg				;es--&amp;gt;局部描述符表
+mov	es, ax
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+mov	ax, L_Code16Seg				;初始化LGT中的16位代码段
+shl	eax, 4
+mov	word ptr es:[L_Code16Desc+2], ax	;段基址的低地址
+shr	eax, 16
+mov	byte ptr es:[L_Code16Desc+4], al	;段基址高地址低位
+mov	byte ptr es:[L_Code16Desc+7], ah	;段基址的高地址高位
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+mov	ax, L_Code32Seg				;初始化LGT中的32位代码段
+shl	eax, 4
+mov	word ptr es:[L_Code32Desc+2], ax
+shr	eax, 16
+mov	byte ptr es:[L_Code32Desc+4], al
+mov	byte ptr es:[L_Code32Desc+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+mov	ax, L_DataSeg				;初始化LGT中的16位只读数据段
+shl	eax, 4
+mov	word ptr es:[L_DataDesc+2], ax
+shr	eax, 16
+mov	byte ptr es:[L_DataDesc+4], al
+mov	byte ptr es:[L_DataDesc+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+mov	ax, LdtDataSeg				;初始化LGD的别名段
+shl	eax, 4
+mov	word ptr es:[L_AliasDesc+2], ax
+shr	eax, 16
+mov	byte ptr es:[L_AliasDesc+4], al
+mov	byte ptr es:[L_AliasDesc+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+mov	ax, L_StackSeg				;初始化LGT中的16位可读写堆栈段
+shl	eax, 4
+mov	word ptr es:[L_StackDesc+2], ax
+shr	eax, 16
+mov	byte ptr es:[L_StackDesc+4], al
+mov	byte ptr es:[L_StackDesc+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+ret
+_InitLdt 	Endp
+Jmain		Proc					;程序入口</p>
+<pre><code>call	\_InitGdt				;初始化全局描述符表
+call	\_InitLdt				;初始化局部描述符表
+
+mov	ax, GdtDataSeg
+mov	ds, ax
+
+push	ss
+pop	ds:\[\_RegSs\]
+push	sp
+pop	ds:\[\_RegSp\]				;保存SS:SP
+
+cli
+\_EnableA20					;关中断开A20地址线
+
+mov	eax, cr0
+or	eax, 1
+mov	cr0, eax				;开启分段, 进入保护模式
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+Jmp16	Code16Selector, &lt;offset _Entry&gt;
+_RetProtect::						;退回保护模式
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+mov	ax, GdtDataSeg
+mov	ds, ax
+mov	ax, ds:[ _RegSs ]			;恢复SS:SP
+mov	ss, ax
+mov	ax, ds:[ _RegSp ]
+mov	sp, ax</p>
+<pre><code>\_DisableA20					;关A20地址线, 开中断
+sti
+mov	ax, 4c00h
+int	21h
+</code></pre>
+<p>Jmain		Endp
+StartCode	Ends
+End		Jmain</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-09-14
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F4%E4%BB%BB%E5%8A%A1%E5%86%85%E7%89%B9%E6%9D%83%E7%BA%A7%E5%8F%98%E6%8D%A2%E8%BD%AC%E7%A7%BB/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">保护模式4:任务内特权级变换转移</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/protect2/">
+            <span class="next-text nav-default">保护模式2:保护模式下32位代码段和16位代码段切换</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

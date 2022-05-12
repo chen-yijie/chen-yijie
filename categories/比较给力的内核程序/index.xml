@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>比较给力的内核程序 on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+    <link>https://xchen.com/categories/%E6%AF%94%E8%BE%83%E7%BB%99%E5%8A%9B%E7%9A%84%E5%86%85%E6%A0%B8%E7%A8%8B%E5%BA%8F/</link>
+    <description>Recent content in 比较给力的内核程序 on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 08 Sep 2018 00:00:00 +0000</lastBuildDate><atom:link href="https://xchen.com/categories/%E6%AF%94%E8%BE%83%E7%BB%99%E5%8A%9B%E7%9A%84%E5%86%85%E6%A0%B8%E7%A8%8B%E5%BA%8F/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>关于libusb,libusbx,libusbK,libusb-win32,WinUSB的关系</title>
+      <link>https://xchen.com/post/%E5%85%B3%E4%BA%8Elibusblibusbxlibusbklibusb-win32winusb%E7%9A%84%E5%85%B3%E7%B3%BB/</link>
+      <pubDate>Sat, 08 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%85%B3%E4%BA%8Elibusblibusbxlibusbklibusb-win32winusb%E7%9A%84%E5%85%B3%E7%B3%BB/</guid>
+      <description>刚开始接触USB驱动编程，一般是利用现成的库来做，但是网上一搜索，发现一大堆各种各样的lib把人搞的很头疼，这边总结一下。 == libusb == **说明：*</description>
+    </item>
+    
+    <item>
+      <title>windbg 命令收集</title>
+      <link>https://xchen.com/post/windbg-%E5%91%BD%E4%BB%A4%E6%94%B6%E9%9B%86/</link>
+      <pubDate>Wed, 05 Feb 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/windbg-%E5%91%BD%E4%BB%A4%E6%94%B6%E9%9B%86/</guid>
+      <description>windbg的命令非常多. 有很多漂亮的命令, 用一次以后突然会忘记. 还是记下来比较合适啊. 符号相关: !sym noisy :开启符号打印. 这样符号加载的信息显示</description>
+    </item>
+    
+    <item>
+      <title>KiFastCallEntry KiServiceExit</title>
+      <link>https://xchen.com/post/kifastcallentry-kiserviceexit/</link>
+      <pubDate>Mon, 10 Dec 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/kifastcallentry-kiserviceexit/</guid>
+      <description>从R3进入R0的代码很多人也有做过分析了. 这几天我也仔细看了下, 算是弄明白了. Windows不但有从R3进入R0的框架代码, 其实R0反调用R</description>
+    </item>
+    
+    <item>
+      <title>搞定Windbg 串口双机调试</title>
+      <link>https://xchen.com/post/%E6%90%9E%E5%AE%9Awindbg-%E4%B8%B2%E5%8F%A3%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/</link>
+      <pubDate>Mon, 17 Sep 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%90%9E%E5%AE%9Awindbg-%E4%B8%B2%E5%8F%A3%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/</guid>
+      <description>原来一直以为这个挺复杂的, 昨天我去买了串口线, 顺便买了1394的线. 串口线的话买的时候注意说两头都是母口的, 9针口. 母口的话, 就是可 以被插入</description>
+    </item>
+    
+    <item>
+      <title>虚拟磁盘光驱(FileDisk)</title>
+      <link>https://xchen.com/post/%E8%99%9A%E6%8B%9F%E7%A3%81%E7%9B%98%E5%85%89%E9%A9%B1filedisk/</link>
+      <pubDate>Sat, 03 Dec 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E8%99%9A%E6%8B%9F%E7%A3%81%E7%9B%98%E5%85%89%E9%A9%B1filedisk/</guid>
+      <description>这几天总算把这个开源的FileDisk给分析完了. 分析完以后收获不少, 有些经验了. 其实对于前面写的那个中断无法和R3进行交互的问题, 我们可以</description>
+    </item>
+    
+    <item>
+      <title>WDF虚拟磁盘驱动(RamDisk)</title>
+      <link>https://xchen.com/post/wdf%E8%99%9A%E6%8B%9F%E7%A3%81%E7%9B%98%E9%A9%B1%E5%8A%A8ramdisk/</link>
+      <pubDate>Tue, 29 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/wdf%E8%99%9A%E6%8B%9F%E7%A3%81%E7%9B%98%E9%A9%B1%E5%8A%A8ramdisk/</guid>
+      <description>这是寒江独钓里面第5章的例子了, 分析自DDK中的RamDisk驱动. 具体来说没有太大的用处, 只是对WDF驱动的套路有个了解吧, 但是这个WDF</description>
+    </item>
+    
+    <item>
+      <title>键盘过滤二(接管93h中断)</title>
+      <link>https://xchen.com/post/%E9%94%AE%E7%9B%98%E8%BF%87%E6%BB%A4%E4%BA%8C%E6%8E%A5%E7%AE%A193h%E4%B8%AD%E6%96%AD/</link>
+      <pubDate>Sun, 27 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E9%94%AE%E7%9B%98%E8%BF%87%E6%BB%A4%E4%BA%8C%E6%8E%A5%E7%AE%A193h%E4%B8%AD%E6%96%AD/</guid>
+      <description>这两天确实有些纠结啊, 理想很丰满, 现实很骨感.. 上一篇已经把键盘过滤写完, 用的是挂一个设备到KbdClass类驱动的设备上面.这是很正统的做</description>
+    </item>
+    
+    <item>
+      <title>键盘过滤一(绑定KbdClass)</title>
+      <link>https://xchen.com/post/%E9%94%AE%E7%9B%98%E8%BF%87%E6%BB%A4%E4%B8%80%E7%BB%91%E5%AE%9Akbdclass/</link>
+      <pubDate>Fri, 25 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E9%94%AE%E7%9B%98%E8%BF%87%E6%BB%A4%E4%B8%80%E7%BB%91%E5%AE%9Akbdclass/</guid>
+      <description>这是寒江独钓里面的第4章的第一个例子, 绑定键盘设备, 采用的是绑定KbdClass驱动对象下的所有设备对象的做法, 算是比较高层了. 不过在这层进</description>
+    </item>
+    
+    <item>
+      <title>串口过滤</title>
+      <link>https://xchen.com/post/%E4%B8%B2%E5%8F%A3%E8%BF%87%E6%BB%A4/</link>
+      <pubDate>Thu, 24 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E4%B8%B2%E5%8F%A3%E8%BF%87%E6%BB%A4/</guid>
+      <description>终于鸟枪换炮, 可以写点东西了. Windows驱动编程详解从12章后面基本上就是讲各种硬件的开发了, 先放放, 还是以内核模块的开发为主. 所以可以</description>
+    </item>
+    
+  </channel>
+</rss>

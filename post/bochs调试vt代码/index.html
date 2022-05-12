@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>bochs调试VT代码 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="这边使用bochs调试代码实在是太郁闷了. 今天我索性要将我所有bochs上遇到的调试问题说一下.想要用bochs调试(VT)代码一定要耐心," /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/bochs%E8%B0%83%E8%AF%95vt%E4%BB%A3%E7%A0%81/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="bochs调试VT代码" />
+<meta property="og:description" content="这边使用bochs调试代码实在是太郁闷了. 今天我索性要将我所有bochs上遇到的调试问题说一下.想要用bochs调试(VT)代码一定要耐心," />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/bochs%E8%B0%83%E8%AF%95vt%E4%BB%A3%E7%A0%81/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2012-10-17T00:00:00+00:00" />
+<meta property="article:modified_time" content="2012-10-17T00:00:00+00:00" />
+
+<meta itemprop="name" content="bochs调试VT代码">
+<meta itemprop="description" content="这边使用bochs调试代码实在是太郁闷了. 今天我索性要将我所有bochs上遇到的调试问题说一下.想要用bochs调试(VT)代码一定要耐心,"><meta itemprop="datePublished" content="2012-10-17T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2012-10-17T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1462">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="bochs调试VT代码"/>
+<meta name="twitter:description" content="这边使用bochs调试代码实在是太郁闷了. 今天我索性要将我所有bochs上遇到的调试问题说一下.想要用bochs调试(VT)代码一定要耐心,"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">bochs调试VT代码</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2012-10-17 </span>
+        <div class="post-category">
+            <a href="/categories/virtual-technology/"> virtual-technology </a>
+            </div>
+          <span class="more-meta"> 约 1462 字 </span>
+          <span class="more-meta"> 预计阅读 3 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>这边使用bochs调试代码实在是太郁闷了. 今天我索性要将我所有bochs上遇到的调试问题说一下.想要用bochs调试(VT)代码一定要耐心, 不然就想杀人.</p>
+<p>安装bochs的系统参考这个帖子 <a href="http://bbs.pediy.com/showthread.php?t=134693&amp;highlight=bochs">http://bbs.pediy.com/showthread.php?t=134693&amp;highlight=bochs</a></p>
+<p>首先看了这篇帖子(<a href="http://bbs.pediy.com/showthread.php?t=139031" title="http://bbs.pediy.com/showthread.php?t=139031">http://bbs.pediy.com/showthread.php?t=139031</a>)说开启VT的办法. 然后我去下载了bochs 2.6 版本的代码.注意了是2.6版本的代码, bochs每个版本的代码编译都不一样. 最新的2.6.2编译就恶心多了.</p>
+<p>bochs 2.6版本的代码编译非常简单, 直接将config.h</p>
+<p>#define BX_SUPPORT_VMX 0</p>
+<p>改成</p>
+<p>#define BX_SUPPORT_VMX 2</p>
+<p>到这里Cpu就已经支持VT了. 但是BIOS没有开启. 改这个</p>
+<p>BX_CPU_THIS_PTR msr.ia32_feature_ctrl =
+/*BX_IA32_FEATURE_CONTROL_LOCK_BIT | */BX_IA32_FEATURE_CONTROL_VMX_ENABLE_BIT;</p>
+<p>把注释去掉.</p>
+<p>BX_CPU_THIS_PTR msr.ia32_feature_ctrl =
+BX_IA32_FEATURE_CONTROL_LOCK_BIT | BX_IA32_FEATURE_CONTROL_VMX_ENABLE_BIT;</p>
+<p>完了之后, 编译处理就是开启VT的bochs了. 可以直接跑VT程序了. 我看整个网上的人抄来抄去也就是这么点内容了.我在想这些人是怎么进行VT代码调试的呢? windbg只能进入noroot模式. 进入root模式以后我的windbg直接就没响应了.所以要搞定调试, 需要这么几步, 首先要编译一个bochsdbg.exe出来. 在2.6版本的代码上将</p>
+<p>#define BX_DEBUGGER 0
+改成
+#define BX_DEBUGGER 1</p>
+<p>编译一堆错, 不应该啊, 网上文章什么的都说改了这个标记位就可以了啊. 报这个错.</p>
+<p>#error &ldquo;Handler-chaining-speedups are not supported together with internal debugger or gdb-stub!&rdquo;</p>
+<p>我靠. 不按套路出牌? 索性把这个定义改了.</p>
+<p>#define BX_SUPPORT_HANDLERS_CHAINING_SPEEDUPS 1</p>
+<p>改成</p>
+<p>#define BX_SUPPORT_HANDLERS_CHAINING_SPEEDUPS 0</p>
+<p>整个世界清静了. 代码成功编译出来, 搞个release版本的出来, 改名bochsdbg.exe覆盖2.6的那个bochsdbg.exe哈哈. 启动起来就断在第一行代码了. 兴奋不已. 装个windows. 这个网上有方法了. 完了之后开启magic_break断点. 在配置文件添加这么一行</p>
+<p>magic_break: enabled=1</p>
+<p>这样遇到xchg bx,bx指令的时候就会断下. 类似windbg的插入int 3断点, 但是问题来了. 你开启magic_break断点以后估计你永远也跑不到windows的界面. 因为中间有个地方有这个指令, 并且会循环的运行到. 我靠. 居然有这样的事情. 原来在写保护模式代码的时候就纠结过一次了. 不过那次反正也不进windows, 无所谓了. 但是现在不行啊.</p>
+<p>百度 google.. 都没有遇到这个问题?? 你们都是怎么调试的?我就不信你们能够单步进windows. 那你们是下断点?bochs好像没有类似windbg .process cr3的功能. 也就是说没法在未知的情况下下线性地址断点. 下硬件断点断windows有点开玩笑. 比较好的做法还是xchg bx,bx断点啊, 可是现在windows有个循环就有这么条纠结的指令.</p>
+<p>既然前面都改了bochs的源码, 那只能一条道走到黑了. 最后跟了下bochs的代码, 没有想象中的难嘛. 最后定位到这个函数</p>
+<p>BX_INSF_TYPE BX_CPP_AttrRegparmN(1) BX_CPU_C::XCHG_EwGwR(bxInstruction_c *i){}</p>
+<p>在这里就有一个判断opcode的地方.</p>
+<p>// Note for mortals: the instruction to trigger this is &ldquo;xchgw %bx,%bx&rdquo;
+if (bx_dbg.magic_break_enabled &amp;&amp; (i-&gt;src() == 3) &amp;&amp; (i-&gt;dst() == 3))</p>
+<p>哈哈. scr = 3, dst = 3那就是bx, bx了. 了解指令编码的人应该都很容易修改了. 我本来想一条非常偏门的指令的比如CMOVO. 但是为了简单. 我直接在将代码改成这样.</p>
+<p>//
+// 这里我们改成 xchg sp,sp
+//
+if (bx_dbg.magic_break_enabled &amp;&amp; (i-&gt;src() == 4) &amp;&amp; (i-&gt;dst() == 4))
+{
+BX_CPU_THIS_PTR magic_break = 1;
+BX_NEXT_INSTR(i);
+}</p>
+<p>哈哈. 搞定. 直接进去windows都没有出声了. 加载个驱动. 里面加一行 xchg sp,sp马上断下来. 太牛逼了. 真是雪我十余年激愤.. 这下终于可以舒服的调试bochs的代码了.恩这边顺便把修改好的VS2008代码也上传下. 方便大家. 方便自己.</p>
+<p><a href="http://www.joenchen.com/JoenTools/bochs-2.6-vs2008.rar" title="http://www.joenchen.com/JoenTools/bochs-2.6-vs2008.rar">http://www.joenchen.com/JoenTools/bochs-2.6-vs2008.rar</a></p>
+<p>这代码是已经支持VT技术, BIOS也开启了VT. 同时magic_break 改成了 xchg sp,sp了. 最后YY一下, 如果可以改下bochs的代码, 给他加上微软的调试符号那就牛逼了. 当然只是YY. YY啊.</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2012-10-17
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/vt-vmcs%E7%BB%93%E6%9E%84%E4%BF%A1%E6%81%AF/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">VT VMCS结构信息</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/windows%E7%9A%84%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/">
+            <span class="next-text nav-default">Windows的分页机制</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

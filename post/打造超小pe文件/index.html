@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>打造超小PE文件 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="PE文件能够多小?? 一次一次的打破了我的想象, 网上有人发了133B的PE文件, 我就在想他是如何做到的? 分析了下. 相当的给力. 不知道还能不能够" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E6%89%93%E9%80%A0%E8%B6%85%E5%B0%8Fpe%E6%96%87%E4%BB%B6/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="打造超小PE文件" />
+<meta property="og:description" content="PE文件能够多小?? 一次一次的打破了我的想象, 网上有人发了133B的PE文件, 我就在想他是如何做到的? 分析了下. 相当的给力. 不知道还能不能够" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E6%89%93%E9%80%A0%E8%B6%85%E5%B0%8Fpe%E6%96%87%E4%BB%B6/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-07-17T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-07-17T00:00:00+00:00" />
+
+<meta itemprop="name" content="打造超小PE文件">
+<meta itemprop="description" content="PE文件能够多小?? 一次一次的打破了我的想象, 网上有人发了133B的PE文件, 我就在想他是如何做到的? 分析了下. 相当的给力. 不知道还能不能够"><meta itemprop="datePublished" content="2011-07-17T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-07-17T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2220">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="打造超小PE文件"/>
+<meta name="twitter:description" content="PE文件能够多小?? 一次一次的打破了我的想象, 网上有人发了133B的PE文件, 我就在想他是如何做到的? 分析了下. 相当的给力. 不知道还能不能够"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">打造超小PE文件</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-07-17 </span>
+        <div class="post-category">
+            <a href="/categories/sdk/"> sdk </a>
+            </div>
+          <span class="more-meta"> 约 2220 字 </span>
+          <span class="more-meta"> 预计阅读 5 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>PE文件能够多小?? 一次一次的打破了我的想象, 网上有人发了133B的PE文件, 我就在想他是如何做到的? 分析了下. 相当的给力. 不知道还能不能够再小?</p>
+<p>网上不少的手写PE文件的, 不过大多200B以上. 原来我自己也倒腾过PE文件, 不过都是按照套路一个一个字段的填写. 昨天偶然看了下人家写的. 那是多么的给力啊, IMAGE_DOS_HEADER和IMAGE_NT_HEADERS进行了重叠. 重叠还是小Case. 我们知道IMAGE_NT_HEADERS的IMAGE_OPTIONAL_HEADER32里面有非常多字段是用不到的, 所以即使IMAGE_NT_HEADERS和IMAGE_DOS_HEADER重叠也是节约不了多少空间的. 那么IMAGE_OPTIONAL_HEADER32头里面那些字段还应该怎么利用呢? 答案大牛已经给出了,把代码,和导入表, 字符串资源全部整合进去, 打造出来的PE文件就一个IMAGE_DOS_HEADER + IMAGE_NT_HEADERS的大小, 给力, 非常的给力.</p>
+<p>特别是到最后这个地方, Exporot导出表居然只有一个字节?? 我倒. 以前还不知道导出表一个字节也可以跑. 因为原来是两个dword类型, 一个是偏移一个是大小, 他大小直接省略, 偏移用了一个字节. 可以吗? 这样可以吗? 事实证明这个程序确实是可以跑起来的. 只能够说明作者对PE文件, 和Windows的装载机制很了解了.</p>
+<p>PE文件的代码是从njhhack的blog上down下来的, 不过是TASM的语法, 和Masm虽然差别不是很大, 不过我也懒得去倒腾Tasm了. 所以我修改成了Masm的语法, 我至今不知道Masm里面如何才能够生成一个没有任何东西的.exe文件, 最后我只能退而求其次了. 使用com文件, 这个好使. 你搞的是什么, 最后就是什么, 一点东西都不多. 原来Fasm一直有那么多的信仰者. 也是有道理的.. 有的时候用Masm做点规则之外的事情也是很麻烦. 比如像用Masm生成一个不带任何框架的函数, 也是很麻烦, C语言还有类似的关键字,或许Masm有这个语法. 不过也没有见人搞过. 有知道的一定告诉我哈. 不要和我说直接定义标号什么的, 我想生成一个不带框架的函数. 然后导出. 不知道怎么搞定. 扯远了, 还是看看这个PE文件吧!</p>
+<p>参考: njhhack的专栏 绝影的blog</p>
+<p><a href="http://blog.csdn.net/njhhack/article/details/2120019">http://blog.csdn.net/njhhack/article/details/2120019</a></p>
+<p><a href="http://blog.csdn.net/hitetoshi/article/details/3296253">http://blog.csdn.net/hitetoshi/article/details/3296253</a></p>
+<p>PE文件下载(直接点击里面的make.bat就可以生成一个133B的PE文件了):</p>
+<p><a href="http://bmu009001.chinaw3.com/JoenTools/MinPe.rar" title="超小PE文件下载">http://bmu009001.chinaw3.com/JoenTools/MinPe.rar</a></p>
+<p>看看大牛都是如何做的</p>
+<p>;*************************************************************************
+;打造超小的win32 PE文件, 编译我已经都给出了, 只需要运行目录下的make.bat
+;就可以生成一个130K的PE文件, 灰常的给力啊.
+;***************************************************************************
+.386
+.model tiny
+ImageBase	equ		400000h			;模块基址
+.Code
+DefineStart:
+;===========================================================================
+;想要压缩PE文件首先要做的事情就是必须把Dos头和Pe头进行融合. 还有导入表,
+;好好的看了人家搞的MinPE, 真是佩服的五体投地啊,
+;===========================================================================
+DosSignature		word		5a4dh           ;MZ 标志
+word		0ffffh
+NtSignature		dword		4550h           ;PE 标志
+Machine			word		014ch           ;Intel 80386
+MumberOfSection		word		1		;节区数量
+;===========================================================================
+;这里正好是IMAGE_FILE_HEADER的3个字段, 什么值都是无所谓的
+;===========================================================================
+User32			byte		&ldquo;user32.dll&rdquo;, 0, 0ffh
+;TimeDateStamp		dword		0		;FileHeader&ndash;&gt;TimeDateStamp
+;PointerToSymbolTable	dword		0		;FileHeader&ndash;&gt;PointerToSymbolTable
+;NumberOfSymbols	dword		0		;FileHeader&ndash;&gt;NumberOfSymbols</p>
+<p>SizeOfOptionalHeader	word		OptionHeaderSize;可选头大小
+Characteristics		word		010fh		;属性标志(exe)
+;===========================================================================
+;可选头
+;===========================================================================
+Magic			word		10bh		;普通可执行镜像10bh
+LinkerVersion		word		0ffffh		;连接器版本, 随便
+;===========================================================================
+;这里正好是IMAGE_OPTIONAL_HEADER的3个字段, 也是无所谓什么值的
+;===========================================================================
+SzMessageBoxA		byte		&ldquo;MessageBoxA&rdquo;, 0
+;SizeOfCode		dword		0		;OptionalHeader&ndash;&gt;SizeOfCode
+;SizeOfInitializedData	dword		0		;OptionalHeader&ndash;&gt;SizeOfInitializedData
+;SizeOfUninitializedData dword		0		;OptionalHeader&ndash;&gt;SizeOfUninitializedData
+AddressOfEntryPoint	dword		Start		;程序入口</p>
+<p>;===========================================================================
+;这里又有2个字段是随便什么值的, 8字节不要浪费
+;===========================================================================
+;BaseOfCode		dword		0
+;BaseOfData		dword		0
+Next3:
+word		15ffh		;Call MessageBoxA
+dword		ImageBase + IAT1
+ret
+byte		0ffh
+;===========================================================================
+_ImageBase		dword		ImageBase	;建议装载地址
+SectionAlignment	dword		4		;内存对齐 DosHead&ndash;&gt;e_lfanew
+FileAlignment		dword		4		;文件对齐
+;===========================================================================
+;这里又是可选头的2个字段什么值无所谓, 又可以填充8个字节的代码
+;===========================================================================
+;OperationSystemVersion	dword				;操作系统版本
+;ImageVersion		dword				;用户自定义版本
+Start:
+mov	eax, offset SzMessageBoxA + ImageBase
+jmp	Next1
+byte		0ffh		;补够8字节
+;===========================================================================
+;这里2个字段8字节空间又可以填充一点代码
+;===========================================================================
+;SubsystemVersion	dword		任意
+;Win32VersionValue	dword		任意
+word		4
+Next1:
+push	65
+push	eax
+push	eax
+jmp	Next2
+;===========================================================================
+SizeOfImage		dword		ImageSize	;任意数值,要求大于SizeOfHeaders
+SizeOfHeaders		dword		FileHeaderSize	;文件头(Dos头, Pe头, 区表)大小
+OptionHeaderSize = $-Magic
+;===========================================================================
+;这里很多字段都是无所谓的, 一大片空间不能够浪费, 制造一个导入表,灰常给力
+;===========================================================================
+IAT:
+CheckSum		dword		0		;OriginalFirstThunk(无所谓值我们有FirstThunk就够了)
+Subsystem		word		2		;TimeDateStamp(无所谓值)
+DllCharacteristics	word		0ffh		;
+SizeOfStackReserve	dword		IAT1		;任意数值,(Virtual Size),   ForwarderChain
+SizeOfStackCommit	dword		User32		;任意数值,(Virtual Address),Name1, dll名称
+SizeOfHeapReserve       dword		IAT1            ;任意数值,(Raw Data Size),  FirstThunk IAT表
+SizeOfHeapCommit        dword 		User32          ;任意数值,(Raw Data Offset)
+;===========================================================================
+;一个可选头就把代码和导入表全部包括进去了, 以前真是太浪费了..可耻啊
+;这里4个字节不要浪费, LoaderFlags没有什么用, 加4个字节代码
+;===========================================================================
+;LoaderFlags		dword		0		;调试标记, 无所谓值
+Next2:
+push	0
+jmp	Next3
+NumberOfRvaAndSizes	dword 		2h              ;程序数据目录的项数
+;===========================================================================
+;接下来的就是数据目录了
+;===========================================================================
+IAT1:
+Ide00_Export		dword		SzMessageBoxA-2, 0;这个输出表应该没有什么意义, 占位置的
+;===========================================================================
+;我倒, 5c刚好是IAT这个地方, 输出表只占用了一个字节也可以?太了解
+;windows装载了吧
+;===========================================================================
+Ide01_Import		byte		IAT - DefineStart
+FileHeaderSize 		= $
+ImageSize		= FileHeaderSize + 4
+END</p>
+<p>里面注释非常, 齐全了. 我就不多说了, 总之就是前面说的DOS头和NT头,重叠了, 然后导入表放在了可选头里面. 代码也在可选头里面, 我只是分析了下,</p>
+<p>原作者贴了个代码, 什么也没有说, 估计他认为大家应该都是了解PE文件格式的..我就加了些注释, 应该有些帮助才是.</p>
+<p>代码在网页上不好看, 建议直接去下载那个源代码然后分析, 条件不够啊, 我也不知道怎么倒腾WordPress, 怎么才能够搞个代码高亮舒服点的, 你要知道可要教教我!</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-07-17
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E5%86%99%E8%87%AA%E5%AE%9A%E4%BD%8D%E4%BB%A3%E7%A0%81/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">写自定位代码</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E5%A5%BD%E7%94%A8%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%AE%8F/">
+            <span class="next-text nav-default">好用的字符串宏</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

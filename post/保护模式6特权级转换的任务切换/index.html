@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>保护模式6:特权级转换的任务切换 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="上一篇我们已经演示了特权级变换, 这一篇我们讲讲任务切换, 任务切换的话, 主要是特权级要注意, 如果特权级设置有错的话, 会崩溃. 关于这个任务切换可" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F6%E7%89%B9%E6%9D%83%E7%BA%A7%E8%BD%AC%E6%8D%A2%E7%9A%84%E4%BB%BB%E5%8A%A1%E5%88%87%E6%8D%A2/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="保护模式6:特权级转换的任务切换" />
+<meta property="og:description" content="上一篇我们已经演示了特权级变换, 这一篇我们讲讲任务切换, 任务切换的话, 主要是特权级要注意, 如果特权级设置有错的话, 会崩溃. 关于这个任务切换可" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F6%E7%89%B9%E6%9D%83%E7%BA%A7%E8%BD%AC%E6%8D%A2%E7%9A%84%E4%BB%BB%E5%8A%A1%E5%88%87%E6%8D%A2/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-09-20T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-09-20T00:00:00+00:00" />
+
+<meta itemprop="name" content="保护模式6:特权级转换的任务切换">
+<meta itemprop="description" content="上一篇我们已经演示了特权级变换, 这一篇我们讲讲任务切换, 任务切换的话, 主要是特权级要注意, 如果特权级设置有错的话, 会崩溃. 关于这个任务切换可"><meta itemprop="datePublished" content="2011-09-20T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-09-20T00:00:00+00:00" />
+<meta itemprop="wordCount" content="3478">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="保护模式6:特权级转换的任务切换"/>
+<meta name="twitter:description" content="上一篇我们已经演示了特权级变换, 这一篇我们讲讲任务切换, 任务切换的话, 主要是特权级要注意, 如果特权级设置有错的话, 会崩溃. 关于这个任务切换可"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">保护模式6:特权级转换的任务切换</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-09-20 </span>
+        <div class="post-category">
+            <a href="/categories/prote/"> prote </a>
+            </div>
+          <span class="more-meta"> 约 3478 字 </span>
+          <span class="more-meta"> 预计阅读 7 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>上一篇我们已经演示了特权级变换, 这一篇我们讲讲任务切换, 任务切换的话, 主要是特权级要注意, 如果特权级设置有错的话, 会崩溃.</p>
+<p>关于这个任务切换可以通过TSS进行任务切换, 或者通过任务门进行任务切换, 如果是通过TSS进行任务切换的话, 可以使用Jmp或者段间转移指令CALL进行任务切换, 对于TSS的访问权限同数据段, 所以只有同级或者更内层的特权级才可以进行任务切换. 显然还有其他需求, 所以可以改用任务门进行切换.</p>
+<p>如果Jmp或者CALL指向一个任务门描述符, 那么就按照数据段的访问规则检测任务门,对于TSS中的DPL却是忽略的, 还有任务门内的偏移是无效的. 这个和调用门有区别,要注意, 如果符合规则, 那么就可以开始任务切换了..</p>
+<p>任务切换这个东西的话, 不能够递归, 任务切换又切换到自己上面, 这是不行的,当然如果是用jmp指令进行任务切换的话, 不进行链接, 这个就不算递归了, 只有CALL才算</p>
+<p>对于Jmp和CALL都一样, 要求切换的任务必须是可用任务, 这个可以自己去修改段描述符,在代码中我们就修改了段描述符, 在测试任务返回演示任务的时候我们将原来的演示任务,从忙置为清闲, 才可以进行切换.</p>
+<p>所以关于这个任务切换的话, 也没有太多难搞定的东西了, 主要是特权级的问题, 如果特权级不对就不能够做任务切换, 不过也没有问题, Bochs里面会提示的, 遇到崩溃了Bochs有提示.依照提示改好就行.. 没有太多可说的..</p>
+<p>说说下面这个代码的逻辑含义, 首先在实模式下初始化该初始化的东西, 然后切换到保护模式的16位段在这个保护模式的代码段中, jmp到一个32位代码段, 然后在这个32位代码段中,  初始化测试任务的CS:EIP和演示任务的SS:ESP, LDTR, IOPL, 然后通过CALL切换到测试任务.</p>
+<p>测试任务的话也没有做什么东西, 就是显示下自己的特权级, 当然是CS 和SS都是一级的, 所以当前特权级就是一级了. 显示完自己的特权级后, 然后就通过call又切换回演示任务, 当然在切换之前, 要将演示任务的TSS描述符从忙改为闲, 这个是用一个别名段来做到的.</p>
+<p>切换到演示任务的时候, 再显示下自己的特权级, 当然现在特权级就是0级了, 然后切换到16位段, 从16位段切换到实模式, 然后搞定. 程序退出!</p>
+<p>代码的逻辑含义的话, 就这么点东西, 还是那句话, 任务切换的时候必须注意特权级.还和以前一样, 有图有真相.</p>
+<p>        <a href="http://www.joenchen.com/JoenTools/TaskSwitching.rar">http://www.joenchen.com/JoenTools/TaskSwitching.rar</a></p>
+<p><img src="images/TaskSwitching.jpg" alt="">  <br>
+ </p>
+<p>;============================================================================
+;演示保护模式下的任务切换
+;MASM9下编译. Link9.编译选项请参见 makefile  TAB = 8
+;============================================================================
+.686p
+Include pm.inc
+option casemap:none
+Stack_Len	equ	1024		;堆栈大小
+;============================================================================
+GdtSeg		Segment use16		;全局描述符表
+;				;段基址	;段界限			;属性
+Dummy:			Descriptor	0, 	0, 		0				;空的描述符
+Normal:			Descriptor	0, 	0ffffh,		 DA_DRW 			;规范段描述符
+g_CodeTempDesc:		Descriptor 	0,	0ffffh, 	 DA_C				;非一致代码段16位
+g_VideoDesc:		Descriptor	0b8000h,0ffffh, 	 DA_DRW or DA_DPL3		;显存段(可读写)
+g_Stack0Desc:		Descriptor	0, 	Stack_Len-1,	 DA_DRW or DA_32		;0环堆栈32
+g_DemoCodeDesc:		Descriptor	0,	DemoCodeSegLen-1, DA_C or DA_32			;32位代码段
+g_DemoDataDesc:		Descriptor	0,	DemoDataSegLen-1,DA_DRW or DA_32		;Demo数据段
+g_DemoTssDesc:		Descriptor	0,	DemoTssSegLen-1, DA_386TSS			;演示任务TSS段描述符
+g_DemoTssAliasDesc:	Descriptor	0,	DemoTssSegLen-1, DA_DRW or DA_DPL1 or DA_32	;演示任务TSS段的别名段
+g_TestTssDesc:		Descriptor	0,	TestTssSegLen-1, DA_386TSS			;测试任务TSS段描述符
+g_TestStack1Desc:	Descriptor	0,	Stack_Len-1, 	 DA_DRW or DA_DPL1 or DA_32	;1环堆栈段
+g_TestCodeDesc:		Descriptor	0,	TestCodeSegLen-1,DA_C or DA_32 or DA_DPL1	;32位测试代码段
+g_TestTssAliasDesc:	Descriptor	0, 	TestTssSegLen-1, DA_DRW or DA_32		;TSS别名数据段
+g_GdtAliasDesc:		Descriptor	0,	GDTLen-1,	 DA_DRW or DA_32 or DA_DPL1	;GDT别名段
+g_TestLdtDesc:		Descriptor	0,	LdtTestSegLen -1,DA_LDT				;测试代码段的LDT描述符
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;任务门			段选择子		入口	参数个数	属性
+g_TestTask: 	Gate 	g_TestTssSelector,_TestCodeBegin,	0, 	DA_TaskGate		;386任务门指向测试任务
+g_DemoTask: 	Gate 	g_DemoTssSelector,_DemoEnd,		0, 	DA_TaskGate or DA_DPL1	;386任务门从测试任务返回
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+GDT_Ptr		word	GDTLen-1				;VGDT
+dword	0
+_IDT_Ptr        fword   0                       		;VIDT
+_RegSp		word	?					;用于保存SS:SP
+_RegSs		word	?
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+NormalSelector		equ	Normal 			- GdtSeg			;规范段选择子
+g_CodeTempSelector	equ	g_CodeTempDesc 		- GdtSeg			;代码段选择子
+g_Stack0Selector	equ	g_Stack0Desc		- GdtSeg			;0环堆栈段选择子
+g_DemoDataSelector	equ	g_DemoDataDesc		- GdtSeg			;Demo数据段选择子
+g_TestStack1Selector	equ	g_TestStack1Desc	- GdtSeg + SA_RPL1		;测试任务段的1环选择子
+g_VideoSelector		equ	g_VideoDesc  		- GdtSeg 			;LDT视频段选择子
+g_DemoCodeSelector	equ	g_DemoCodeDesc		- GdtSeg			;32位演示代码段选择子
+g_DemoTssAliasSelector	equ	g_DemoTssAliasDesc	- GdtSeg + SA_RPL1		;演示任务的别名段
+g_DemoTssSelector	equ	g_DemoTssDesc		- GdtSeg			;TSS演示段描述符选择子
+g_TestTssSelector	equ	g_TestTssDesc		- GdtSeg			;TSS测试段描述符选择子
+g_TestCodeSelector	equ	g_TestCodeDesc		- GdtSeg + SA_RPL1		;32位测试代码段选择子
+g_TestTssAliasSelector	equ	g_TestTssAliasDesc	- GdtSeg			;任务段别名段选择子
+g_TestTaskSelector	equ	g_TestTask		- GdtSeg			;任务门选择子
+g_TestLdtSelector	equ	g_TestLdtDesc		- GdtSeg			;测试代码段的LDT
+g_GdtAliasSelector	equ	g_GdtAliasDesc		- GdtSeg + SA_RPL1		;GDT别名段
+GDTLen			equ	$ - GdtSeg						;GDT长度
+GdtSeg		Ends
+;============================================================================
+LdtTestSeg		Segment use32			;测试任务段的LDT
+L_TestDataDesc:		Descriptor	0,	TestDataSegLen-1, DA_DRW or DA_DPL1	;测试任务数据段</p>
+<p>L_TestDataSelector	equ	L_TestDataDesc - LdtTestSeg + SA_TIL			;测试代码的数据段
+LdtTestSegLen		equ	$ - LdtTestSeg
+LdtTestSeg		Ends
+;============================================================================
+Stack0		Segment use32
+byte	Stack_Len dup (0)
+Stack0		Ends
+;============================================================================
+Stack1		Segment use32
+byte	Stack_Len dup (0)
+Stack1		Ends
+;============================================================================
+TestDataSeg	Segment use32				;测试代码段的数据段
+SzTestMessage	byte	&quot;Test Task Privilege level: 0x&quot;, 0
+TestDataSegLen		equ	$ - TestDataSeg
+TestDataSeg	Ends
+;============================================================================
+DemoDataSeg	Segment use32				;Demo代码段的数据段
+SzDemoMessage	byte	&quot;Test Task Privilege level: 0x&quot;, 0
+DemoDataSegLen		equ	$ - DemoDataSeg
+DemoDataSeg	Ends
+;============================================================================
+IdtSeg		Segment use32				;中断描述符表
+IdtSegLen		equ	$ - IdtSeg
+IdtSeg		Ends
+;============================================================================
+TestCodeSeg	Segment use32				;测试代码段</p>
+<p>_TestCodeBegin	equ	$ - TestCodeSeg			;测试代码段入口
+TestCodeBegin	Proc</p>
+<pre><code>mov	ax, g\_VideoSelector
+mov	es, ax
+mov	ax, L\_TestDataSelector
+mov	ds, ax
+cld
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;显示调用任务的CS,
+mov	esi, offset SzTestMessage
+mov	ecx, sizeof SzTestMessage - 1
+mov	edi, 80 * 2 * 5 + 5 * 2			;5行5列</p>
+<p>@@:	lodsb
+mov	ah, 0ch					;显示字符串1
+stosw
+loop	@b
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+mov	ax, cs
+and	al, 11b
+xor	cl, cl
+shl	al, 7
+rcl	cl, 1					;将特权级的高位移动过来
+add	cl, '0'</p>
+<pre><code>sal	al, 1
+rcl	al, 1
+add	al, &amp;#39;0&amp;#39;
+mov	ah, 0ch
+shl	eax, 16
+mov	al, cl
+mov	ah, 0ch					;打印特权级
+stosd
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;将任务由忙到可用
+mov	ax, g_GdtAliasSelector			;GDT别名段
+mov	fs, ax
+mov	ebx, offset g_DemoTssDesc		;DEMO描述符
+mov	al, byte ptr fs:[ebx+5]			;置任务为可用任务
+and	al,0f0h
+or	al, 9h					;将任务置为可用
+mov	byte ptr fs:[ebx+5], al
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;改变任务的执行位置, 比较邪恶
+mov	ax, g_DemoTssAliasSelector
+mov	fs, ax					;fs&ndash;&gt;临时代码别名段
+mov	esi, offset DemoTss
+mov	eax, _DemoEnd
+mov	dword ptr fs:[esi+TSS.regEip], eax
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+CALL32	g_DemoTask, 0				;返回0环
+TestCodeBegin 	Endp
+TestCodeSegLen	equ	$ - TestCodeSeg
+TestCodeSeg	Ends
+;============================================================================
+DemoCodeSeg	Segment use32				;演示代码段</p>
+<p>_DemoBegin		equ	$ - DemoCodeSeg
+DemoBegin	Proc					;32位代码段入口</p>
+<pre><code>mov	ax, g\_TestTssAliasSelector		;TSS别名段
+mov	ds, ax
+mov	ebx, offset TestTss
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;初始化演示代码段的SS:ESP和CS:EIP
+mov	word ptr ds:[ebx+TSS.regSs], g_TestStack1Selector
+mov	dword ptr ds:[ebx+TSS.regEsp], Stack_Len;初始化TSS的SS:ESP</p>
+<pre><code>mov	word ptr ds:\[ebx+TSS.regCs\], g\_TestCodeSelector
+mov	dword ptr ds:\[ebx+TSS.regEip\], \_TestCodeBegin
+mov	dword ptr ds:\[ebx+TSS.regEflags\], IOPL1	;TSS的IOPL值
+mov	word ptr ds:\[ebx+TSS.regLdtr\], g\_TestLdtSelector
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;通过任务门转移到 TestCodeSeg&ndash;&gt;_TestCodeBegin
+CALL32	g_TestTaskSelector, 0
+DemoBegin 	Endp
+;============================================================================
+_DemoEnd		equ	$ - DemoCodeSeg
+DemoEnd		Proc					;从1环返回</p>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;打印一个字符串DemoTask!
+mov	ax, g_VideoSelector
+mov	es, ax</p>
+<pre><code>mov	ax, g\_DemoDataSelector
+mov	ds, ax
+cld
+
+mov	esi, offset SzDemoMessage
+mov	ecx, sizeof SzDemoMessage - 1
+mov	edi, 80 \* 2 \* 6 + 5 \* 2			;5行5列
+</code></pre>
+<p>@@:	lodsb
+mov	ah, 0ch
+stosw
+loop	@b
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+mov	ax, cs
+and	al, 11b
+xor	cl, cl
+shl	al, 7
+rcl	cl, 1					;将特权级的高位移动过来
+add	cl, '0'</p>
+<pre><code>sal	al, 1
+rcl	al, 1
+add	al, &amp;#39;0&amp;#39;
+mov	ah, 0ch
+shl	eax, 16
+mov	al, cl
+mov	ah, 0ch					;打印特权级
+stosd
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+Jmp32	g_CodeTempSelector, _GoToProtect	;返回实模式
+DemoEnd 	Endp
+DemoCodeSegLen		equ	$ - DemoCodeSeg
+DemoCodeSeg	Ends
+;============================================================================
+DemoTssSeg	Segment use32				;演示任务TSS段
+DemoTss	TSS &lt;0&gt;
+byte	0ffh
+DemoTssSegLen		equ	$ - DemoTssSeg
+DemoTssSeg	Ends
+;============================================================================
+TestTssSeg	Segment use32				;测试任务TSS段
+TestTss	TSS &lt;0&gt;
+IoMap	label	byte					;IO许可位图
+TestTssSegLen		equ	$ - TestTssSeg
+TestTssSeg	Ends
+;============================================================================
+;16位段, 由实模式跳入
+;============================================================================
+g_Code16Seg	Segment	use16
+_GoToProtect	Proc					;返回实模式
+mov	ax, NormalSelector
+mov	fs, ax					;规范选择子
+mov	es, ax
+mov	ds, ax
+mov	ss, ax
+clts						;清除任务标记</p>
+<pre><code>mov	eax, cr0				;关PE位, 进入实模式
+and	al, 0feh
+mov	cr0, eax
+
+;刷新段选择子缓冲区, 退回实模式
+Jmp16	&amp;lt;seg StartCodeSeg &amp;gt;, &amp;lt; offset \_RealProtect &amp;gt;
+</code></pre>
+<p>_GoToProtect 	Endp
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+_ProtectEntry	Proc					;实模式跳入入口
+mov	ax, 0
+mov	ds, ax
+mov	es, ax
+mov	fs, ax
+mov	gs, ax					;置各选择子为NULL</p>
+<pre><code>mov	ax, g\_Stack0Selector
+mov	ss, ax
+mov	esp, Stack\_Len				;初始化0环Ss:Esp
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+mov	ax, g_DemoTssSelector
+ltr	ax					;装载TSS任务寄存器</p>
+<pre><code>;16位转32位代码段
+Jmp16	g\_DemoCodeSelector, &amp;lt;\_DemoBegin &amp;gt;
+</code></pre>
+<p>_ProtectEntry 	Endp
+g_Code16Seg	Ends
+;============================================================================
+;起始代码段初始化保护模式的各个结构, 然后跳入保护模式
+;============================================================================
+StartCodeSeg	Segment use16
+_InitGdt	Proc	uses es				;初始化全局描述符表
+local	_Vidt:fword</p>
+<pre><code>xor	eax, eax
+mov	ax, GdtSeg
+mov	es, ax					;es--&amp;gt;全局描述符表
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+shl	eax, 4
+mov	dword ptr es:[GDT_Ptr+2], eax		;初始化VGDT描述符
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+xor	eax, eax
+mov	ax, g_Code16Seg				;初始化十六位的代码段
+shl	eax, 4
+mov	word ptr es:[g_CodeTempDesc+2], ax	;段基址低位
+shr	eax, 16
+mov	byte ptr es:[g_CodeTempDesc+4], al	;段基址高地址低位
+mov	byte ptr es:[g_CodeTempDesc+7], ah	;段基址高地址高位
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+xor	eax, eax
+mov	ax, Stack0				;初始化0环堆栈段
+shl	eax, 4
+mov	word ptr es:[g_Stack0Desc+2], ax
+shr	eax, 16
+mov	byte ptr es:[g_Stack0Desc+4], al
+mov	byte ptr es:[g_Stack0Desc+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+xor	eax, eax
+mov	ax, DemoCodeSeg				;初始化32位代码段
+shl	eax, 4
+mov	word ptr es:[g_DemoCodeSelector+2], ax
+shr	eax, 16
+mov	byte ptr es:[g_DemoCodeSelector+4], al
+mov	byte ptr es:[g_DemoCodeSelector+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+xor	eax, eax
+mov	ax, DemoTssSeg				;初始化演示TSS段描述符
+shl	eax, 4
+mov	word ptr es:[g_DemoTssDesc+2], ax
+shr	eax, 16
+mov	byte ptr es:[g_DemoTssDesc+4], al
+mov	byte ptr es:[g_DemoTssDesc+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+xor	eax, eax
+mov	ax, TestTssSeg				;初始化测试TSS段描述符
+shl	eax, 4
+mov	word ptr es:[g_TestTssDesc+2], ax
+shr	eax, 16
+mov	byte ptr es:[g_TestTssDesc+4], al
+mov	byte ptr es:[g_TestTssDesc+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+xor	eax, eax
+mov	ax, Stack1				;初始化1环堆栈段
+shl	eax, 4
+mov	word ptr es:[g_TestStack1Desc+2], ax
+shr	eax, 16
+mov	byte ptr es:[g_TestStack1Desc+4], al
+mov	byte ptr es:[g_TestStack1Desc+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+xor	eax, eax
+mov	ax, DemoDataSeg				;初始化Demo数据段
+shl	eax, 4
+mov	word ptr es:[g_DemoDataDesc+2], ax
+shr	eax, 16
+mov	byte ptr es:[g_DemoDataDesc+4], al
+mov	byte ptr es:[g_DemoDataDesc+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+xor	eax, eax
+mov	ax, TestCodeSeg				;初始化测试代码段
+shl	eax, 4
+mov	word ptr es:[g_TestCodeDesc+2], ax
+shr	eax, 16
+mov	byte ptr es:[g_TestCodeDesc+4], al
+mov	byte ptr es:[g_TestCodeDesc+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+xor	eax, eax
+mov	ax, TestTssSeg				;初始化测试代码别名段
+shl	eax, 4
+mov	word ptr es:[g_TestTssAliasDesc+2], ax
+shr	eax, 16
+mov	byte ptr es:[g_TestTssAliasDesc+4], al
+mov	byte ptr es:[g_TestTssAliasDesc+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+xor	eax, eax
+mov	ax, DemoTssSeg				;初始化演示代码别名段
+shl	eax, 4
+mov	word ptr es:[g_DemoTssAliasDesc+2], ax
+shr	eax, 16
+mov	byte ptr es:[g_DemoTssAliasDesc+4], al
+mov	byte ptr es:[g_DemoTssAliasDesc+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+xor	eax, eax
+mov	ax, GdtSeg				;初始化GDT别名段
+shl	eax, 4
+mov	word ptr es:[g_GdtAliasDesc+2], ax
+shr	eax, 16
+mov	byte ptr es:[g_GdtAliasDesc+4], al
+mov	byte ptr es:[g_GdtAliasDesc+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+xor	eax, eax
+mov	ax, LdtTestSeg				;初始化测试代码段的LDT
+shl	eax, 4
+mov	word ptr es:[g_TestLdtDesc+2], ax
+shr	eax, 16
+mov	byte ptr es:[g_TestLdtDesc+4], al
+mov	byte ptr es:[g_TestLdtDesc+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+sidt	fword ptr es:[_IDT_Ptr]			;保存IDT</p>
+<pre><code>mov	word ptr ss:\[\_Vidt\], IdtSegLen		;IDT长度
+mov	eax, IdtSeg
+shl	eax, 4
+mov	dword ptr ss:\[\_Vidt+2\], eax
+
+lidt	fword ptr ss:\[\_Vidt\]			;装载IDT
+lgdt	fword ptr es:\[GDT\_Ptr\]			;装载GDT
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+ret
+_InitGdt 	Endp
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+_InitLdt	Proc	uses es</p>
+<pre><code>mov	ax, LdtTestSeg
+mov	es, ax
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+xor	eax, eax
+mov	ax, TestDataSeg				;初始化测试代码段的数据段
+shl	eax, 4
+mov	word ptr es:[L_TestDataDesc+2], ax
+shr	eax, 16
+mov	byte ptr es:[L_TestDataDesc+4], al
+mov	byte ptr es:[L_TestDataDesc+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+ret
+_InitLdt 	Endp
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+Jmain		Proc</p>
+<pre><code>call	\_InitGdt				;初始化GDT全局描述符
+call	\_InitLdt				;初始化LDT局部描述符
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+mov	ax, GdtSeg
+mov	ds, ax</p>
+<pre><code>mov	ds:\[\_RegSs\], ss
+mov	ds:\[\_RegSp\], sp				;保存SS:SP
+cli
+\_EnableA20					;关中断开A20地址线
+mov	eax, cr0
+or	eax, 1
+mov	cr0, eax				;开启分段, 进入保护模式
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+Jmp16	g_CodeTempSelector, &lt;offset _ProtectEntry&gt;;跳入保护模式</p>
+<p>Jmain 		Endp
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+_RealProtect	Proc                                    ;返回保护模式</p>
+<pre><code>    mov     ax, GdtSeg
+    mov     ds, ax
+    lss	sp, dword ptr ds:\[\_RegSp\]		;恢复SS:SP
+    lidt	fword ptr ds:\[\_IDT\_Ptr\]			;恢复IDT
+
+    \_DisableA20                                     ;关A20地址线, 开中断
+    sti
+    mov     ax, 4c00h
+    int     21h
+</code></pre>
+<p>_RealProtect	Endp
+StartCodeSeg	Ends</p>
+<p>End	Jmain</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-09-20
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F6%E4%B8%AD%E6%96%AD%E5%A4%84%E7%90%86/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">保护模式7:中断处理</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F5%E7%89%B9%E6%9D%83%E7%BA%A7/">
+            <span class="next-text nav-default">保护模式5:特权级</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

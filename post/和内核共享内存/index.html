@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>和内核共享内存 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="Windows确实给我们提供了很多的内存共享方法,有同进程的, 有不同进程的, 各种方法都有, 我看kmdkit中介绍了一种和内核共享内存的方法," /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E5%92%8C%E5%86%85%E6%A0%B8%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="和内核共享内存" />
+<meta property="og:description" content="Windows确实给我们提供了很多的内存共享方法,有同进程的, 有不同进程的, 各种方法都有, 我看kmdkit中介绍了一种和内核共享内存的方法," />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E5%92%8C%E5%86%85%E6%A0%B8%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-11-01T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-11-01T00:00:00+00:00" />
+
+<meta itemprop="name" content="和内核共享内存">
+<meta itemprop="description" content="Windows确实给我们提供了很多的内存共享方法,有同进程的, 有不同进程的, 各种方法都有, 我看kmdkit中介绍了一种和内核共享内存的方法,"><meta itemprop="datePublished" content="2011-11-01T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-11-01T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2462">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="和内核共享内存"/>
+<meta name="twitter:description" content="Windows确实给我们提供了很多的内存共享方法,有同进程的, 有不同进程的, 各种方法都有, 我看kmdkit中介绍了一种和内核共享内存的方法,"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">和内核共享内存</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-11-01 </span>
+        <div class="post-category">
+            <a href="/categories/kernel/"> kernel </a>
+            </div>
+          <span class="more-meta"> 约 2462 字 </span>
+          <span class="more-meta"> 预计阅读 5 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>Windows确实给我们提供了很多的内存共享方法,有同进程的, 有不同进程的, 各种方法都有, 我看kmdkit中介绍了一种和内核共享内存的方法, 确实很不错. 忍不住自己写了一下, 确实很好用. 看来以后用这种方法就可以做到和内核共享内存了, 利用注册表啊什么的共享还是有点欠缺实时性. 还是这个MDL共享内存好.</p>
+<p>关于这个MDL, 我想如果要深挖的话, 估计有很多内容被挖掘出来, 但是目前也没有看到哪里有提到, 我倒. 先用着,套路就是这么个套路, 先申请一段不被分页的内存, 然后在调用IoAllocateMdl将一页内存转换成MDL. 转换好了以后还是虚拟地址, 然后调用MmBuildMdlForNonPagedPool将物理页面映射到系统地址空间, 但是显然我们需要在用户态使用这个页面, 所以还要调用MmMapLockedPagesSpecifyCache映射物理页映射到虚拟内存地址, 因为第二个参数是UserMode, 所以映射成功的话可以被用户态所访问到. 就是这样. 将一个页面映射成用户态也可以访问..</p>
+<p>我倒. 但是这个有个关键性的问题. 就是这个MDL内部做的是什么动作? 虽然对于CPU的分页机制是比较了解了, 但是Windows在这几个函数内部到底做了些什么工作呢? 我想需要走的路还有很长啊!</p>
+<p>说说这个代码的逻辑含义吧, 首先在用户态这边打开了内核创建的设备然后调用DeviceIoControl发送控制码, 发送完了以后如果程序执行成功的话会返回一片内存空间, 然后这边内存空间的前面部分就是一个FILETIME结构了, 然后转换这个结构.在一个Static中显示出来.</p>
+<p>内核这边也是了, 上来就是老套路, 创建设备啊什么的, 然后等待用户态这边发送DeviceIoControl码, 在这里将一页内存映射成可以被用户态可以访问的状态, 并将页内存返回给用户态, 然后创建一个Timer对象, 每隔一秒不断的获取当前的时间写入这篇内存. 所以用户态这边才可以显示出时间.</p>
+<p>这个内存映射很帅啊. 写内核态的代码就是牛, 如果技术够牛. 那得写出多少暴力的东西啊!</p>
+<p><a href="http://www.joenchen.com/JoenTools/DeviceIoControlIo.rar">http://www.joenchen.com/JoenTools/DeviceIoControlIo.rar</a></p>
+<p>看用户态的代码:</p>
+<p>/*
+Windows内核下用户态和内核共享内存 3环代码
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;windowsx.h&gt;
+#include &ldquo;resource.h&rdquo;</p>
+<p>#define  SYS_LINK_NAME	&ldquo;\\\\.\\SysLinkShareMemory&rdquo;
+#define  IOCTL_MEMORY	CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800,METHOD_BUFFERED, FILE_READ_ACCESS )
+#define  TIMER_ID	100
+#define  STATIC_EDIT	1000</p>
+<p>#pragma comment(linker, &ldquo;/Entry:Jmain&rdquo;)
+#pragma comment(linker, &ldquo;/subsystem:windows&rdquo;)</p>
+<p>PVOID g_pShareMemory;
+//===========================================================================
+/*
+WM_INITDIALOG消息处理
+*/
+BOOL Test_OnInitDialog( HWND hWnd, HWND hwndFocus, LPARAM lParam ) {</p>
+<pre><code>SetTimer(hWnd, TIMER\_ID, 1000, NULL );
+
+return TRUE;
+</code></pre>
+<p>}
+//===========================================================================
+/*
+WM_TIMER消息
+*/
+void Test_OnTimer(HWND hWnd, UINT id) {
+SYSTEMTIME StTime;
+CHAR buf[128];</p>
+<pre><code>if ( g\_pShareMemory ) {
+	FileTimeToSystemTime( (FILETIME\*)g\_pShareMemory, &amp;StTime );
+	wsprintf( buf, &quot;%02d:%02d:%02d&quot;, StTime.wHour, StTime.wMinute, StTime.wSecond );
+
+	SendDlgItemMessage( hWnd, STATIC\_EDIT, WM\_SETTEXT, 0, (LPARAM)buf );
+
+}
+</code></pre>
+<p>}
+//===========================================================================
+/*
+WM_CLOSE消息处理
+*/
+void Test_OnClose( HWND hWnd ) {</p>
+<pre><code>KillTimer(hWnd, TIMER\_ID );
+EndDialog( hWnd, 0 );
+ExitProcess(0);
+</code></pre>
+<p>}</p>
+<p>BOOL WINAPI DialogProc ( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {</p>
+<pre><code>switch ( uMsg ) {
+	HANDLE\_MSG( hWnd, WM\_CLOSE, Test\_OnClose );
+	HANDLE\_MSG( hWnd, WM\_INITDIALOG, Test\_OnInitDialog );
+	HANDLE\_MSG( hWnd,WM\_TIMER, Test\_OnTimer);
+}
+return FALSE;
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//入口
+int Jmain() {
+HANDLE hFile = 0;
+BOOL bRet;
+DWORD dwByteRead;</p>
+<pre><code>//打开设备
+hFile = CreateFile( SYS\_LINK\_NAME, GENERIC\_READ | GENERIC\_WRITE, 0, 0,
+                    OPEN\_EXISTING, FILE\_ATTRIBUTE\_NORMAL, 0  );
+if ( hFile == INVALID\_HANDLE\_VALUE ) {
+	printf( &quot;打开设备错误了!\\n&quot; );
+	return -1;
+} 
+
+bRet = DeviceIoControl(hFile, IOCTL\_MEMORY, NULL, 0, &amp;g\_pShareMemory,
+	sizeof(g\_pShareMemory), &amp;dwByteRead, NULL);
+if ( !bRet ) {
+	printf( &quot;DeviceIoControl 错误!\\n&quot; );
+	return -1;
+}
+
+DialogBox ( GetModuleHandle( NULL ), MAKEINTRESOURCE ( IDD\_DIALOG1 ), NULL, &amp;DialogProc );
+
+return 0;
+</code></pre>
+<p>}</p>
+<p>内核态的代码:</p>
+<p>/*
+Windows内核 用户态和内核共享内存 0环代码
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;ntddk.h&gt;</p>
+<p>#define  DEVICE_NAME	L&quot;\\Device\\DevJoenDevice&quot;
+#define  SYS_LINK_NAME	L&quot;\\??\\SysLinkShareMemory&quot;
+#define  IOCTL_MEMORY	CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800,METHOD_BUFFERED, FILE_READ_ACCESS )</p>
+<p>typedef struct tagDeviceExt {
+PDEVICE_OBJECT	pDeviceObj;
+UNICODE_STRING	USzDeviceName;
+UNICODE_STRING	USzSysLinkName;
+}DEVICEEXT, *PDEVICEEXT;</p>
+<p>PVOID g_pMdl;
+PVOID g_pShareMemory;
+PVOID g_pUserAddress;
+ULONG g_TimerFlags;
+//===========================================================================
+//清理资源
+VOID CleanUp( PDEVICE_OBJECT pDeviceObj ) {</p>
+<pre><code>if ( g\_TimerFlags ) {
+	//停止定时器过程
+	IoStopTimer( pDeviceObj );
+}
+
+if ( g\_pUserAddress != NULL &amp;&amp; g\_pMdl != NULL ) {
+	//释放前面开放给用户模式的内存映像
+	MmUnmapLockedPages( g\_pUserAddress, g\_pMdl );
+	g\_pUserAddress = NULL;
+}
+
+if ( g\_pMdl != NULL ) {
+	IoFreeMdl( g\_pMdl );			//是否MDL
+	g\_pMdl = NULL;
+}
+
+if ( g\_pShareMemory != NULL ) {
+	ExFreePool( g\_pShareMemory );		//释放内存
+	g\_pShareMemory = NULL;
+}
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//清理资源例程
+NTSTATUS DispatchCleanUp( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {</p>
+<pre><code>CleanUp( pDeviceObj );
+pIrp-&gt;IoStatus.Status = STATUS\_SUCCESS;
+pIrp-&gt;IoStatus.Information = 0;
+IoCompleteRequest( pIrp, IO\_NO\_INCREMENT );
+
+KdPrint( ( &quot;DispatchCleanUp例程调用完成!\\n&quot; ) );
+return STATUS\_SUCCESS;
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//	驱动卸载例程
+VOID DriverUnLoad( PDRIVER_OBJECT pDriverObj ) {
+PDEVICEEXT pDeviceExt;
+PDEVICE_OBJECT pNextDeviceObj;</p>
+<pre><code>pNextDeviceObj = pDriverObj-&gt;DeviceObject;
+
+while ( pNextDeviceObj != NULL ) {
+	pDeviceExt = pNextDeviceObj-&gt;DeviceExtension;
+
+	IoDeleteDevice( pDeviceExt-&gt;pDeviceObj );
+	IoDeleteSymbolicLink( &amp;pDeviceExt-&gt;USzSysLinkName );
+	pNextDeviceObj = pNextDeviceObj-&gt;NextDevice;
+
+	KdPrint( ( &quot;删除%wZ设备成功!\\n&quot;, &amp;pDeviceExt-&gt;USzSysLinkName ) );
+}
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//	时钟例程IRQL = DISPATCH_LEVEL
+VOID TimerRoutine( PDEVICE_OBJECT pDeviceObj,  PVOID pContext ) {
+LARGE_INTEGER liTimer;</p>
+<pre><code>KeQuerySystemTime( &amp;liTimer );
+ExSystemTimeToLocalTime( &amp;liTimer, g\_pShareMemory );
+
+//KdPrint(( &quot;%X%X\\n&quot;, liTimer.HighPart, liTimer.LowPart ));
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//	所有不关心的IRP处理
+NTSTATUS DispatchRoutine( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+pIrp-&gt;IoStatus.Information = 0;
+pIrp-&gt;IoStatus.Status = STATUS_SUCCESS;
+IoCompleteRequest( pIrp, IO_NO_INCREMENT );
+return STATUS_SUCCESS;
+}</p>
+<p>//===========================================================================
+//	写请求的过滤
+NTSTATUS DispatchDeviceIoControl( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+ULONG ulInBufLen;
+ULONG ulOutBufLen;
+NTSTATUS Status;
+ULONG Code, dwContext;
+PVOID pUserAddress = NULL;
+PVOID pOutputBuf = NULL;
+PDEVICEEXT pDeviceExt;
+PIO_STACK_LOCATION Stack;</p>
+<pre><code>Stack = IoGetCurrentIrpStackLocation( pIrp );
+//输入缓冲区大小
+ulInBufLen = Stack-&gt;Parameters.DeviceIoControl.InputBufferLength;
+//输出缓冲区大小
+ulOutBufLen = Stack-&gt;Parameters.DeviceIoControl.OutputBufferLength;
+//IO控制码
+Code = Stack-&gt;Parameters.DeviceIoControl.IoControlCode;
+
+Status = STATUS\_INVALID\_DEVICE\_REQUEST;
+pIrp-&gt;IoStatus.Information = 0;
+pDeviceExt = ( PDEVICEEXT )pDeviceObj-&gt;DeviceExtension;
+
+do {
+	//测试是否是符合要求的控制码
+	if ( Code != IOCTL\_MEMORY ) {
+		Status = STATUS\_INVALID\_DEVICE\_REQUEST;
+		break;
+		//测试缓冲区是否足够
+	} else if ( ulOutBufLen &lt; sizeof( PVOID ) ) {
+		Status = STATUS\_BUFFER\_TOO\_SMALL;
+		break;
+	}
+
+	g\_pShareMemory = ExAllocatePool( NonPagedPool, PAGE\_SIZE );
+
+	if ( !g\_pShareMemory ) {
+		KdPrint( ( &quot;内存分配失败!\\n&quot; ) );
+		break;
+	}
+
+	//将一页内存组织成MDL准备传递给用户层使用
+	g\_pMdl = IoAllocateMdl( g\_pShareMemory, PAGE\_SIZE, FALSE, FALSE, NULL );
+
+	if ( !g\_pMdl ) {
+		KdPrint( ( &quot;MDL分配失败!\\n&quot; ) );
+		break;
+	}
+
+	//将MDL描述的物理页面集合映射到系统地址空间(4G虚拟地址空间的高2G部分)
+	MmBuildMdlForNonPagedPool( g\_pMdl );
+
+	\_\_try {
+		//调用此函数有可能会产生异常, 需要在\_\_try中使用
+		//映射物理页到虚拟内存地址(用户态)可以被使用
+		g\_pUserAddress = MmMapLockedPagesSpecifyCache( g\_pMdl, UserMode, MmCached,
+			NULL, FALSE, NormalPagePriority );
+
+		if ( !g\_pUserAddress ) {
+			KdPrint( ( &quot;映射MDL地址时遇到错误!\\n&quot; ) );
+		} else {
+			KdPrint( ( &quot;映射MDL地址成功:%p!\\n&quot;, g\_pUserAddress ) );
+		}
+
+		//初始化内核定时器, 1S一次
+		Status = IoInitializeTimer( pDeviceObj, TimerRoutine, &amp;dwContext );
+
+		if ( !NT\_SUCCESS( Status ) ) {
+			KdPrint( ( &quot;初始化Timer失败!\\n&quot; ) );
+			break;
+		}
+
+		//启动定时器
+		IoStartTimer( pDeviceObj );
+
+		g\_TimerFlags = TRUE;
+		KdPrint( ( &quot;启动定时器成功!\\n&quot; ) );
+
+		//将共享地址写入用户层传入的缓冲区
+		pOutputBuf = pIrp-&gt;AssociatedIrp.SystemBuffer;
+		\*( ( ULONG\* )pOutputBuf ) = ( ULONG )g\_pUserAddress;
+
+		Status = STATUS\_SUCCESS;
+		pIrp-&gt;IoStatus.Information = ulOutBufLen;
+
+	}\_\_except( EXCEPTION\_EXECUTE\_HANDLER ) {
+		Status = STATUS\_UNSUCCESSFUL;
+		KdPrint( ( &quot;DeviceIoControl中遇到异常!\\n&quot; ) );
+	}
+} while ( FALSE );
+
+//如果前面发生了错误
+if ( !NT\_SUCCESS( Status ) ) {
+	CleanUp( pDeviceObj );
+}
+
+pIrp-&gt;IoStatus.Status = Status;
+IoCompleteRequest( pIrp, IO\_NO\_INCREMENT );
+return Status;
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//	驱动入口函数
+NTSTATUS DriverEntry( PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pUSzRegPath ) {
+ULONG i;
+NTSTATUS Status;
+PDEVICEEXT pDeviceExt;
+PDEVICE_OBJECT pDeviceObj;
+UNICODE_STRING USzDeviceName = RTL_CONSTANT_STRING( DEVICE_NAME );
+UNICODE_STRING USzSysLinkName = RTL_CONSTANT_STRING( SYS_LINK_NAME );</p>
+<pre><code>Status = IoCreateDevice( pDriverObj, sizeof( DEVICEEXT ), &amp;USzDeviceName,
+	FILE\_DEVICE\_UNKNOWN, 0, 0, &amp;pDeviceObj );
+
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint( ( &quot;创建设备失败!\\n&quot; ) );
+	return Status;
+}
+
+Status = IoCreateSymbolicLink( &amp;USzSysLinkName, &amp;USzDeviceName );
+
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint( ( &quot;创建符号链接失败!\\n&quot; ) );
+}
+
+//采用直接IO方式
+pDeviceObj-&gt;Flags |= DO\_BUFFERED\_IO;
+
+//设置设备扩展属性
+pDeviceExt = pDeviceObj-&gt;DeviceExtension;
+pDeviceExt-&gt;USzDeviceName = USzDeviceName;
+pDeviceExt-&gt;USzSysLinkName = USzSysLinkName;
+pDeviceExt-&gt;pDeviceObj = pDeviceObj;
+
+for ( i = 0; i &lt; IRP\_MJ\_MAXIMUM\_FUNCTION; i++ ) {
+	pDriverObj-&gt;MajorFunction\[i\] = &amp;DispatchRoutine;
+}
+
+//设置分发函数
+pDriverObj-&gt;DriverUnload = &amp;DriverUnLoad;
+pDriverObj-&gt;MajorFunction\[IRP\_MJ\_DEVICE\_CONTROL\] = &amp;DispatchDeviceIoControl;
+pDriverObj-&gt;MajorFunction\[IRP\_MJ\_CLEANUP\] = &amp;DispatchCleanUp;
+return Status;
+</code></pre>
+<p>}</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-11-01
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E6%8C%87%E9%92%88%E7%9A%84%E5%87%A0%E4%B8%AA%E5%B0%8F%E9%97%AE%E9%A2%98/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">指针的几个小问题</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/deviceiocontrol%E4%B8%8E%E9%A9%B1%E5%8A%A8%E4%BA%A4%E4%BA%92-2/">
+            <span class="next-text nav-default">DeviceIoControl与驱动交互</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

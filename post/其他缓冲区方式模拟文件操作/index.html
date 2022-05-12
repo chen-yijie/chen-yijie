@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>其他缓冲区方式模拟文件操作 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="还有一种操作内存的方式, MicroSoft没有给其起名字, 然后Windows驱动编程详解上面就叫这种方式为其他方式, 其实什么方式没有什么所谓" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E5%85%B6%E4%BB%96%E7%BC%93%E5%86%B2%E5%8C%BA%E6%96%B9%E5%BC%8F%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="其他缓冲区方式模拟文件操作" />
+<meta property="og:description" content="还有一种操作内存的方式, MicroSoft没有给其起名字, 然后Windows驱动编程详解上面就叫这种方式为其他方式, 其实什么方式没有什么所谓" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E5%85%B6%E4%BB%96%E7%BC%93%E5%86%B2%E5%8C%BA%E6%96%B9%E5%BC%8F%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-10-30T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-10-30T00:00:00+00:00" />
+
+<meta itemprop="name" content="其他缓冲区方式模拟文件操作">
+<meta itemprop="description" content="还有一种操作内存的方式, MicroSoft没有给其起名字, 然后Windows驱动编程详解上面就叫这种方式为其他方式, 其实什么方式没有什么所谓"><meta itemprop="datePublished" content="2011-10-30T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-10-30T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1287">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="其他缓冲区方式模拟文件操作"/>
+<meta name="twitter:description" content="还有一种操作内存的方式, MicroSoft没有给其起名字, 然后Windows驱动编程详解上面就叫这种方式为其他方式, 其实什么方式没有什么所谓"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">其他缓冲区方式模拟文件操作</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-10-30 </span>
+        <div class="post-category">
+            <a href="/categories/kernel/"> kernel </a>
+            </div>
+          <span class="more-meta"> 约 1287 字 </span>
+          <span class="more-meta"> 预计阅读 3 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>还有一种操作内存的方式, MicroSoft没有给其起名字, 然后Windows驱动编程详解上面就叫这种方式为其他方式, 其实什么方式没有什么所谓了.. 不过据说这种方式用的是非常少了. 一般需要快的时候使用MDL就已经很好了. 除非那种内核和用户态大量进行交互的程序才会想着用这个款式吧,貌似文件系统之类的驱动应该搞这个比较合适. 反正这个也只有学习的时候使用下了. 平时应该是用不到的.<br>
+ </p>
+<p>一直说用户态的地址直接传递进内核里面是会出问题的, 我至今没有搞明白, 不是说驱动的分发函数会一直在发起调用的进程空间运行么? 怎么会无缘无故的切换了呢?哪怕是进程调度, 回头再运行这个内核代码, 不是说也可以保证在发起调用的内存地址空间运行么? 这个问题一直没有搞明白..<br>
+ </p>
+<p>其他的话款式和上两篇是一样的, 就是模拟Windows那个文件读写的款式. 没有什么好说的, 直接上代码比较合适, 这里是内核态的代码, 用户层和前两篇是一样的, 就不列出了!</p>
+<p>        <a href="http://www.joenchen.com/JoenTools/OtherIo.rar">http://www.joenchen.com/JoenTools/OtherIo.rar</a></p>
+<p>/*
+Windows内核下模拟文件的读写操作, IRP的处理(直接使用3环地址) 0环代码
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;ntddk.h&gt;</p>
+<p>#define  DEVICE_NAME	L&quot;\\Device\\DevJoenDevice&quot;
+#define  SYS_LINK_NAME	L&quot;\\??\\SysLinkJoenDevice&quot;
+#define  MAX_LENGTH	1024</p>
+<p>typedef struct tagDeviceExt {
+ULONG		dwFileCurrentLength;
+CHAR*		pBuffer;
+PDEVICE_OBJECT	pDeviceObj;
+UNICODE_STRING	USzDeviceName;
+UNICODE_STRING	USzSysLinkName;
+}DEVICEEXT, *PDEVICEEXT;</p>
+<p>//===========================================================================
+//	驱动卸载例程
+VOID DriverUnLoad( PDRIVER_OBJECT pDriverObj ) {
+PDEVICEEXT pDeviceExt;
+PDEVICE_OBJECT pNextDeviceObj;</p>
+<pre><code>pNextDeviceObj = pDriverObj-&gt;DeviceObject;
+
+while ( pNextDeviceObj != NULL ) {
+	pDeviceExt = pNextDeviceObj-&gt;DeviceExtension;
+
+	IoDeleteDevice( pDeviceExt-&gt;pDeviceObj );
+	IoDeleteSymbolicLink( &amp;pDeviceExt-&gt;USzSysLinkName );
+	pNextDeviceObj = pNextDeviceObj-&gt;NextDevice;
+
+	KdPrint( ( &quot;删除%wZ设备成功!\\n&quot;, &amp;pDeviceExt-&gt;USzSysLinkName ) );
+}
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//	所有我们不关心的IRP处理, 直接放过
+NTSTATUS DispatchRoutin( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {</p>
+<pre><code>pIrp-&gt;IoStatus.Information = 0;
+pIrp-&gt;IoStatus.Status = STATUS\_SUCCESS;
+IoCompleteRequest( pIrp, IO\_NO\_INCREMENT );
+return STATUS\_SUCCESS;
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//	读请求过滤
+NTSTATUS DispatchRead( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+ULONG ulReadLen;
+ULONG ulReadOffset;
+PVOID pAddress;
+PDEVICEEXT pDeviceExt;
+NTSTATUS Status;
+PIO_STACK_LOCATION Stack;</p>
+<pre><code>Stack = IoGetCurrentIrpStackLocation( pIrp );
+
+//得到读取的长度和偏移量, 和地址
+ulReadLen = Stack-&gt;Parameters.Read.Length;
+ulReadOffset = ( ULONG )Stack-&gt;Parameters.Read.ByteOffset.QuadPart;
+pAddress = pIrp-&gt;UserBuffer;
+
+KdPrint( ( &quot;用户态传递的地址是%p\\n&quot;, pAddress ) );
+
+do {
+	//如果欲读取的长度大于最大长度
+	if ( ulReadLen + ulReadOffset &gt; MAX\_LENGTH ) {
+		Status = STATUS\_FILE\_INVALID;
+		ulReadLen = 0;
+		break;
+	}
+
+	\_\_try {
+
+		pDeviceExt = pDeviceObj-&gt;DeviceExtension;
+
+		//测试用户地址是否可写, 如果不可写会异常
+		ProbeForWrite( pAddress, ulReadLen, 4 );
+
+		//copy数据到用户层
+		RtlCopyMemory( pAddress, pDeviceExt-&gt;pBuffer + ulReadOffset, ulReadLen );
+		Status = STATUS\_SUCCESS;
+
+	}\_\_except( EXCEPTION\_EXECUTE\_HANDLER ) {
+		//如果发生异常. 说明不可写
+		Status = STATUS\_UNSUCCESSFUL;
+		ulReadLen = 0;
+		KdPrint( ( &quot;用户层传递的地址不可写而发生异常!\\n&quot; ) );
+	}
+} while ( FALSE );
+
+pIrp-&gt;IoStatus.Information = ulReadLen;
+
+pIrp-&gt;IoStatus.Status = Status;
+
+IoCompleteRequest( pIrp, IO\_NO\_INCREMENT );
+
+KdPrint( ( &quot;读取请求处理完毕!\\n&quot; ) );
+
+return Status;
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//	写请求的过滤
+NTSTATUS DispatchWrite( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+ULONG ulWriteLen;
+ULONG ulWriteOffset;
+PVOID pAddress;
+NTSTATUS Status;
+PDEVICEEXT pDeviceExt;
+PIO_STACK_LOCATION Stack;</p>
+<pre><code>Stack = IoGetCurrentIrpStackLocation( pIrp );
+
+//得到用户层的缓冲区地址和写入长度与偏移
+ulWriteLen = Stack-&gt;Parameters.Write.Length;
+ulWriteOffset = ( ULONG )Stack-&gt;Parameters.Write.ByteOffset.QuadPart;
+pAddress = pIrp-&gt;UserBuffer;
+
+KdPrint( ( &quot;用户层地址是%p\\n&quot;, pAddress ) );
+
+pDeviceExt = pDeviceObj-&gt;DeviceExtension;
+
+do {
+	if ( ulWriteLen + ulWriteOffset &gt; MAX\_LENGTH ) {
+		ulWriteLen = 0;
+		Status = STATUS\_UNSUCCESSFUL;
+		break;
+	}
+
+	\_\_try {
+
+		//测试是否可读
+		ProbeForRead( pAddress, ulWriteLen, 4 );
+
+		//Copy到内核缓冲区中
+		RtlCopyMemory( pDeviceExt-&gt;pBuffer + ulWriteOffset, pAddress, ulWriteLen  );
+
+		if ( ulWriteOffset + ulWriteLen &gt; pDeviceExt-&gt;dwFileCurrentLength ) {
+			pDeviceExt-&gt;dwFileCurrentLength = ulWriteOffset + ulWriteLen;
+		}
+
+		Status = STATUS\_SUCCESS;
+
+	}\_\_except( EXCEPTION\_EXECUTE\_HANDLER ) {
+		Status = STATUS\_UNSUCCESSFUL;
+		ulWriteLen = 0;
+	}
+
+} while ( FALSE );
+
+//完成IRP
+pIrp-&gt;IoStatus.Information = ulWriteLen;
+
+pIrp-&gt;IoStatus.Status = Status;
+
+IoCompleteRequest( pIrp, IO\_NO\_INCREMENT );
+
+return Status;
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//	驱动入口函数
+NTSTATUS DriverEntry( PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pUSzRegPath ) {
+ULONG i;
+NTSTATUS Status;
+PDEVICEEXT pDeviceExt;
+PDEVICE_OBJECT PDeviceObj;
+UNICODE_STRING USzDeviceName = RTL_CONSTANT_STRING( DEVICE_NAME );
+UNICODE_STRING USzSysLinkName = RTL_CONSTANT_STRING( SYS_LINK_NAME );</p>
+<pre><code>Status = IoCreateDevice( pDriverObj, sizeof( DEVICEEXT ), &amp;USzDeviceName,
+                         FILE\_DEVICE\_UNKNOWN, 0, 0, &amp;PDeviceObj );
+
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint( ( &quot;创建设备失败!\\n&quot; ) );
+	return Status;
+}
+
+Status = IoCreateSymbolicLink( &amp;USzSysLinkName, &amp;USzDeviceName );
+
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint( ( &quot;创建符号链接失败!\\n&quot; ) );
+}
+
+//设置设备扩展属性
+pDeviceExt = PDeviceObj-&gt;DeviceExtension;
+
+pDeviceExt-&gt;USzDeviceName = USzDeviceName;
+
+pDeviceExt-&gt;USzSysLinkName = USzSysLinkName;
+
+pDeviceExt-&gt;pDeviceObj = PDeviceObj;
+
+pDeviceExt-&gt;pBuffer = ExAllocatePool( PagedPool, MAX\_LENGTH );
+
+pDeviceExt-&gt;dwFileCurrentLength = 0;
+
+//设置分发例程
+for ( i = 0; i &lt; IRP\_MJ\_MAXIMUM\_FUNCTION; i++ ) {
+	pDriverObj-&gt;MajorFunction\[i\] = &amp;DispatchRoutin;
+}
+
+pDriverObj-&gt;DriverUnload = DriverUnLoad;
+
+pDriverObj-&gt;MajorFunction\[IRP\_MJ\_READ\] = &amp;DispatchRead;
+pDriverObj-&gt;MajorFunction\[IRP\_MJ\_WRITE\] = &amp;DispatchWrite;
+return Status;
+</code></pre>
+<p>}</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-10-30
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/deviceiocontrol%E4%B8%8E%E9%A9%B1%E5%8A%A8%E4%BA%A4%E4%BA%92-2/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">DeviceIoControl与驱动交互</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E7%BC%93%E5%86%B2%E5%8C%BA%E8%AE%BE%E5%A4%87%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99/">
+            <span class="next-text nav-default">缓冲区设备模拟文件读写</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

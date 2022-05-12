@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>内核中注册表操作 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="内核中的注册表操作和Win32下面是没有什么区别的. 最多来说就是函数的名字稍微换了下. 都是一个套路. 所以说学习新东西啊, 都是建立在旧东西的基" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E6%B3%A8%E5%86%8C%E8%A1%A8%E6%93%8D%E4%BD%9C/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="内核中注册表操作" />
+<meta property="og:description" content="内核中的注册表操作和Win32下面是没有什么区别的. 最多来说就是函数的名字稍微换了下. 都是一个套路. 所以说学习新东西啊, 都是建立在旧东西的基" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E6%B3%A8%E5%86%8C%E8%A1%A8%E6%93%8D%E4%BD%9C/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-10-28T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-10-28T00:00:00+00:00" />
+
+<meta itemprop="name" content="内核中注册表操作">
+<meta itemprop="description" content="内核中的注册表操作和Win32下面是没有什么区别的. 最多来说就是函数的名字稍微换了下. 都是一个套路. 所以说学习新东西啊, 都是建立在旧东西的基"><meta itemprop="datePublished" content="2011-10-28T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-10-28T00:00:00+00:00" />
+<meta itemprop="wordCount" content="4558">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="内核中注册表操作"/>
+<meta name="twitter:description" content="内核中的注册表操作和Win32下面是没有什么区别的. 最多来说就是函数的名字稍微换了下. 都是一个套路. 所以说学习新东西啊, 都是建立在旧东西的基"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">内核中注册表操作</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-10-28 </span>
+        <div class="post-category">
+            <a href="/categories/kernel/"> kernel </a>
+            </div>
+          <span class="more-meta"> 约 4558 字 </span>
+          <span class="more-meta"> 预计阅读 10 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>内核中的注册表操作和Win32下面是没有什么区别的. 最多来说就是函数的名字稍微换了下. 都是一个套路. 所以说学习新东西啊, 都是建立在旧东西的基础之上.而且内核中好像有一些比Win32更加好用的注册表操作函数. 一句话就可以实现很多功能. 真是舒服. 这些东西的话, 其实没有什么好说的,直接上代码吧, 代码能够说明一切.</p>
+<p>内核中对注册表也就是那么个操作套路, 增删改查.遍历撒的. 好像很多都是只是换了个名称, 而且本来他们本来就是一个套路, Win32函数调用的时候进入内核也是调用那么些函数. 所以这些东西不需要多说了!!</p>
+<p>/*
+Windows内核下注册表的操作!
+编译方法参见makefile. TAB = 8
+HKEY_LOCAL_MACHINE	= \Registry\Machine
+HKEY_USERS		= \Registry\User
+HKEY_CURRENT_CONFIG	= \Registry\Machine\SYSTEM\CurrentControlSet\Hardware\Profiles\Current
+HKEY_CLASSES_ROOT	= \Registry\Machine\SOFTWARE\Classes\
+*/
+#include &lt;ntddk.h&gt;
+#include &lt;ntstrsafe.h&gt;
+#define  REG_SOFTWARE_KEY_NAME		L&quot;\\Registry\\Machine\\Software\\JoenRegister&quot;
+#define  REG_SOFTWARE_VALUE_NAME	L&quot;SubItem&quot;
+//===========================================================================
+//创建新键值
+#pragma  code_seg( &ldquo;INIT&rdquo; )
+NTSTATUS CreateNewKey( ) {
+HANDLE		hKey;
+HANDLE		hKey2;
+ULONG		ulResult;
+OBJECT_ATTRIBUTES Obj_Attr;
+NTSTATUS Status;
+UNICODE_STRING UStKeyName = RTL_CONSTANT_STRING( REG_SOFTWARE_KEY_NAME );
+UNICODE_STRING UStValueName = RTL_CONSTANT_STRING( REG_SOFTWARE_VALUE_NAME );</p>
+<pre><code>InitializeObjectAttributes(&amp;Obj\_Attr, &amp;UStKeyName, OBJ\_CASE\_INSENSITIVE, NULL, NULL );
+
+//创建或带开注册表项目
+Status = ZwCreateKey( &amp;hKey,KEY\_ALL\_ACCESS,&amp;Obj\_Attr,0,NULL,REG\_OPTION\_NON\_VOLATILE,&amp;ulResult );
+if ( !NT\_SUCCESS(Status) ) {
+	KdPrint(( &quot;创建/打开\\\\Registry\\\\Machine\\\\Software\\\\JoenRegister注册表失败!\\n&quot; ));
+	return Status;
+}else {
+	//判断是被新创建，还是已经被创建
+	if( ulResult == REG\_CREATED\_NEW\_KEY ) {
+		KdPrint((&quot;创建\\\\Registry\\\\Machine\\\\Software\\\\JoenRegister键值成功\\n&quot;));
+	}else if( ulResult == REG\_OPENED\_EXISTING\_KEY )	{
+		KdPrint((&quot;打开\\\\Registry\\\\Machine\\\\Software\\\\JoenRegister键值成功\\n&quot;));
+	}
+}
+
+//打开一个注册表句柄下的一个子项目
+InitializeObjectAttributes( &amp;Obj\_Attr, &amp;UStValueName, OBJ\_CASE\_INSENSITIVE, hKey, NULL );
+
+//创建/打开一个注册表句柄下的另一个句柄
+Status = ZwCreateKey( &amp;hKey2,KEY\_ALL\_ACCESS,&amp;Obj\_Attr,0,NULL,REG\_OPTION\_NON\_VOLATILE,&amp;ulResult);
+if ( !NT\_SUCCESS(Status) ) {
+	KdPrint(( &quot;创建/打开子句柄SubItem失败!\\n&quot; ));
+	return Status;
+}else {
+	//判断是被新创建，还是已经被创建
+	if( ulResult == REG\_CREATED\_NEW\_KEY ) {
+		KdPrint((&quot;创建子句柄SubItem成功\\n&quot;));
+	}else if( ulResult == REG\_OPENED\_EXISTING\_KEY )	{
+		KdPrint((&quot;打开子句柄SubItem成功\\n&quot;));
+	}
+}
+
+ZwClose( hKey2 );
+ZwClose( hKey );
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+InitializeObjectAttributes( &amp;Obj_Attr, &amp;UStKeyName, OBJ_CASE_INSENSITIVE, NULL, NULL );</p>
+<pre><code>//只是打开注册表项目, 如果不存在返回失败
+Status = ZwOpenKey( &amp;hKey,KEY\_ALL\_ACCESS, &amp;Obj\_Attr );
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &quot;打开\\\\Registry\\\\Machine\\\\Software\\\\JoenRegister失败\\n&quot; ));
+		return Status;
+	}else {
+		KdPrint(( &quot;打开\\\\Registry\\\\Machine\\\\Software\\\\JoenRegister成功\\n&quot; ));
+}
+ZwClose( hKey );
+return Status;
+</code></pre>
+<p>}
+//===========================================================================
+//设置键值试验, 设置键值可以覆盖原来的值.
+#pragma  code_seg( &ldquo;INIT&rdquo; )
+NTSTATUS SetKeyValue() {
+HANDLE		hKey = 0;
+ULONG		ulResult;
+ULONG		ulValue;
+NTSTATUS	Status;
+CHAR byArr[8]	= {0};
+OBJECT_ATTRIBUTES Obj_Attr;
+UNICODE_STRING UStValueKey = RTL_CONSTANT_STRING( L&quot;Reg_Sz&quot; );
+UNICODE_STRING UStKeyName = RTL_CONSTANT_STRING( REG_SOFTWARE_KEY_NAME );
+InitializeObjectAttributes(&amp;Obj_Attr, &amp;UStKeyName, OBJ_CASE_INSENSITIVE, NULL, NULL );</p>
+<pre><code>//创建或带开注册表项目
+Status = ZwCreateKey( &amp;hKey,KEY\_ALL\_ACCESS,&amp;Obj\_Attr,0,NULL,REG\_OPTION\_NON\_VOLATILE,&amp;ulResult );
+if ( !NT\_SUCCESS(Status) ) {
+	KdPrint(( &quot;创建/打开\\\\Registry\\\\Machine\\\\Software\\\\JoenRegister注册表失败!\\n&quot; ));
+	return Status;
+}else {
+	//判断是被新创建，还是已经被创建
+	if( ulResult == REG\_CREATED\_NEW\_KEY ) {
+		KdPrint((&quot;创建\\\\Registry\\\\Machine\\\\Software\\\\JoenRegister键值成功\\n&quot;));
+	}else if( ulResult == REG\_OPENED\_EXISTING\_KEY )	{
+		KdPrint((&quot;打开\\\\Registry\\\\Machine\\\\Software\\\\JoenRegister键值成功\\n&quot;));
+	}
+}
+
+do {
+	//设置默认键值
+	Status = ZwSetValueKey(hKey, (PUNICODE\_STRING)byArr, 0,REG\_SZ, L&quot;Hello&quot;,sizeof(L&quot;hello&quot;)+2);
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &quot;设置默认键值失败\\n&quot; ));
+		break;
+	}
+
+	//设置某个键的键值
+	Status = ZwSetValueKey(hKey, &amp;UStValueKey, 0, REG\_SZ, L&quot;String&quot;, sizeof(L&quot;String&quot;)+2 );
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &quot;设置Reg\_Sz键值失败\\n&quot; ));
+		break;
+	}
+	
+	//设置某个键的键值 DWORD类型
+	ulValue = 100;
+	RtlInitUnicodeString(&amp;UStValueKey, L&quot;Reg\_Dword&quot; );
+	Status = ZwSetValueKey(hKey, &amp;UStValueKey, 0, REG\_DWORD, &amp;ulValue, sizeof(ulValue));
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &quot;设置Reg\_Sz键值失败\\n&quot; ));
+		break;
+	}
+} while ( FALSE );
+
+if ( hKey ) {
+	ZwClose(hKey);
+}
+return Status;
+</code></pre>
+<p>}
+//===========================================================================
+//查询键值试验, 这个查询键值ZwQueryValueKey 和那个ZwQuery, 注意区分
+#pragma  code_seg( &ldquo;INIT&rdquo; )
+NTSTATUS QueryValueInfo() {
+HANDLE		hKey = 0;
+ULONG		ulResult;
+ULONG		ulSize;
+NTSTATUS	Status;
+OBJECT_ATTRIBUTES Obj_Attr;
+UNICODE_STRING UStValueKey = RTL_CONSTANT_STRING( L&quot;Reg_Dword&quot; );
+UNICODE_STRING UStKeyName = RTL_CONSTANT_STRING( REG_SOFTWARE_KEY_NAME );
+PKEY_VALUE_PARTIAL_INFORMATION pKeyPartialInfo = NULL;</p>
+<pre><code>InitializeObjectAttributes(&amp;Obj\_Attr, &amp;UStKeyName, OBJ\_CASE\_INSENSITIVE, NULL, NULL );
+
+//创建或带开注册表项目
+Status = ZwCreateKey( &amp;hKey,KEY\_ALL\_ACCESS,&amp;Obj\_Attr,0,NULL,REG\_OPTION\_NON\_VOLATILE,&amp;ulResult );
+if ( !NT\_SUCCESS(Status) ) {
+	KdPrint(( &quot;创建/打开\\\\Registry\\\\Machine\\\\Software\\\\JoenRegister注册表失败!\\n&quot; ));
+	return Status;
+}else {
+	//判断是被新创建，还是已经被创建
+	if( ulResult == REG\_CREATED\_NEW\_KEY ) {
+		KdPrint((&quot;创建\\\\Registry\\\\Machine\\\\Software\\\\JoenRegister键值成功\\n&quot;));
+	}else if( ulResult == REG\_OPENED\_EXISTING\_KEY )	{
+		KdPrint((&quot;打开\\\\Registry\\\\Machine\\\\Software\\\\JoenRegister键值成功\\n&quot;));
+	}
+}
+
+do {
+	//读取REG\_DWORD子键, 这里只是尝试着搞一下
+	Status = ZwQueryValueKey( hKey, &amp;UStValueKey, KeyValuePartialInformation,NULL,0,&amp;ulSize);
+	if ( Status == STATUS\_OBJECT\_NAME\_NOT\_FOUND || ulSize==0 ) {
+		KdPrint((&quot;Reg\_Dword子键不存在\\n&quot;));
+		break;
+	}
+	
+	//分配结构需要的内存
+	pKeyPartialInfo = ExAllocatePool(PagedPool,ulSize);
+	if ( !pKeyPartialInfo ) {
+		KdPrint(( &quot;pKeyPartialInfo内存分配失败\\n&quot; ));
+		break;
+	}
+	
+	//这次才是真正的查询
+	Status = ZwQueryValueKey(hKey, &amp;UStValueKey,KeyValuePartialInformation,
+			pKeyPartialInfo,ulSize,&amp;ulSize);
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint((&quot;读取Reg\_Dword子键失败\\n&quot;));
+		break;
+	}
+
+	//判断是否为REG\_DWORD类型
+	if (pKeyPartialInfo-&gt;Type==REG\_DWORD &amp;&amp; pKeyPartialInfo-&gt;DataLength==sizeof(ULONG))
+	{
+		KdPrint((&quot;查询子键 Reg\_Dword:%d\\n&quot;, \*((PULONG)pKeyPartialInfo-&gt;Data)) );
+	}
+	
+	if ( pKeyPartialInfo ) {
+		ExFreePool( pKeyPartialInfo );
+		pKeyPartialInfo = NULL;
+	}
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+RtlInitUnicodeString( &amp;UStValueKey, L&quot;Reg_Sz&quot; );
+//读取REG_SZ子键
+Status = ZwQueryValueKey(hKey,&amp;UStValueKey,KeyValuePartialInformation,NULL,0,&amp;ulSize);
+if ( Status == STATUS_OBJECT_NAME_NOT_FOUND || ulSize==0 ) {
+KdPrint((&ldquo;Reg_Sz子键不存在!\n&rdquo;));
+break;
+}</p>
+<pre><code>	//分配结构需要的内存
+	pKeyPartialInfo = ExAllocatePool(PagedPool,ulSize);
+	if ( !pKeyPartialInfo ) {
+		KdPrint(( &quot;pKeyPartialInfo内存分配失败\\n&quot; ));
+		break;
+	}
+	
+	//这次才是真正的查询
+	Status = ZwQueryValueKey(hKey, &amp;UStValueKey,KeyValuePartialInformation,
+		pKeyPartialInfo,ulSize,&amp;ulSize);
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint((&quot;读取Reg\_Sz子键失败\\n&quot;));
+		break;
+	}
+
+	//判断是否为REG\_SZ类型
+	if (pKeyPartialInfo-&gt;Type==REG\_SZ ){
+		KdPrint((&quot;Reg\_Sz值为:%ws\\n&quot;,pKeyPartialInfo-&gt;Data) );
+	}
+} while ( FALSE );
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+if ( hKey ) {
+ZwClose(hKey);
+}
+if ( pKeyPartialInfo ) {
+ExFreePool( pKeyPartialInfo );
+}
+return Status;
+}
+//===========================================================================
+//枚举子项中的键值, 键值哈.
+//pUSzRegPath	:要枚举的子项目名称
+#pragma  code_seg( &ldquo;INIT&rdquo; )
+VOID EnumerateSubValue( const PUNICODE_STRING pUSzRegPath ) {
+HANDLE		hKey = 0;
+ULONG		ulSize;
+ULONG		i;
+NTSTATUS	Status;
+UNICODE_STRING	UStKeyName;
+OBJECT_ATTRIBUTES Obj_Attr;
+PKEY_FULL_INFORMATION pKeyFullInfo = NULL;
+PKEY_VALUE_BASIC_INFORMATION pKeyValueBasicInfo = NULL;</p>
+<pre><code>//初始化objectAttributes
+InitializeObjectAttributes( &amp;Obj\_Attr, pUSzRegPath,OBJ\_CASE\_INSENSITIVE,NULL,NULL);
+
+//打开注册表
+Status = ZwOpenKey( &amp;hKey, KEY\_ALL\_ACCESS,&amp;Obj\_Attr );
+if (!NT\_SUCCESS(Status)){
+	return;
+}
+
+//首次尝试查询子项信息
+ZwQueryKey( hKey,KeyFullInformation,NULL,0, &amp;ulSize );
+
+pKeyFullInfo = (PKEY\_FULL\_INFORMATION)ExAllocatePool(PagedPool,ulSize);
+if ( !pKeyFullInfo ) {
+	return;
+}
+
+//再次查询子项信息
+Status = ZwQueryKey( hKey, KeyFullInformation, pKeyFullInfo, ulSize, &amp;ulSize );
+if ( !NT\_SUCCESS(Status) ) {
+	KdPrint(( &quot;查询子项信息失败!\\n&quot; ));
+}
+
+for ( i=0; i&lt; pKeyFullInfo-&gt;Values; i++ ) {
+
+	//枚举键值信息
+	ZwEnumerateValueKey( hKey,i, KeyValueBasicInformation, NULL, 0, &amp;ulSize );
+	
+	pKeyValueBasicInfo =(PKEY\_VALUE\_BASIC\_INFORMATION)ExAllocatePool(PagedPool,ulSize);
+	if ( !pKeyValueBasicInfo ) {
+		KdPrint(( &quot;内存申请失败!\\n&quot; ));
+		break;
+	}
+
+	Status = ZwEnumerateValueKey(hKey,i,KeyValueBasicInformation,pKeyValueBasicInfo,
+		ulSize,&amp;ulSize);
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &quot;枚举键值失败!\\n&quot; ));
+	}
+	
+	UStKeyName.Length = UStKeyName.MaximumLength =(USHORT)pKeyValueBasicInfo-&gt;NameLength;
+	UStKeyName.Buffer = pKeyValueBasicInfo-&gt;Name;
+	
+	KdPrint((&quot;\\t子项%d名称:%wZ\\t&quot;,i,&amp;UStKeyName));
+	
+	if (pKeyValueBasicInfo-&gt;Type==REG\_SZ ){
+		KdPrint(( &quot;REG\_SZ\\n&quot; ));
+
+	}else if (pKeyValueBasicInfo-&gt;Type==REG\_MULTI\_SZ ){
+		KdPrint(( &quot;REG\_MULTI\_SZ\\n&quot; )); 
+
+	}else if (pKeyValueBasicInfo-&gt;Type==REG\_DWORD ){
+		KdPrint(( &quot;REG\_DWORD\\n&quot; )); 
+
+	}else if (pKeyValueBasicInfo-&gt;Type==REG\_BINARY ){
+		KdPrint(( &quot;REG\_BINARY\\n&quot; )); 
+	}
+	
+	if ( pKeyValueBasicInfo ) {
+		ExFreePool(pKeyValueBasicInfo);
+		pKeyValueBasicInfo = NULL;
+	}
+}
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+if ( pKeyFullInfo ) {
+ExFreePool(pKeyFullInfo);
+}
+if ( hKey ) {
+ZwClose(hKey);
+}
+}
+//===========================================================================
+//枚举键值和子项测试, 删除只能从最底层开始删除.
+#pragma  code_seg( &ldquo;INIT&rdquo; )
+NTSTATUS EnumerateKeyValue() {
+HANDLE		hKey = 0;
+ULONG		ulSize;
+ULONG		i;
+NTSTATUS	Status;
+UNICODE_STRING UStKeyName;
+UNICODE_STRING UStSubKeyName;
+OBJECT_ATTRIBUTES Obj_Attr;
+PKEY_FULL_INFORMATION pKeyFullInfo = NULL;
+PKEY_BASIC_INFORMATION pKeyBasicInfo = NULL;
+UNICODE_STRING UStItemName = RTL_CONSTANT_STRING( L&quot;\\Registry\\Machine\\Software\\&quot; );</p>
+<pre><code>//初始化objectAttributes
+InitializeObjectAttributes(&amp;Obj\_Attr,&amp;UStItemName,OBJ\_CASE\_INSENSITIVE,NULL,NULL );
+
+//打开注册表
+Status = ZwOpenKey( &amp;hKey,KEY\_ALL\_ACCESS,&amp;Obj\_Attr);
+if ( NT\_SUCCESS( Status )) {
+	KdPrint(( &quot;打开注册表\\\\Registry\\\\Machine\\\\Software\\\\成功, 准备枚举\\n&quot; ));
+}else {
+	KdPrint(( &quot;打开注册表成功失败\\n&quot; ));
+}
+
+do {
+	//第一次调用ZwQueryKey为了获取KEY\_FULL\_INFORMATION数据的长度
+	Status = ZwQueryKey(hKey,KeyFullInformation,NULL,0,&amp;ulSize );
+	
+	pKeyFullInfo = (PKEY\_FULL\_INFORMATION)ExAllocatePool(PagedPool,ulSize);
+	if ( !pKeyFullInfo ) {
+		KdPrint(( &quot;内存分配失败\\n&quot; ));
+		break;
+	}
+
+	//第二次调用ZwQueryKey为了获取KEY\_FULL\_INFORMATION数据的数据
+	Status = ZwQueryKey(hKey,KeyFullInformation,pKeyFullInfo,ulSize,&amp;ulSize);
+	if ( !NT\_SUCCESS(Status) ) {
+		KdPrint(( &quot;二次查询子键信息失败\\n&quot; ));
+		break;
+	}
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+for (i=0; i &lt; pKeyFullInfo-&gt;SubKeys; i++ )	{</p>
+<pre><code>		//第一次调用ZwEnumerateKey为了获取KEY\_BASIC\_INFORMATION数据的长度
+		ZwEnumerateKey(hKey,i,KeyBasicInformation,NULL,0,&amp;ulSize);
+		
+		pKeyBasicInfo = ExAllocatePool(PagedPool,ulSize);
+		if ( !pKeyBasicInfo ) {
+			break;
+		}
+
+		//第二次调用ZwEnumerateKey为了获取KEY\_BASIC\_INFORMATION数据的数据
+		Status = ZwEnumerateKey( hKey,i,KeyBasicInformation,pKeyBasicInfo,ulSize,&amp;ulSize);
+		if ( !NT\_SUCCESS(Status) ) {
+			KdPrint(( &quot;枚举子键的时候遇到错误\\n&quot; ));
+			break;
+		}
+
+		//填写名称信息
+		UStKeyName.Length = UStKeyName.MaximumLength = (USHORT)pKeyBasicInfo-&gt;NameLength;
+		UStKeyName.Buffer = pKeyBasicInfo-&gt;Name;
+		
+		KdPrint((&quot;第 %d 项的名称是: %wZ\\n&quot;,i,&amp;UStKeyName));
+		
+		//给子字符串分配内存
+		UStSubKeyName.Buffer = (PWSTR)ExAllocatePool( PagedPool, \\
+		sizeof(L&quot;\\\\Registry\\\\Machine\\\\Software\\\\&quot;) + wcslen(UStKeyName.Buffer)\*2+2 );
+
+		UStSubKeyName.MaximumLength = sizeof(L&quot;\\\\Registry\\\\Machine\\\\Software\\\\&quot;) 
+				+ wcslen(UStKeyName.Buffer)\*2+2;
+
+		RtlCopyUnicodeString( &amp;UStSubKeyName, &amp;UStItemName );
+		RtlUnicodeStringCat( &amp;UStSubKeyName, &amp;UStKeyName);
+
+		//枚举子键值.
+		EnumerateSubValue( &amp;UStSubKeyName );
+
+		if ( pKeyBasicInfo ) {
+			ExFreePool( pKeyBasicInfo );
+			pKeyBasicInfo = NULL;
+		}
+		RtlFreeUnicodeString( &amp;UStSubKeyName );
+	}
+
+	if ( pKeyBasicInfo ) {
+		ExFreePool(pKeyBasicInfo);
+	}
+ } while ( FALSE );
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+if ( pKeyFullInfo ) {
+ExFreePool(pKeyFullInfo);
+}
+if ( hKey ) {
+ZwClose(hKey);
+}
+return Status;
+}
+//===========================================================================
+//删除子项试验
+#pragma  code_seg( &ldquo;INIT&rdquo; )
+NTSTATUS DeleteKey() {
+HANDLE hKey = 0;
+NTSTATUS Status;
+OBJECT_ATTRIBUTES ObjAttr;
+UNICODE_STRING UStKeyName =
+RTL_CONSTANT_STRING( L&quot;\\Registry\\Machine\\Software\\JoenRegister\\SubItem&quot;);</p>
+<pre><code>//初始化objectAttributes
+InitializeObjectAttributes(&amp;ObjAttr,&amp;UStKeyName,OBJ\_CASE\_INSENSITIVE,NULL,NULL );
+
+//打开注册表
+Status = ZwOpenKey( &amp;hKey, KEY\_ALL\_ACCESS,&amp;ObjAttr );
+if ( !NT\_SUCCESS(Status) ){
+	KdPrint(( &quot;打开注册表失败!\\n&quot; ));
+	return Status;
+}
+
+//删除键
+Status = ZwDeleteKey( hKey );
+
+if ( NT\_SUCCESS(Status) ){
+	KdPrint((&quot;删除\\\\Registry\\\\Machine\\\\Software\\\\JoenRegister\\\\SubItem成功!\\n&quot;));
+
+}else if( Status == STATUS\_ACCESS\_DENIED ){
+	KdPrint((&quot;权限不够\\n&quot;));
+	
+}else if( Status == STATUS\_INVALID\_HANDLE ){
+	KdPrint((&quot;句柄无效\\n&quot;));
+}else{
+	KdPrint((&quot;无法删除\\n&quot;));
+}
+
+if ( hKey ) {
+	ZwClose( hKey);
+}
+return Status;
+</code></pre>
+<p>}
+//===========================================================================
+//Rtl系列函数试验
+#pragma  code_seg( &ldquo;INIT&rdquo; )
+NTSTATUS RtlRegister() {
+ULONG		ulValue;
+NTSTATUS	Status;
+ULONG		ulDefaultData=0;
+ULONG		ulQueryValue;
+PWCHAR		SzString = L&quot;Sz_Hello&quot;;
+RTL_QUERY_REGISTRY_TABLE RtlQueryTab[2] = {0};</p>
+<pre><code>//按照绝对路径创建一个键
+Status = RtlCreateRegistryKey(RTL\_REGISTRY\_ABSOLUTE,REG\_SOFTWARE\_KEY\_NAME );
+if ( !NT\_SUCCESS(Status) ) {
+	KdPrint(( &quot;创建子键失败!\\n&quot; ));
+	return Status;
+}else {
+	KdPrint(( &quot;创建子键成功!\\n&quot; ));
+}
+
+//检查某项是否存在
+Status = RtlCheckRegistryKey(RTL\_REGISTRY\_ABSOLUTE, REG\_SOFTWARE\_KEY\_NAME );
+if ( !NT\_SUCCESS(Status) ) {
+	KdPrint(( &quot;子键不存在!\\n&quot; ));
+	return Status;
+}else {
+	KdPrint(( &quot;子键存在!\\n&quot; ));
+}
+
+//写入REG\_DWORD的数据
+ulValue = 100;
+Status = RtlWriteRegistryValue( RTL\_REGISTRY\_ABSOLUTE, REG\_SOFTWARE\_KEY\_NAME,
+	L&quot;DWORD\_Value&quot;,REG\_DWORD, &amp;ulValue, sizeof(ulValue) );
+if ( !NT\_SUCCESS(Status) ) {
+	KdPrint(( &quot;写入子键失败!\\n&quot; ));
+	return Status;
+}else {
+	KdPrint(( &quot;写入子键成功!\\n&quot; ));
+}
+
+//写入一个字符串
+Status = RtlWriteRegistryValue( RTL\_REGISTRY\_ABSOLUTE,REG\_SOFTWARE\_KEY\_NAME,
+	L&quot;SZ\_Value&quot;,REG\_SZ, SzString, wcslen(SzString)\*2+2 );
+if ( !NT\_SUCCESS(Status) ) {
+	KdPrint(( &quot;写入字符串失败!\\n&quot; ));
+	return Status;
+}else {
+	KdPrint(( &quot;写入字符串成功!\\n&quot; ));
+}
+
+//查询REG\_DWORD的数据
+RtlQueryTab\[0\].Flags		= RTL\_QUERY\_REGISTRY\_DIRECT;
+RtlQueryTab\[0\].Name		= L&quot;DWORD\_Value&quot;;
+RtlQueryTab\[0\].EntryContext	= &amp;ulQueryValue;
+RtlQueryTab\[0\].DefaultType	= REG\_DWORD;
+RtlQueryTab\[0\].DefaultData	= &amp;ulDefaultData;
+RtlQueryTab\[0\].DefaultLength	= sizeof(ULONG);
+
+Status = RtlQueryRegistryValues(RTL\_REGISTRY\_ABSOLUTE,REG\_SOFTWARE\_KEY\_NAME,
+			RtlQueryTab,NULL,NULL);
+if ( !NT\_SUCCESS(Status) ) {
+	KdPrint(( &quot;查询失败!\\n&quot; ));
+	return Status;
+}else {
+	KdPrint(( &quot;查询成功, 值为%d!\\n&quot;, ulQueryValue ));
+}
+
+//删除子键
+Status = RtlDeleteRegistryValue(RTL\_REGISTRY\_ABSOLUTE, REG\_SOFTWARE\_KEY\_NAME,L&quot;DWORD\_Value&quot;);
+if ( !NT\_SUCCESS(Status) ) {
+	KdPrint(( &quot;删除子键失败!\\n&quot; ));
+	return Status;
+}else {
+	KdPrint(( &quot;删除子键成功!\\n&quot; ));
+}
+return Status;
+</code></pre>
+<p>}
+//===========================================================================
+#pragma  code_seg( &ldquo;INIT&rdquo; )
+NTSTATUS DriverEntry( PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pUStrPath ) {</p>
+<pre><code>CreateNewKey();		//创建新键值试验
+SetKeyValue();		//设置键值试验
+QueryValueInfo();	//查询键值试验
+EnumerateKeyValue();	//枚举键值和项测试
+DeleteKey();		//删除子项试验
+RtlRegister();		//Rtl系列函数试验
+return -2;
+</code></pre>
+<p>}</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-10-28
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/c%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">C语言结构体的内存结构</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/">
+            <span class="next-text nav-default">内核中文件操作</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

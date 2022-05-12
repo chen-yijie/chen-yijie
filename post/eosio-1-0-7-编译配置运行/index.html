@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>EOSIO 1.0.7 编译配置运行 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="EOS主网已经上线，但是市面上还没有特别好用的钱包，所以只能自己动手丰衣足食了，在编译运行EOS代码的时候遇到不少的问题，这边记录一下。 使用" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/eosio-1-0-7-%E7%BC%96%E8%AF%91%E9%85%8D%E7%BD%AE%E8%BF%90%E8%A1%8C/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="EOSIO 1.0.7 编译配置运行" />
+<meta property="og:description" content="EOS主网已经上线，但是市面上还没有特别好用的钱包，所以只能自己动手丰衣足食了，在编译运行EOS代码的时候遇到不少的问题，这边记录一下。 使用" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/eosio-1-0-7-%E7%BC%96%E8%AF%91%E9%85%8D%E7%BD%AE%E8%BF%90%E8%A1%8C/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2018-06-29T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-06-29T00:00:00+00:00" />
+
+<meta itemprop="name" content="EOSIO 1.0.7 编译配置运行">
+<meta itemprop="description" content="EOS主网已经上线，但是市面上还没有特别好用的钱包，所以只能自己动手丰衣足食了，在编译运行EOS代码的时候遇到不少的问题，这边记录一下。 使用"><meta itemprop="datePublished" content="2018-06-29T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-06-29T00:00:00+00:00" />
+<meta itemprop="wordCount" content="3779">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="EOSIO 1.0.7 编译配置运行"/>
+<meta name="twitter:description" content="EOS主网已经上线，但是市面上还没有特别好用的钱包，所以只能自己动手丰衣足食了，在编译运行EOS代码的时候遇到不少的问题，这边记录一下。 使用"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">EOSIO 1.0.7 编译配置运行</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2018-06-29 </span>
+        <div class="post-category">
+            <a href="/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/"> 区块链 </a>
+            </div>
+          <span class="more-meta"> 约 3779 字 </span>
+          <span class="more-meta"> 预计阅读 8 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#if--mem_meg--lt-7000--then">if [ &ldquo;${MEM_MEG}&rdquo; -lt 7000 ]; then</a></li>
+    <li><a href="#printf-tyour-system-must-have-7-or-more-gigabytes-of-physical-memory-installedn">printf &ldquo;\\tYour system must have 7 or more Gigabytes of physical memory installed.\\n&rdquo;</a></li>
+    <li><a href="#printf-texiting-nown">printf &ldquo;\\tExiting now.\\n&rdquo;</a></li>
+    <li><a href="#exit-1">exit 1</a></li>
+    <li><a href="#fi">fi</a></li>
+    <li><a href="#if--disk_avail--lt-disk_min--then">if [ &ldquo;${DISK_AVAIL%.*}&rdquo; -lt &ldquo;${DISK_MIN}&rdquo; ]; then</a></li>
+    <li><a href="#printf-tyou-must-have-at-least-sgb-of-available-storage-to-install-eosion-disk_min">printf &ldquo;\\tYou must have at least %sGB of available storage to install EOSIO.\\n&rdquo; &ldquo;${DISK_MIN}&rdquo;</a></li>
+    <li><a href="#printf-texiting-nown-1">printf &ldquo;\\tExiting now.\\n&rdquo;</a></li>
+    <li><a href="#exit-1-1">exit 1</a></li>
+    <li><a href="#fi-1">fi</a></li>
+    <li><a href="#this-peer-will-request-only-irreversible-blocks-from-other-nodes-eosiobnet_plugin">this peer will request only irreversible blocks from other nodes (eosio::bnet_plugin)</a></li>
+    <li><a href="#the-number-of-threads-to-use-to-process-network-messages-eosiobnet_plugin">the number of threads to use to process network messages (eosio::bnet_plugin)</a></li>
+    <li><a href="#bnet-threads-">bnet-threads =</a></li>
+    <li><a href="#remote-endpoint-of-other-node-to-connect-to-use-multiple-bnet-connect-options-as-needed-to-compose-a-network-eosiobnet_plugin">remote endpoint of other node to connect to; Use multiple bnet-connect options as needed to compose a network (eosio::bnet_plugin)</a></li>
+    <li><a href="#bnet-connect-">bnet-connect =</a></li>
+    <li><a href="#this-peer-will-request-no-pending-transactions-from-other-nodes-eosiobnet_plugin">this peer will request no pending transactions from other nodes (eosio::bnet_plugin)</a></li>
+    <li><a href="#the-string-used-to-format-peers-when-logging-messages-about-them--variables-are-escaped-with-variable-name">The string used to format peers when logging messages about them.  Variables are escaped with ${<variable name>}.</a></li>
+    <li><a href="#available-variables">Available Variables:</a></li>
+    <li><a href="#_name--self-reported-name">_name  	self-reported name</a></li>
+    <li><a href="#heading"></a></li>
+    <li><a href="#_id----self-reported-id-public-key">_id    	self-reported ID (Public Key)</a></li>
+    <li><a href="#heading-1"></a></li>
+    <li><a href="#_ip----remote-ip-address-of-peer">_ip    	remote IP address of peer</a></li>
+    <li><a href="#heading-2"></a></li>
+    <li><a href="#_port--remote-port-number-of-peer">_port  	remote port number of peer</a></li>
+    <li><a href="#heading-3"></a></li>
+    <li><a href="#_lip---local-ip-address-connected-to-peer">_lip   	local IP address connected to peer</a></li>
+    <li><a href="#heading-4"></a></li>
+    <li><a href="#_lport-local-port-number-connected-to-peer">_lport 	local port number connected to peer</a></li>
+    <li><a href="#heading-5"></a></li>
+    <li><a href="#eosiobnet_plugin">(eosio::bnet_plugin)</a></li>
+    <li><a href="#the-location-of-the-blocks-directory-absolute-path-or-relative-to-application-data-dir-eosiochain_plugin">the location of the blocks directory (absolute path or relative to application data dir) (eosio::chain_plugin)</a></li>
+    <li><a href="#pairs-of-block_numblock_id-that-should-be-enforced-as-checkpoints-eosiochain_plugin">Pairs of [BLOCK_NUM,BLOCK_ID] that should be enforced as checkpoints. (eosio::chain_plugin)</a></li>
+    <li><a href="#checkpoint-">checkpoint =</a></li>
+    <li><a href="#override-default-wasm-runtime-eosiochain_plugin">Override default WASM runtime (eosio::chain_plugin)</a></li>
+    <li><a href="#wasm-runtime-">wasm-runtime =</a></li>
+    <li><a href="#override-default-maximum-abi-serialization-time-allowed-in-ms-eosiochain_plugin">Override default maximum ABI serialization time allowed in ms (eosio::chain_plugin)</a></li>
+    <li><a href="#abi-serializer-max-time-ms-">abi-serializer-max-time-ms =</a></li>
+    <li><a href="#maximum-size-in-mb-of-the-chain-state-database-eosiochain_plugin">Maximum size (in MB) of the chain state database (eosio::chain_plugin)</a></li>
+    <li><a href="#maximum-size-in-mb-of-the-reversible-blocks-database-eosiochain_plugin">Maximum size (in MB) of the reversible blocks database (eosio::chain_plugin)</a></li>
+    <li><a href="#print-contracts-output-to-console-eosiochain_plugin">print contract&rsquo;s output to console (eosio::chain_plugin)</a></li>
+    <li><a href="#account-added-to-actor-whitelist-may-specify-multiple-times-eosiochain_plugin">Account added to actor whitelist (may specify multiple times) (eosio::chain_plugin)</a></li>
+    <li><a href="#actor-whitelist-">actor-whitelist =</a></li>
+    <li><a href="#account-added-to-actor-blacklist-may-specify-multiple-times-eosiochain_plugin">Account added to actor blacklist (may specify multiple times) (eosio::chain_plugin)</a></li>
+    <li><a href="#actor-blacklist-">actor-blacklist =</a></li>
+    <li><a href="#contract-account-added-to-contract-whitelist-may-specify-multiple-times-eosiochain_plugin">Contract account added to contract whitelist (may specify multiple times) (eosio::chain_plugin)</a></li>
+    <li><a href="#contract-whitelist-">contract-whitelist =</a></li>
+    <li><a href="#contract-account-added-to-contract-blacklist-may-specify-multiple-times-eosiochain_plugin">Contract account added to contract blacklist (may specify multiple times) (eosio::chain_plugin)</a></li>
+    <li><a href="#contract-blacklist-">contract-blacklist =</a></li>
+    <li><a href="#action-in-the-form-codeaction-added-to-action-blacklist-may-specify-multiple-times-eosiochain_plugin">Action (in the form code::action) added to action blacklist (may specify multiple times) (eosio::chain_plugin)</a></li>
+    <li><a href="#action-blacklist-">action-blacklist =</a></li>
+    <li><a href="#public-key-added-to-blacklist-of-keys-that-should-not-be-included-in-authorities-may-specify-multiple-times-eosiochain_plugin">Public key added to blacklist of keys that should not be included in authorities (may specify multiple times) (eosio::chain_plugin)</a></li>
+    <li><a href="#key-blacklist-">key-blacklist =</a></li>
+    <li><a href="#track-actions-which-match-receiveractionactor-actor-may-be-blank-to-include-all-receiver-and-action-may-not-be-blank-eosiohistory_plugin">Track actions which match receiver:action:actor. Actor may be blank to include all. Receiver and Action may not be blank. (eosio::history_plugin)</a></li>
+    <li><a href="#filter-on-">filter-on =</a></li>
+    <li><a href="#pem-encoded-trusted-root-certificate-or-path-to-file-containing-one-used-to-validate-any-tls-connections-made--may-specify-multiple-times">PEM encoded trusted root certificate (or path to file containing one) used to validate any TLS connections made.  (may specify multiple times)</a></li>
+    <li><a href="#eosiohttp_client_plugin">(eosio::http_client_plugin)</a></li>
+    <li><a href="#https-client-root-cert-">https-client-root-cert =</a></li>
+    <li><a href="#true-validate-that-the-peer-certificates-are-valid-and-trusted-false-ignore-cert-errors-eosiohttp_client_plugin">true: validate that the peer certificates are valid and trusted, false: ignore cert errors (eosio::http_client_plugin)</a></li>
+    <li><a href="#the-local-ip-and-port-to-listen-for-incoming-http-connections-set-blank-to-disable-eosiohttp_plugin">The local IP and port to listen for incoming http connections; set blank to disable. (eosio::http_plugin)</a></li>
+    <li><a href="#the-local-ip-and-port-to-listen-for-incoming-https-connections-leave-blank-to-disable-eosiohttp_plugin">The local IP and port to listen for incoming https connections; leave blank to disable. (eosio::http_plugin)</a></li>
+    <li><a href="#https-server-address-">https-server-address =</a></li>
+    <li><a href="#filename-with-the-certificate-chain-to-present-on-https-connections-pem-format-required-for-https-eosiohttp_plugin">Filename with the certificate chain to present on https connections. PEM format. Required for https. (eosio::http_plugin)</a></li>
+    <li><a href="#https-certificate-chain-file-">https-certificate-chain-file =</a></li>
+    <li><a href="#filename-with-https-private-key-in-pem-format-required-for-https-eosiohttp_plugin">Filename with https private key in PEM format. Required for https (eosio::http_plugin)</a></li>
+    <li><a href="#https-private-key-file-">https-private-key-file =</a></li>
+    <li><a href="#specify-the-access-control-allow-origin-to-be-returned-on-each-request-eosiohttp_plugin">Specify the Access-Control-Allow-Origin to be returned on each request. (eosio::http_plugin)</a></li>
+    <li><a href="#access-control-allow-origin-">access-control-allow-origin =</a></li>
+    <li><a href="#specify-the-access-control-allow-headers-to-be-returned-on-each-request-eosiohttp_plugin">Specify the Access-Control-Allow-Headers to be returned on each request. (eosio::http_plugin)</a></li>
+    <li><a href="#access-control-allow-headers-">access-control-allow-headers =</a></li>
+    <li><a href="#specify-the-access-control-max-age-to-be-returned-on-each-request-eosiohttp_plugin">Specify the Access-Control-Max-Age to be returned on each request. (eosio::http_plugin)</a></li>
+    <li><a href="#access-control-max-age-">access-control-max-age =</a></li>
+    <li><a href="#specify-if-access-control-allow-credentials-true-should-be-returned-on-each-request-eosiohttp_plugin">Specify if Access-Control-Allow-Credentials: true should be returned on each request. (eosio::http_plugin)</a></li>
+    <li><a href="#the-maximum-body-size-in-bytes-allowed-for-incoming-rpc-requests-eosiohttp_plugin">The maximum body size in bytes allowed for incoming RPC requests (eosio::http_plugin)</a></li>
+    <li><a href="#append-the-error-log-to-http-responses-eosiohttp_plugin">Append the error log to HTTP responses (eosio::http_plugin)</a></li>
+    <li><a href="#the-actual-hostport-used-to-listen-for-incoming-p2p-connections-eosionet_plugin">The actual host:port used to listen for incoming p2p connections. (eosio::net_plugin)</a></li>
+    <li><a href="#an-externally-accessible-hostport-for-identifying-this-node-defaults-to-p2p-listen-endpoint-eosionet_plugin">An externally accessible host:port for identifying this node. Defaults to p2p-listen-endpoint. (eosio::net_plugin)</a></li>
+    <li><a href="#the-public-endpoint-of-a-peer-node-to-connect-to-use-multiple-p2p-peer-address-options-as-needed-to-compose-a-network-eosionet_plugin">The public endpoint of a peer node to connect to. Use multiple p2p-peer-address options as needed to compose a network. (eosio::net_plugin)</a></li>
+    <li><a href="#p2p-peer-address-">p2p-peer-address =</a></li>
+    <li><a href="#maximum-number-of-client0nodes-from-any-single-ip-address-eosionet_plugin">Maximum number of client0nodes from any single IP address (eosio::net_plugin)</a></li>
+    <li><a href="#the-name-supplied-to-identify-this-node-amongst-the-peers-eosionet_plugin">The name supplied to identify this node amongst the peers. (eosio::net_plugin)</a></li>
+    <li><a href="#can-be-any-or-producers-or-specified-or-none-if-specified-peer-key-must-be-specified-at-least-once-if-only-producers-peer-key-is-not-required-producers-and-specified-may-be-combined-eosionet_plugin">Can be &lsquo;any&rsquo; or &lsquo;producers&rsquo; or &lsquo;specified&rsquo; or &rsquo;none&rsquo;. If &lsquo;specified&rsquo;, peer-key must be specified at least once. If only &lsquo;producers&rsquo;, peer-key is not required. &lsquo;producers&rsquo; and &lsquo;specified&rsquo; may be combined. (eosio::net_plugin)</a></li>
+    <li><a href="#optional-public-key-of-peer-allowed-to-connect--may-be-used-multiple-times-eosionet_plugin">Optional public key of peer allowed to connect.  May be used multiple times. (eosio::net_plugin)</a></li>
+    <li><a href="#peer-key-">peer-key =</a></li>
+    <li><a href="#tuple-of-publickey-wif-private-key-may-specify-multiple-times-eosionet_plugin">Tuple of [PublicKey, WIF private key] (may specify multiple times) (eosio::net_plugin)</a></li>
+    <li><a href="#peer-private-key-">peer-private-key =</a></li>
+    <li><a href="#maximum-number-of-clients-from-which-connections-are-accepted-use-0-for-no-limit-eosionet_plugin">Maximum number of clients from which connections are accepted, use 0 for no limit (eosio::net_plugin)</a></li>
+    <li><a href="#number-of-seconds-to-wait-before-cleaning-up-dead-connections-eosionet_plugin">number of seconds to wait before cleaning up dead connections (eosio::net_plugin)</a></li>
+    <li><a href="#true-to-require-exact-match-of-peer-network-version-eosionet_plugin">True to require exact match of peer network version. (eosio::net_plugin)</a></li>
+    <li><a href="#number-of-blocks-to-retrieve-in-a-chunk-from-any-individual-peer-during-synchronization-eosionet_plugin">number of blocks to retrieve in a chunk from any individual peer during synchronization (eosio::net_plugin)</a></li>
+    <li><a href="#maximum-sizes-of-transaction-or-block-messages-that-are-sent-without-first-sending-a-notice-eosionet_plugin">maximum sizes of transaction or block messages that are sent without first sending a notice (eosio::net_plugin)</a></li>
+    <li><a href="#enable-expirimental-socket-read-watermark-optimization-eosionet_plugin">Enable expirimental socket read watermark optimization (eosio::net_plugin)</a></li>
+    <li><a href="#the-string-used-to-format-peers-when-logging-messages-about-them--variables-are-escaped-with-variable-name-1">The string used to format peers when logging messages about them.  Variables are escaped with ${<variable name>}.</a></li>
+    <li><a href="#available-variables-1">Available Variables:</a></li>
+    <li><a href="#_name--self-reported-name-1">_name  	self-reported name</a></li>
+    <li><a href="#heading-6"></a></li>
+    <li><a href="#_id----self-reported-id-64-hex-characters">_id    	self-reported ID (64 hex characters)</a></li>
+    <li><a href="#heading-7"></a></li>
+    <li><a href="#_sid---first-8-characters-of-_peerid">_sid   	first 8 characters of _peer.id</a></li>
+    <li><a href="#heading-8"></a></li>
+    <li><a href="#_ip----remote-ip-address-of-peer-1">_ip    	remote IP address of peer</a></li>
+    <li><a href="#heading-9"></a></li>
+    <li><a href="#_port--remote-port-number-of-peer-1">_port  	remote port number of peer</a></li>
+    <li><a href="#heading-10"></a></li>
+    <li><a href="#_lip---local-ip-address-connected-to-peer-1">_lip   	local IP address connected to peer</a></li>
+    <li><a href="#heading-11"></a></li>
+    <li><a href="#_lport-local-port-number-connected-to-peer-1">_lport 	local port number connected to peer</a></li>
+    <li><a href="#heading-12"></a></li>
+    <li><a href="#eosionet_plugin">(eosio::net_plugin)</a></li>
+    <li><a href="#enable-block-production-even-if-the-chain-is-stale-eosioproducer_plugin">Enable block production, even if the chain is stale. (eosio::producer_plugin)</a></li>
+    <li><a href="#start-this-node-in-a-state-where-production-is-paused-eosioproducer_plugin">Start this node in a state where production is paused (eosio::producer_plugin)</a></li>
+    <li><a href="#limits-the-maximum-time-in-milliseconds-that-is-allowed-a-pushed-transactions-code-to-execute-before-being-considered-invalid-eosioproducer_plugin">Limits the maximum time (in milliseconds) that is allowed a pushed transaction&rsquo;s code to execute before being considered invalid (eosio::producer_plugin)</a></li>
+    <li><a href="#limits-the-maximum-age-in-seconds-of-the-dpos-irreversible-block-for-a-chain-this-node-will-produce-blocks-on-use-negative-value-to-indicate-unlimited-eosioproducer_plugin">Limits the maximum age (in seconds) of the DPOS Irreversible Block for a chain this node will produce blocks on (use negative value to indicate unlimited) (eosio::producer_plugin)</a></li>
+    <li><a href="#id-of-producer-controlled-by-this-node-eg-inita-may-specify-multiple-times-eosioproducer_plugin">ID of producer controlled by this node (e.g. inita; may specify multiple times) (eosio::producer_plugin)</a></li>
+    <li><a href="#producer-name-">producer-name =</a></li>
+    <li><a href="#deprecated---use-signature-provider-instead-tuple-of-public-key-wif-private-key-may-specify-multiple-times-eosioproducer_plugin">(DEPRECATED - Use signature-provider instead) Tuple of [public key, WIF private key] (may specify multiple times) (eosio::producer_plugin)</a></li>
+    <li><a href="#private-key-">private-key =</a></li>
+    <li><a href="#keyvalue-pairs-in-the-form-public-keyprovider-spec">Key=Value pairs in the form <public-key>=<provider-spec></a></li>
+    <li><a href="#where">Where:</a></li>
+    <li><a href="#public-key----is-a-string-form-of-a-vaild-eosio-public-key"><public-key>    	is a string form of a vaild EOSIO public key</a></li>
+    <li><a href="#heading-13"></a></li>
+    <li><a href="#provider-spec-is-a-string-in-the-form-provider-typedata"><provider-spec> 	is a string in the form <provider-type>:<data></a></li>
+    <li><a href="#heading-14"></a></li>
+    <li><a href="#provider-type-is-key-or-keosd"><provider-type> 	is KEY, or KEOSD</a></li>
+    <li><a href="#heading-15"></a></li>
+    <li><a href="#keydata------is-a-string-form-of-a-valid-eosio-private-key-which-maps-to-the-provided-public-key">KEY:<data>      	is a string form of a valid EOSIO private key which maps to the provided public key</a></li>
+    <li><a href="#heading-16"></a></li>
+    <li><a href="#keosddata----is-the-url-where-keosd-is-available-and-the-approptiate-wallets-are-unlocked-eosioproducer_plugin">KEOSD:<data>    	is the URL where keosd is available and the approptiate wallet(s) are unlocked (eosio::producer_plugin)</a></li>
+    <li><a href="#limits-the-maximum-time-in-milliseconds-that-is-allowd-for-sending-blocks-to-a-keosd-provider-for-signing-eosioproducer_plugin">Limits the maximum time (in milliseconds) that is allowd for sending blocks to a keosd provider for signing (eosio::producer_plugin)</a></li>
+    <li><a href="#lag-in-number-of-blocks-from-the-head-block-when-selecting-the-reference-block-for-transactions--1-means-last-irreversible-block-eosiotxn_test_gen_plugin">Lag in number of blocks from the head block when selecting the reference block for transactions (-1 means Last Irreversible Block) (eosio::txn_test_gen_plugin)</a></li>
+    <li><a href="#the-path-of-the-wallet-files-absolute-path-or-relative-to-application-data-dir-eosiowallet_plugin">The path of the wallet files (absolute path or relative to application data dir) (eosio::wallet_plugin)</a></li>
+    <li><a href="#timeout-for-unlocked-wallet-in-seconds-default-900-15-minutes-wallets-will-automatically-lock-after-specified-number-of-seconds-of-inactivity-activity-is-defined-as-any-wallet-command-eg-list-wallets-eosiowallet_plugin">Timeout for unlocked wallet in seconds (default 900 (15 minutes)). Wallets will automatically lock after specified number of seconds of inactivity. Activity is defined as any wallet command e.g. list-wallets. (eosio::wallet_plugin)</a></li>
+    <li><a href="#plugins-to-enable-may-be-specified-multiple-times">Plugin(s) to enable, may be specified multiple times</a></li>
+    <li><a href="#plugin-">plugin =</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>EOS主网已经上线，但是市面上还没有特别好用的钱包，所以只能自己动手丰衣足食了，在编译运行EOS代码的时候遇到不少的问题，这边记录一下。 使用Ubuntu 16.04在本地编译是没有遇到什么问题的，基本上一条命令就编译过去了，但是由于大部分的EOS节点都在国外，所以同步区块特别慢，所以还是买了一个美国的ECS，我购买是阿里云硅谷的服务器，github同步的时候十几M一秒，在国内是不敢想象的。</p>
+<p>如果是在本地的ubuntu 16.04编译的话，基本上3条命令就可以编译出来了，跟着官方文档，没有出现什么意外</p>
+<p><a href="https://github.com/EOSIO/eos/wiki/Local-Environment#2-building-eosio">https://github.com/EOSIO/eos/wiki/Local-Environment#2-building-eosio</a></p>
+<p>git clone <a href="https://github.com/EOSIO/eos">https://github.com/EOSIO/eos</a> &ndash;recursive
+cd ~/eos
+./eosio_build.sh</p>
+<p>apt update apt upgrade之后运行上面3条命令，基本没有遇到问题。都能直接过。我主要记录一下在阿里云的服务器上编译的问题。购买的是阿里云的ubuntu 16.04版本服务器，首先一个是云服务器只有2G内存，40G硬盘，编译的时候报错内存和硬盘不够，修改eosio_build_ubuntu.sh文件</p>
+<p>vi scripts/eosio_build_ubuntu.sh</p>
+<h1 id="if--mem_meg--lt-7000--then">if [ &ldquo;${MEM_MEG}&rdquo; -lt 7000 ]; then</h1>
+<h1 id="printf-tyour-system-must-have-7-or-more-gigabytes-of-physical-memory-installedn">printf &ldquo;\\tYour system must have 7 or more Gigabytes of physical memory installed.\\n&rdquo;</h1>
+<h1 id="printf-texiting-nown">printf &ldquo;\\tExiting now.\\n&rdquo;</h1>
+<h1 id="exit-1">exit 1</h1>
+<h1 id="fi">fi</h1>
+<h1 id="if--disk_avail--lt-disk_min--then">if [ &ldquo;${DISK_AVAIL%.*}&rdquo; -lt &ldquo;${DISK_MIN}&rdquo; ]; then</h1>
+<h1 id="printf-tyou-must-have-at-least-sgb-of-available-storage-to-install-eosion-disk_min">printf &ldquo;\\tYou must have at least %sGB of available storage to install EOSIO.\\n&rdquo; &ldquo;${DISK_MIN}&rdquo;</h1>
+<h1 id="printf-texiting-nown-1">printf &ldquo;\\tExiting now.\\n&rdquo;</h1>
+<h1 id="exit-1-1">exit 1</h1>
+<h1 id="fi-1">fi</h1>
+<p>把这些检测都注释掉，然后就可以运行./eosio_build.sh了，然后中间又报错</p>
+<p>make: the &lsquo;-j&rsquo; option requires a positive integer argument
+Usage: make [options] [target] &hellip;
+Options:
+-b, -m                      Ignored for compatibility.
+-B, &ndash;always-make           Unconditionally make all targets.
+-C DIRECTORY, &ndash;directory=DIRECTORY
+Change to DIRECTORY before doing anything.
+-d                          Print lots of debugging information.
+&ndash;debug[=FLAGS]             Print various types of debugging information.
+-e, &ndash;environment-overrides
+Environment variables override makefiles.
+&ndash;eval=STRING               Evaluate STRING as a makefile statement.
+-f FILE, &ndash;file=FILE, &ndash;makefile=FILE
+Read FILE as a makefile.
+-h, &ndash;help                  Print this message and exit.
+-i, &ndash;ignore-errors         Ignore errors from recipes.
+-I DIRECTORY, &ndash;include-dir=DIRECTORY
+Search DIRECTORY for included makefiles.
+-j [N], &ndash;jobs[=N]          Allow N jobs at once; infinite jobs with no arg.
+-k, &ndash;keep-going            Keep going when some targets can&rsquo;t be made.
+-l [N], &ndash;load-average[=N], &ndash;max-load[=N]
+Don&rsquo;t start multiple jobs unless load is below N.
+-L, &ndash;check-symlink-times   Use the latest mtime between symlinks and target.
+-n, &ndash;just-print, &ndash;dry-run, &ndash;recon
+Don&rsquo;t actually run any recipe; just print them.
+-o FILE, &ndash;old-file=FILE, &ndash;assume-old=FILE
+Consider FILE to be very old and don&rsquo;t remake it.
+-O[TYPE], &ndash;output-sync[=TYPE]
+Synchronize output of parallel jobs by TYPE.
+-p, &ndash;print-data-base       Print make&rsquo;s internal database.
+-q, &ndash;question              Run no recipe; exit status says if up to date.
+-r, &ndash;no-builtin-rules      Disable the built-in implicit rules.
+-R, &ndash;no-builtin-variables  Disable the built-in variable settings.
+-s, &ndash;silent, &ndash;quiet       Don&rsquo;t echo recipes.
+-S, &ndash;no-keep-going, &ndash;stop
+Turns off -k.
+-t, &ndash;touch                 Touch targets instead of remaking them.
+&ndash;trace                     Print tracing information.
+-v, &ndash;version               Print the version number of make and exit.
+-w, &ndash;print-directory       Print the current directory.
+&ndash;no-print-directory        Turn off -w, even if it was turned on implicitly.
+-W FILE, &ndash;what-if=FILE, &ndash;new-file=FILE, &ndash;assume-new=FILE
+Consider FILE to be infinitely new.
+&ndash;warn-undefined-variables  Warn when an undefined variable is referenced.</p>
+<p>This program built for x86_64-pc-linux-gnu
+Report bugs to <a href="mailto:bug-make@gnu.org">bug-make@gnu.org</a>
+Error compiling LLVM and clang with EXPERIMENTAL WASM support.1</p>
+<pre><code>Exiting now.
+</code></pre>
+<p>我试了一下，从mongo-c-driver 到llvm全部出错，这个应该是make的问题？好吧，看来脚本没法搞了，就自己手动一个一个编译。运行./eosio_build.sh的时候哪个出错，就在tmp目录下根据下面这个文本教程做就可以了。 只是有一个问题，mongo-cxx-driver驱动不能使用教程的最新版。</p>
+<p><a href="https://bihu.com/article/179190">https://bihu.com/article/179190</a></p>
+<p>把git clone <a href="https://github.com/mongodb/mongo-cxx-driver.git">https://github.com/mongodb/mongo-cxx-driver.git</a> &ndash;branch releases/stable &ndash;depth 1</p>
+<p>换成git clone <a href="https://github.com/mongodb/mongo-cxx-driver.git">https://github.com/mongodb/mongo-cxx-driver.git</a> &ndash;branch releases/v3.2 &ndash;depth 1</p>
+<p>最新版本的mongo-cxx-driver驱动依赖高版本的 libbson 库，我们换成3.2就可以了，不然编译会失败。</p>
+<p>从mongo-c-driver mongo-cxx-driver 到secp256k1-zkp到 llvm我都是手动编译的，另外根据那个教程在编译llvm的时候也有问题，因为EOS的检测路径改了，在script/eosio_build_ubuntu.sh目录下面看到有这个命令</p>
+<p>printf &ldquo;\\n\\tChecking for LLVM with WASM support.\\n&rdquo;
+if [ ! -d &ldquo;${HOME}/opt/wasm/bin&rdquo; ]; then
+# Build LLVM and clang with WASM support:
+printf &ldquo;\\tInstalling LLVM with WASM\\n&rdquo;
+if ! cd &ldquo;${TEMP_DIR}&rdquo;
+then
+printf &ldquo;\\n\\tUnable to cd into directory %s.\\n&rdquo; &ldquo;${TEMP_DIR}&rdquo;
+printf &ldquo;\\n\\tExiting now.\\n&rdquo;
+exit 1;
+fi
+if ! mkdir &ldquo;${TEMP_DIR}/llvm-compiler&rdquo;  2&gt;/dev/null
+then</p>
+<p>检测的是home目录下的文件，所以根据上面的教程在llvm cmake的时候需要改动一下，将</p>
+<p>cmake -G &ldquo;Unix Makefiles&rdquo; -DCMAKE_INSTALL_PREFIX=.. -DLLVM_TARGETS_TO_BUILD= -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD=WebAssembly -DCMAKE_BUILD_TYPE=Release ..</p>
+<p>改成</p>
+<p>cmake -G &ldquo;Unix Makefiles&rdquo; -DCMAKE_INSTALL_PREFIX=&quot;${HOME}/opt/wasm&quot; -DLLVM_TARGETS_TO_BUILD= -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD=WebAssembly -DCMAKE_BUILD_TYPE=Release ../</p>
+<p>安装目录改到了home目录下面才能被EOS的eosio_build_ubuntu.sh检测到。我日，搞到这里才发现之前为什么make会失败，之前的make失败是因为本地ubuntu 的shell都有这个变量${JOBS}在阿里云的机器上没有所以失败才会产生之前的make失败。。。惨痛的教训，用vi打开eosio_build_ubuntu.sh输入以下命令</p>
+<p>:0, $s/make -j&quot;${JOBS}&quot;/make -j2/g</p>
+<p>这条命令的意思是把所有的make -j&quot;${JOBS}&ldquo;替换成make -j2因为我买的阿里云服务器是双核的，你可以根据具体情况自己修改。这样就可以像本地一样直接编译了。不过还好，也算是手工搞了一遍，把EOS依赖库都熟悉了一遍，不过搞了几天，这个代价有点大。趟了一路的雷！！！</p>
+<p><a href="http://www.joenchen.com/wp-content/uploads/2018/06/20180630085558.png"><img src="images/20180630085558.png" alt=""></a></p>
+<p>出现这个界面就表示编译完成，然后就可以进入build目录make install安装EOS，这样电脑中就有EOS命令了，接下来就是开始运行程序同步节点了，首先创建创世同步区块</p>
+<p>{
+&ldquo;initial_timestamp&rdquo;: &ldquo;2018-06-08T08:08:08.888&rdquo;,
+&ldquo;initial_key&rdquo;: &ldquo;EOS7EarnUhcyYqmdnPon8rm7mBCTnBoot6o7fE2WzjvEX2TdggbL3&rdquo;,
+&ldquo;initial_configuration&rdquo;: {
+&ldquo;max_block_net_usage&rdquo;: 1048576,
+&ldquo;target_block_net_usage_pct&rdquo;: 1000,
+&ldquo;max_transaction_net_usage&rdquo;: 524288,
+&ldquo;base_per_transaction_net_usage&rdquo;: 12,
+&ldquo;net_usage_leeway&rdquo;: 500,
+&ldquo;context_free_discount_net_usage_num&rdquo;: 20,
+&ldquo;context_free_discount_net_usage_den&rdquo;: 100,
+&ldquo;max_block_cpu_usage&rdquo;: 200000,
+&ldquo;target_block_cpu_usage_pct&rdquo;: 1000,
+&ldquo;max_transaction_cpu_usage&rdquo;: 150000,
+&ldquo;min_transaction_cpu_usage&rdquo;: 100,
+&ldquo;max_transaction_lifetime&rdquo;: 3600,
+&ldquo;deferred_trx_expiration_window&rdquo;: 600,
+&ldquo;max_transaction_delay&rdquo;: 3888000,
+&ldquo;max_inline_action_size&rdquo;: 4096,
+&ldquo;max_inline_action_depth&rdquo;: 4,
+&ldquo;max_authority_depth&rdquo;: 6
+}
+}</p>
+<p>保存成genesis.json，然后运行nodeos &ndash;genesis-json genesis.json &ndash;config-dir /home/eos_datadir &ndash;data-dir /home/eos_datadir &ndash;delete-all-blocks这条命令的意思是使用genesis.json文件初始化区块链节点，然后配置文件和数据目录设置到/home/eos_datadir下面。</p>
+<p>root@XS2323677106:/home/eos_datadir# nodeos &ndash;genesis-json genesis.json &ndash;config-dir /home/eos_datadir &ndash;data-dir /home/eos_datadir &ndash;delete-all-blocks
+640251ms thread-0   chain_plugin.cpp:209          plugin_initialize    ] initializing chain plugin
+640252ms thread-0   chain_plugin.cpp:316          plugin_initialize    ] Deleting state database and blocks
+640366ms thread-0   chain_plugin.cpp:379          plugin_initialize    ] Using genesis state provided in &lsquo;/home/eos_datadir/genesis.json&rsquo;
+640366ms thread-0   chain_plugin.cpp:385          plugin_initialize    ] Starting up fresh blockchain with provided genesis state.
+641068ms thread-0   http_plugin.cpp:290           plugin_initialize    ] configured http to listen on 127.0.0.1:8888
+641069ms thread-0   net_plugin.cpp:2948           plugin_initialize    ] Initialize net plugin
+641069ms thread-0   net_plugin.cpp:2972           plugin_initialize    ] host: 0.0.0.0 port: 9876
+641069ms thread-0   net_plugin.cpp:3044           plugin_initialize    ] my node_id is f005b1ca544075192ef714ffc02bd56677b3b3c013df8ccceeaaa65ae3f786aa
+641069ms thread-0   main.cpp:104                  main                 ] nodeos version 90fefdd1
+641069ms thread-0   main.cpp:105                  main                 ] eosio root is /root/.local/share
+641070ms thread-0   controller.cpp:1201           startup              ] No head block in fork db, perhaps we need to replay
+641070ms thread-0   controller.cpp:305            initialize_fork_db   ]  Initializing new blockchain with genesis state               <br>
+641110ms thread-0   chain_plugin.cpp:450          plugin_startup       ] starting chain in read/write mode
+641110ms thread-0   chain_plugin.cpp:455          plugin_startup       ] Blockchain started; head block is #1, genesis timestamp is 2018</p>
+<p>出现这个界面就马上CTRL+Z停下来，到/home/eos_datadir下面去修改config文件，改成这样，主要是配置节点信息</p>
+<p># the endpoint upon which to listen for incoming connections (eosio::bnet_plugin)
+bnet-endpoint = 0.0.0.0:4321</p>
+<h1 id="this-peer-will-request-only-irreversible-blocks-from-other-nodes-eosiobnet_plugin">this peer will request only irreversible blocks from other nodes (eosio::bnet_plugin)</h1>
+<p>bnet-follow-irreversible = 0</p>
+<h1 id="the-number-of-threads-to-use-to-process-network-messages-eosiobnet_plugin">the number of threads to use to process network messages (eosio::bnet_plugin)</h1>
+<h1 id="bnet-threads-">bnet-threads =</h1>
+<h1 id="remote-endpoint-of-other-node-to-connect-to-use-multiple-bnet-connect-options-as-needed-to-compose-a-network-eosiobnet_plugin">remote endpoint of other node to connect to; Use multiple bnet-connect options as needed to compose a network (eosio::bnet_plugin)</h1>
+<h1 id="bnet-connect-">bnet-connect =</h1>
+<h1 id="this-peer-will-request-no-pending-transactions-from-other-nodes-eosiobnet_plugin">this peer will request no pending transactions from other nodes (eosio::bnet_plugin)</h1>
+<p>bnet-no-trx = false</p>
+<h1 id="the-string-used-to-format-peers-when-logging-messages-about-them--variables-are-escaped-with-variable-name">The string used to format peers when logging messages about them.  Variables are escaped with ${<variable name>}.</h1>
+<h1 id="available-variables">Available Variables:</h1>
+<h1 id="_name--self-reported-name">_name  	self-reported name</h1>
+<h1 id="heading"></h1>
+<h1 id="_id----self-reported-id-public-key">_id    	self-reported ID (Public Key)</h1>
+<h1 id="heading-1"></h1>
+<h1 id="_ip----remote-ip-address-of-peer">_ip    	remote IP address of peer</h1>
+<h1 id="heading-2"></h1>
+<h1 id="_port--remote-port-number-of-peer">_port  	remote port number of peer</h1>
+<h1 id="heading-3"></h1>
+<h1 id="_lip---local-ip-address-connected-to-peer">_lip   	local IP address connected to peer</h1>
+<h1 id="heading-4"></h1>
+<h1 id="_lport-local-port-number-connected-to-peer">_lport 	local port number connected to peer</h1>
+<h1 id="heading-5"></h1>
+<h1 id="eosiobnet_plugin">(eosio::bnet_plugin)</h1>
+<p>bnet-peer-log-format = [&quot;${_name}&rdquo; ${_ip}:${_port}]</p>
+<h1 id="the-location-of-the-blocks-directory-absolute-path-or-relative-to-application-data-dir-eosiochain_plugin">the location of the blocks directory (absolute path or relative to application data dir) (eosio::chain_plugin)</h1>
+<p>blocks-dir = &ldquo;blocks&rdquo;</p>
+<h1 id="pairs-of-block_numblock_id-that-should-be-enforced-as-checkpoints-eosiochain_plugin">Pairs of [BLOCK_NUM,BLOCK_ID] that should be enforced as checkpoints. (eosio::chain_plugin)</h1>
+<h1 id="checkpoint-">checkpoint =</h1>
+<h1 id="override-default-wasm-runtime-eosiochain_plugin">Override default WASM runtime (eosio::chain_plugin)</h1>
+<h1 id="wasm-runtime-">wasm-runtime =</h1>
+<h1 id="override-default-maximum-abi-serialization-time-allowed-in-ms-eosiochain_plugin">Override default maximum ABI serialization time allowed in ms (eosio::chain_plugin)</h1>
+<h1 id="abi-serializer-max-time-ms-">abi-serializer-max-time-ms =</h1>
+<h1 id="maximum-size-in-mb-of-the-chain-state-database-eosiochain_plugin">Maximum size (in MB) of the chain state database (eosio::chain_plugin)</h1>
+<p>chain-state-db-size-mb = 1024</p>
+<h1 id="maximum-size-in-mb-of-the-reversible-blocks-database-eosiochain_plugin">Maximum size (in MB) of the reversible blocks database (eosio::chain_plugin)</h1>
+<p>reversible-blocks-db-size-mb = 340</p>
+<h1 id="print-contracts-output-to-console-eosiochain_plugin">print contract&rsquo;s output to console (eosio::chain_plugin)</h1>
+<p>contracts-console = false</p>
+<h1 id="account-added-to-actor-whitelist-may-specify-multiple-times-eosiochain_plugin">Account added to actor whitelist (may specify multiple times) (eosio::chain_plugin)</h1>
+<h1 id="actor-whitelist-">actor-whitelist =</h1>
+<h1 id="account-added-to-actor-blacklist-may-specify-multiple-times-eosiochain_plugin">Account added to actor blacklist (may specify multiple times) (eosio::chain_plugin)</h1>
+<h1 id="actor-blacklist-">actor-blacklist =</h1>
+<h1 id="contract-account-added-to-contract-whitelist-may-specify-multiple-times-eosiochain_plugin">Contract account added to contract whitelist (may specify multiple times) (eosio::chain_plugin)</h1>
+<h1 id="contract-whitelist-">contract-whitelist =</h1>
+<h1 id="contract-account-added-to-contract-blacklist-may-specify-multiple-times-eosiochain_plugin">Contract account added to contract blacklist (may specify multiple times) (eosio::chain_plugin)</h1>
+<h1 id="contract-blacklist-">contract-blacklist =</h1>
+<h1 id="action-in-the-form-codeaction-added-to-action-blacklist-may-specify-multiple-times-eosiochain_plugin">Action (in the form code::action) added to action blacklist (may specify multiple times) (eosio::chain_plugin)</h1>
+<h1 id="action-blacklist-">action-blacklist =</h1>
+<h1 id="public-key-added-to-blacklist-of-keys-that-should-not-be-included-in-authorities-may-specify-multiple-times-eosiochain_plugin">Public key added to blacklist of keys that should not be included in authorities (may specify multiple times) (eosio::chain_plugin)</h1>
+<h1 id="key-blacklist-">key-blacklist =</h1>
+<h1 id="track-actions-which-match-receiveractionactor-actor-may-be-blank-to-include-all-receiver-and-action-may-not-be-blank-eosiohistory_plugin">Track actions which match receiver:action:actor. Actor may be blank to include all. Receiver and Action may not be blank. (eosio::history_plugin)</h1>
+<h1 id="filter-on-">filter-on =</h1>
+<h1 id="pem-encoded-trusted-root-certificate-or-path-to-file-containing-one-used-to-validate-any-tls-connections-made--may-specify-multiple-times">PEM encoded trusted root certificate (or path to file containing one) used to validate any TLS connections made.  (may specify multiple times)</h1>
+<h1 id="eosiohttp_client_plugin">(eosio::http_client_plugin)</h1>
+<h1 id="https-client-root-cert-">https-client-root-cert =</h1>
+<h1 id="true-validate-that-the-peer-certificates-are-valid-and-trusted-false-ignore-cert-errors-eosiohttp_client_plugin">true: validate that the peer certificates are valid and trusted, false: ignore cert errors (eosio::http_client_plugin)</h1>
+<p>https-client-validate-peers = 1</p>
+<h1 id="the-local-ip-and-port-to-listen-for-incoming-http-connections-set-blank-to-disable-eosiohttp_plugin">The local IP and port to listen for incoming http connections; set blank to disable. (eosio::http_plugin)</h1>
+<p>http-server-address = 127.0.0.1:8888</p>
+<h1 id="the-local-ip-and-port-to-listen-for-incoming-https-connections-leave-blank-to-disable-eosiohttp_plugin">The local IP and port to listen for incoming https connections; leave blank to disable. (eosio::http_plugin)</h1>
+<h1 id="https-server-address-">https-server-address =</h1>
+<h1 id="filename-with-the-certificate-chain-to-present-on-https-connections-pem-format-required-for-https-eosiohttp_plugin">Filename with the certificate chain to present on https connections. PEM format. Required for https. (eosio::http_plugin)</h1>
+<h1 id="https-certificate-chain-file-">https-certificate-chain-file =</h1>
+<h1 id="filename-with-https-private-key-in-pem-format-required-for-https-eosiohttp_plugin">Filename with https private key in PEM format. Required for https (eosio::http_plugin)</h1>
+<h1 id="https-private-key-file-">https-private-key-file =</h1>
+<h1 id="specify-the-access-control-allow-origin-to-be-returned-on-each-request-eosiohttp_plugin">Specify the Access-Control-Allow-Origin to be returned on each request. (eosio::http_plugin)</h1>
+<h1 id="access-control-allow-origin-">access-control-allow-origin =</h1>
+<h1 id="specify-the-access-control-allow-headers-to-be-returned-on-each-request-eosiohttp_plugin">Specify the Access-Control-Allow-Headers to be returned on each request. (eosio::http_plugin)</h1>
+<h1 id="access-control-allow-headers-">access-control-allow-headers =</h1>
+<h1 id="specify-the-access-control-max-age-to-be-returned-on-each-request-eosiohttp_plugin">Specify the Access-Control-Max-Age to be returned on each request. (eosio::http_plugin)</h1>
+<h1 id="access-control-max-age-">access-control-max-age =</h1>
+<h1 id="specify-if-access-control-allow-credentials-true-should-be-returned-on-each-request-eosiohttp_plugin">Specify if Access-Control-Allow-Credentials: true should be returned on each request. (eosio::http_plugin)</h1>
+<p>access-control-allow-credentials = false</p>
+<h1 id="the-maximum-body-size-in-bytes-allowed-for-incoming-rpc-requests-eosiohttp_plugin">The maximum body size in bytes allowed for incoming RPC requests (eosio::http_plugin)</h1>
+<p>max-body-size = 1048576</p>
+<h1 id="append-the-error-log-to-http-responses-eosiohttp_plugin">Append the error log to HTTP responses (eosio::http_plugin)</h1>
+<p>verbose-http-errors = false</p>
+<h1 id="the-actual-hostport-used-to-listen-for-incoming-p2p-connections-eosionet_plugin">The actual host:port used to listen for incoming p2p connections. (eosio::net_plugin)</h1>
+<p>p2p-listen-endpoint = 0.0.0.0:9876</p>
+<h1 id="an-externally-accessible-hostport-for-identifying-this-node-defaults-to-p2p-listen-endpoint-eosionet_plugin">An externally accessible host:port for identifying this node. Defaults to p2p-listen-endpoint. (eosio::net_plugin)</h1>
+<p>p2p-peer-address = p2p.one.eosdublin.io:9876</p>
+<p>p2p-peer-address = eu-west-nl.eosamsterdam.net:9876</p>
+<p>p2p-peer-address = p2p.mainnet.eosgermany.online:9876</p>
+<p>p2p-peer-address = 35.197.190.234:19878</p>
+<p>p2p-peer-address = p2p.genereos.io:9876</p>
+<p>p2p-peer-address = fullnode.eoslaomao.com:443</p>
+<p>p2p-peer-address = new.eoshenzhen.io:10034</p>
+<p>p2p-peer-address = node1.eosphere.io:9876</p>
+<p>p2p-peer-address = p2p.meet.one:9876</p>
+<p>p2p-peer-address = bp.eosbeijing.one:8080</p>
+<p>p2p-peer-address = peer1.mainnet.helloeos.com.cn:80</p>
+<p>p2p-peer-address = p2p-public.hkeos.com:19875</p>
+<p>p2p-peer-address = pub1.eostheworld.io:9876</p>
+<p>p2p-peer-address = eu1.eosdac.io:49876</p>
+<p>p2p-peer-address = peer.eosio.sg:9876</p>
+<h1 id="the-public-endpoint-of-a-peer-node-to-connect-to-use-multiple-p2p-peer-address-options-as-needed-to-compose-a-network-eosionet_plugin">The public endpoint of a peer node to connect to. Use multiple p2p-peer-address options as needed to compose a network. (eosio::net_plugin)</h1>
+<h1 id="p2p-peer-address-">p2p-peer-address =</h1>
+<h1 id="maximum-number-of-client0nodes-from-any-single-ip-address-eosionet_plugin">Maximum number of client0nodes from any single IP address (eosio::net_plugin)</h1>
+<p>p2p-max-nodes-per-host = 10</p>
+<h1 id="the-name-supplied-to-identify-this-node-amongst-the-peers-eosionet_plugin">The name supplied to identify this node amongst the peers. (eosio::net_plugin)</h1>
+<p>agent-name = &ldquo;joenEOSTestAgent&rdquo;</p>
+<h1 id="can-be-any-or-producers-or-specified-or-none-if-specified-peer-key-must-be-specified-at-least-once-if-only-producers-peer-key-is-not-required-producers-and-specified-may-be-combined-eosionet_plugin">Can be &lsquo;any&rsquo; or &lsquo;producers&rsquo; or &lsquo;specified&rsquo; or &rsquo;none&rsquo;. If &lsquo;specified&rsquo;, peer-key must be specified at least once. If only &lsquo;producers&rsquo;, peer-key is not required. &lsquo;producers&rsquo; and &lsquo;specified&rsquo; may be combined. (eosio::net_plugin)</h1>
+<p>allowed-connection = any</p>
+<h1 id="optional-public-key-of-peer-allowed-to-connect--may-be-used-multiple-times-eosionet_plugin">Optional public key of peer allowed to connect.  May be used multiple times. (eosio::net_plugin)</h1>
+<h1 id="peer-key-">peer-key =</h1>
+<h1 id="tuple-of-publickey-wif-private-key-may-specify-multiple-times-eosionet_plugin">Tuple of [PublicKey, WIF private key] (may specify multiple times) (eosio::net_plugin)</h1>
+<h1 id="peer-private-key-">peer-private-key =</h1>
+<p>peer-private-key = [&ldquo;EOS6qTvpRYx35aLonqUkWAMwAf3mFVugYfQCbjV67zw2aoe7Vx7qd&rdquo;, &ldquo;5JroNC1B4pz9gJzNZeU7tkU6YMtoeWRCr4CJJwKsVXnJhRbKXSC&rdquo;]</p>
+<h1 id="maximum-number-of-clients-from-which-connections-are-accepted-use-0-for-no-limit-eosionet_plugin">Maximum number of clients from which connections are accepted, use 0 for no limit (eosio::net_plugin)</h1>
+<p>max-clients = 25</p>
+<h1 id="number-of-seconds-to-wait-before-cleaning-up-dead-connections-eosionet_plugin">number of seconds to wait before cleaning up dead connections (eosio::net_plugin)</h1>
+<p>connection-cleanup-period = 30</p>
+<h1 id="true-to-require-exact-match-of-peer-network-version-eosionet_plugin">True to require exact match of peer network version. (eosio::net_plugin)</h1>
+<p>network-version-match = 1</p>
+<h1 id="number-of-blocks-to-retrieve-in-a-chunk-from-any-individual-peer-during-synchronization-eosionet_plugin">number of blocks to retrieve in a chunk from any individual peer during synchronization (eosio::net_plugin)</h1>
+<p>sync-fetch-span = 100</p>
+<h1 id="maximum-sizes-of-transaction-or-block-messages-that-are-sent-without-first-sending-a-notice-eosionet_plugin">maximum sizes of transaction or block messages that are sent without first sending a notice (eosio::net_plugin)</h1>
+<p>max-implicit-request = 1500</p>
+<h1 id="enable-expirimental-socket-read-watermark-optimization-eosionet_plugin">Enable expirimental socket read watermark optimization (eosio::net_plugin)</h1>
+<p>use-socket-read-watermark = 0</p>
+<h1 id="the-string-used-to-format-peers-when-logging-messages-about-them--variables-are-escaped-with-variable-name-1">The string used to format peers when logging messages about them.  Variables are escaped with ${<variable name>}.</h1>
+<h1 id="available-variables-1">Available Variables:</h1>
+<h1 id="_name--self-reported-name-1">_name  	self-reported name</h1>
+<h1 id="heading-6"></h1>
+<h1 id="_id----self-reported-id-64-hex-characters">_id    	self-reported ID (64 hex characters)</h1>
+<h1 id="heading-7"></h1>
+<h1 id="_sid---first-8-characters-of-_peerid">_sid   	first 8 characters of _peer.id</h1>
+<h1 id="heading-8"></h1>
+<h1 id="_ip----remote-ip-address-of-peer-1">_ip    	remote IP address of peer</h1>
+<h1 id="heading-9"></h1>
+<h1 id="_port--remote-port-number-of-peer-1">_port  	remote port number of peer</h1>
+<h1 id="heading-10"></h1>
+<h1 id="_lip---local-ip-address-connected-to-peer-1">_lip   	local IP address connected to peer</h1>
+<h1 id="heading-11"></h1>
+<h1 id="_lport-local-port-number-connected-to-peer-1">_lport 	local port number connected to peer</h1>
+<h1 id="heading-12"></h1>
+<h1 id="eosionet_plugin">(eosio::net_plugin)</h1>
+<p>peer-log-format = [&quot;${_name}&quot; ${_ip}:${_port}]</p>
+<h1 id="enable-block-production-even-if-the-chain-is-stale-eosioproducer_plugin">Enable block production, even if the chain is stale. (eosio::producer_plugin)</h1>
+<p>enable-stale-production = false</p>
+<h1 id="start-this-node-in-a-state-where-production-is-paused-eosioproducer_plugin">Start this node in a state where production is paused (eosio::producer_plugin)</h1>
+<p>pause-on-startup = false</p>
+<h1 id="limits-the-maximum-time-in-milliseconds-that-is-allowed-a-pushed-transactions-code-to-execute-before-being-considered-invalid-eosioproducer_plugin">Limits the maximum time (in milliseconds) that is allowed a pushed transaction&rsquo;s code to execute before being considered invalid (eosio::producer_plugin)</h1>
+<p>max-transaction-time = 30</p>
+<h1 id="limits-the-maximum-age-in-seconds-of-the-dpos-irreversible-block-for-a-chain-this-node-will-produce-blocks-on-use-negative-value-to-indicate-unlimited-eosioproducer_plugin">Limits the maximum age (in seconds) of the DPOS Irreversible Block for a chain this node will produce blocks on (use negative value to indicate unlimited) (eosio::producer_plugin)</h1>
+<p>max-irreversible-block-age = -1</p>
+<h1 id="id-of-producer-controlled-by-this-node-eg-inita-may-specify-multiple-times-eosioproducer_plugin">ID of producer controlled by this node (e.g. inita; may specify multiple times) (eosio::producer_plugin)</h1>
+<h1 id="producer-name-">producer-name =</h1>
+<h1 id="deprecated---use-signature-provider-instead-tuple-of-public-key-wif-private-key-may-specify-multiple-times-eosioproducer_plugin">(DEPRECATED - Use signature-provider instead) Tuple of [public key, WIF private key] (may specify multiple times) (eosio::producer_plugin)</h1>
+<h1 id="private-key-">private-key =</h1>
+<h1 id="keyvalue-pairs-in-the-form-public-keyprovider-spec">Key=Value pairs in the form <public-key>=<provider-spec></h1>
+<h1 id="where">Where:</h1>
+<h1 id="public-key----is-a-string-form-of-a-vaild-eosio-public-key"><public-key>    	is a string form of a vaild EOSIO public key</h1>
+<h1 id="heading-13"></h1>
+<h1 id="provider-spec-is-a-string-in-the-form-provider-typedata"><provider-spec> 	is a string in the form <provider-type>:<data></h1>
+<h1 id="heading-14"></h1>
+<h1 id="provider-type-is-key-or-keosd"><provider-type> 	is KEY, or KEOSD</h1>
+<h1 id="heading-15"></h1>
+<h1 id="keydata------is-a-string-form-of-a-valid-eosio-private-key-which-maps-to-the-provided-public-key">KEY:<data>      	is a string form of a valid EOSIO private key which maps to the provided public key</h1>
+<h1 id="heading-16"></h1>
+<h1 id="keosddata----is-the-url-where-keosd-is-available-and-the-approptiate-wallets-are-unlocked-eosioproducer_plugin">KEOSD:<data>    	is the URL where keosd is available and the approptiate wallet(s) are unlocked (eosio::producer_plugin)</h1>
+<p>signature-provider = EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV=KEY:5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3</p>
+<h1 id="limits-the-maximum-time-in-milliseconds-that-is-allowd-for-sending-blocks-to-a-keosd-provider-for-signing-eosioproducer_plugin">Limits the maximum time (in milliseconds) that is allowd for sending blocks to a keosd provider for signing (eosio::producer_plugin)</h1>
+<p>keosd-provider-timeout = 5</p>
+<h1 id="lag-in-number-of-blocks-from-the-head-block-when-selecting-the-reference-block-for-transactions--1-means-last-irreversible-block-eosiotxn_test_gen_plugin">Lag in number of blocks from the head block when selecting the reference block for transactions (-1 means Last Irreversible Block) (eosio::txn_test_gen_plugin)</h1>
+<p>txn-reference-block-lag = 0</p>
+<h1 id="the-path-of-the-wallet-files-absolute-path-or-relative-to-application-data-dir-eosiowallet_plugin">The path of the wallet files (absolute path or relative to application data dir) (eosio::wallet_plugin)</h1>
+<p>wallet-dir = &ldquo;.&rdquo;</p>
+<h1 id="timeout-for-unlocked-wallet-in-seconds-default-900-15-minutes-wallets-will-automatically-lock-after-specified-number-of-seconds-of-inactivity-activity-is-defined-as-any-wallet-command-eg-list-wallets-eosiowallet_plugin">Timeout for unlocked wallet in seconds (default 900 (15 minutes)). Wallets will automatically lock after specified number of seconds of inactivity. Activity is defined as any wallet command e.g. list-wallets. (eosio::wallet_plugin)</h1>
+<p>unlock-timeout = 900</p>
+<h1 id="plugins-to-enable-may-be-specified-multiple-times">Plugin(s) to enable, may be specified multiple times</h1>
+<h1 id="plugin-">plugin =</h1>
+<p>plugin = eosio::chain_api_plugin
+plugin = eosio::history_api_plugin
+plugin = eosio::chain_plugin
+plugin = eosio::history_plugin
+plugin = eosio::net_plugin
+plugin = eosio::net_api_plugin</p>
+<p>然后再次运行nodeos &ndash;genesis-json genesis.json &ndash;config-dir /home/eos_datadir &ndash;data-dir /home/eos_datadir &ndash;delete-all-blocks这样节点就起来了，如果需要自己配置节点，可以在这个网站查看节点列表</p>
+<p><a href="https://eosnodes.privex.io/">https://eosnodes.privex.io/</a></p>
+<p>或者<a href="https://eospark.com/MainNet/">https://eospark.com/MainNet/</a>上自己去查看节点的接入点</p>
+<p>root@XS2323677106:~# cleos get info
+{
+&ldquo;server_version&rdquo;: &ldquo;90fefdd1&rdquo;,
+&ldquo;chain_id&rdquo;: &ldquo;aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906&rdquo;,
+&ldquo;head_block_num&rdquo;: 1582,
+&ldquo;last_irreversible_block_num&rdquo;: 1581,
+&ldquo;last_irreversible_block_id&rdquo;: &ldquo;0000062d59fe2a92d371250ed2541a2c6dcb5d90a69f179e7b238273a988cd83&rdquo;,
+&ldquo;head_block_id&rdquo;: &ldquo;0000062ec80857a32e3fcdb61e93fbcaddf710309c9fa8156a9512a6c8a2960d&rdquo;,
+&ldquo;head_block_time&rdquo;: &ldquo;2018-06-09T12:11:24.000&rdquo;,
+&ldquo;head_block_producer&rdquo;: &ldquo;eosio&rdquo;,
+&ldquo;virtual_block_cpu_limit&rdquo;: 317584735,
+&ldquo;virtual_block_net_limit&rdquo;: 5098012,
+&ldquo;block_cpu_limit&rdquo;: 99999900,
+&ldquo;block_net_limit&rdquo;: 1048576
+}</p>
+<p>可以输入上面的命令查看是不是链接到了公链上面，chain_id 是否下面这行代码，如果是就表示是公链了：aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906</p>
+<p>还可以运行这个命令cleos get block 191</p>
+<p>发现这个191区块存在这样一笔交易，eosio 账户给 b1账户转了 10个EOS，并且备注了这样一句话：</p>
+<p>Never doubt that a small group of thoughtful, committed citizens can change the world; indeed, it&rsquo;s the only thing that ever has - eosacknowledgments.io</p>
+<p>翻译成中文是：永远不要怀疑一小群有思想、有责任心的公民能改变世界，事实上，这是唯一的事情。</p>
+<p>同步区块也是也非常麻烦的事情，我们可以也可以使用人家的公共API在https://eospark.com/MainNet/上面看靠前的节点，找到接入点，然后本地使用cleos -u就可以使用人家的节点了，这样就不需要自己同步区块了。</p>
+<p>cleos -u <a href="http://node1.zbeos.com:8888">http://node1.zbeos.com:8888</a> get block 191</p>
+<p>接下来就是EOS的命令行钱包的使用了，可以直接参考下面的文章</p>
+<p><a href="https://eosfans.io/topics/701">https://eosfans.io/topics/701</a></p>
+<p><a href="https://steemit.com/eos/@oflyhigh/2dgsna-eos">https://steemit.com/eos/@oflyhigh/2dgsna-eos</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/37891815">https://zhuanlan.zhihu.com/p/37891815</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2018-06-29
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E5%85%B3%E4%BA%8Elibusblibusbxlibusbklibusb-win32winusb%E7%9A%84%E5%85%B3%E7%B3%BB/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">关于libusb,libusbx,libusbK,libusb-win32,WinUSB的关系</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/github%E5%8A%A0%E5%BF%AB%E8%AE%BF%E9%97%AE/">
+            <span class="next-text nav-default">github加快访问</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

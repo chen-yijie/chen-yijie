@@ -1,0 +1,1084 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+    <link>https://xchen.com/</link>
+    <description>Recent content on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 08 Nov 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://xchen.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>About</title>
+      <link>https://xchen.com/about/</link>
+      <pubDate>Sun, 20 Aug 2017 21:38:52 +0800</pubDate>
+      
+      <guid>https://xchen.com/about/</guid>
+      <description>Hugo is a static site engine written in Go.
+It makes use of a variety of open source projects including:
+ Cobra Viper J Walter Weatherman Cast  Learn more and contribute on GitHub.</description>
+    </item>
+    
+    <item>
+      <title>SSL流量捕获</title>
+      <link>https://xchen.com/post/sslcapturing/</link>
+      <pubDate>Mon, 08 Nov 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/sslcapturing/</guid>
+      <description>现在基本上互联网的流量都是https了，一般正常的抓包方法是使用Charles一类的抓包工具，这种抓包工具都会在系统里面安装一个根证书，通过</description>
+    </item>
+    
+    <item>
+      <title>Visual Leak Detector内存泄漏检测</title>
+      <link>https://xchen.com/post/visual-leak-detector%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E6%A3%80%E6%B5%8B/</link>
+      <pubDate>Fri, 25 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/visual-leak-detector%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E6%A3%80%E6%B5%8B/</guid>
+      <description>本来想写点东西，发现用Visual Leak Detector检测内存泄漏实在是太简单，都不需要说什么。 直接在https://kinddragon.g</description>
+    </item>
+    
+    <item>
+      <title>SSL证书生成</title>
+      <link>https://xchen.com/post/ssl%E8%AF%81%E4%B9%A6%E7%94%9F%E6%88%90/</link>
+      <pubDate>Tue, 14 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/ssl%E8%AF%81%E4%B9%A6%E7%94%9F%E6%88%90/</guid>
+      <description>使用OpenSSL生成整套证书流程，使用的是windows上git安装好之后的openssl工具。 .key格式：私有的密钥 .csr格式：证书</description>
+    </item>
+    
+    <item>
+      <title>初试Rust</title>
+      <link>https://xchen.com/post/%E5%88%9D%E8%AF%95rust/</link>
+      <pubDate>Thu, 20 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%88%9D%E8%AF%95rust/</guid>
+      <description>最近这些年的程序设计语言发展趋势从C-&amp;gt;C++-&amp;gt;Java-&amp;gt;Python-&amp;gt;Go从一开始引入面向对象，后面又引入垃</description>
+    </item>
+    
+    <item>
+      <title>手算开方</title>
+      <link>https://xchen.com/post/%E6%89%8B%E7%AE%97%E5%BC%80%E6%96%B9/</link>
+      <pubDate>Tue, 31 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%89%8B%E7%AE%97%E5%BC%80%E6%96%B9/</guid>
+      <description>之前中学课本选修里面有手动开方的方法，很多年都没用过了，有点手生了，而且当时老师教的方法也不是很好。昨晚在知乎居然看到一种方法叫 牛顿迭代法 开</description>
+    </item>
+    
+    <item>
+      <title>Fastlane自动构建iOS开发者证书</title>
+      <link>https://xchen.com/post/fastlane%E8%87%AA%E5%8A%A8%E6%9E%84%E5%BB%BAios%E5%BC%80%E5%8F%91%E8%80%85%E8%AF%81%E4%B9%A6/</link>
+      <pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/fastlane%E8%87%AA%E5%8A%A8%E6%9E%84%E5%BB%BAios%E5%BC%80%E5%8F%91%E8%80%85%E8%AF%81%E4%B9%A6/</guid>
+      <description>http://shaojunxiao.com/2017/11/26/fastlane-cert/ unzip app.ipa rm -rf Payload/MyApp.app/_CodeSignature/ cp ~/Downloads/AdHoc.mobileprovision Payload/MyApp.app/embedded.mobileprovision codesign -f -s &amp;ldquo;iPhone Distribution: Company Certificate&amp;rdquo; &amp;ndash;resource-rules Payload/MyApp.app/ResourceRules.plist Payload/MyApp.app zip -qr app-resigned.ipa Payload/</description>
+    </item>
+    
+    <item>
+      <title>Ollvm代码虚拟化Windows编译和使用</title>
+      <link>https://xchen.com/post/ollvm%E4%BB%A3%E7%A0%81%E8%99%9A%E6%8B%9F%E5%8C%96windows%E7%BC%96%E8%AF%91%E5%92%8C%E4%BD%BF%E7%94%A8/</link>
+      <pubDate>Tue, 30 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/ollvm%E4%BB%A3%E7%A0%81%E8%99%9A%E6%8B%9F%E5%8C%96windows%E7%BC%96%E8%AF%91%E5%92%8C%E4%BD%BF%E7%94%A8/</guid>
+      <description>网上都是讲怎么样编译Ollvm给Android的二进制文件混淆，我有一个需求是需要在Windows上面使用混淆工具，所以在编译和使用Ollv</description>
+    </item>
+    
+    <item>
+      <title>win10 disable aslr(win10关闭ASLR)</title>
+      <link>https://xchen.com/post/win10-disable-aslrwin10%E5%85%B3%E9%97%ADaslr/</link>
+      <pubDate>Tue, 26 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/win10-disable-aslrwin10%E5%85%B3%E9%97%ADaslr/</guid>
+      <description>网上关闭ASLR的文章都是针对win7的，操作MoveImages来打到关闭系统的ASLR，但是这个办法在win10上面不好使。[HKEY_</description>
+    </item>
+    
+    <item>
+      <title>卸载高版本iTunes，安装低版本iTunes</title>
+      <link>https://xchen.com/post/%E5%8D%B8%E8%BD%BD%E9%AB%98%E7%89%88%E6%9C%ACitunes%E8%BF%90%E8%A1%8C%E4%BD%8E%E7%89%88%E6%9C%ACitunes/</link>
+      <pubDate>Wed, 20 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%8D%B8%E8%BD%BD%E9%AB%98%E7%89%88%E6%9C%ACitunes%E8%BF%90%E8%A1%8C%E4%BD%8E%E7%89%88%E6%9C%ACitunes/</guid>
+      <description>安装了高版本iTunes之后，再安装低版本会报错，安装不上，这里记录一下安装方法。 开始－运行，输入regedit，打开注册表： 将HKEY_L</description>
+    </item>
+    
+    <item>
+      <title>iMessage安全性如何</title>
+      <link>https://xchen.com/post/%E8%BD%ACimessage%E5%AE%89%E5%85%A8%E6%80%A7%E5%A6%82%E4%BD%95/</link>
+      <pubDate>Tue, 29 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E8%BD%ACimessage%E5%AE%89%E5%85%A8%E6%80%A7%E5%A6%82%E4%BD%95/</guid>
+      <description>iMessage安全性如何 iMessage安全性如何，最近这些天挺火的，那么我也来凑凑热闹。 基于对iOS 6.1.3的分析。 iMessage加</description>
+    </item>
+    
+    <item>
+      <title>VSCode高端玩法</title>
+      <link>https://xchen.com/post/vscode%E9%AB%98%E7%AB%AF%E7%8E%A9%E6%B3%95/</link>
+      <pubDate>Fri, 21 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/vscode%E9%AB%98%E7%AB%AF%E7%8E%A9%E6%B3%95/</guid>
+      <description>VSCode的高端玩法 搜索历史：搜索框中alt+上下即可遍历 包裹代码块：surround插件 快速跳转：jumpy Ctrl+K再按Ctrl+S</description>
+    </item>
+    
+    <item>
+      <title>apple源码查看下载</title>
+      <link>https://xchen.com/post/apple%E6%BA%90%E7%A0%81%E6%9F%A5%E7%9C%8B%E4%B8%8B%E8%BD%BD/</link>
+      <pubDate>Fri, 14 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/apple%E6%BA%90%E7%A0%81%E6%9F%A5%E7%9C%8B%E4%B8%8B%E8%BD%BD/</guid>
+      <description>最近搞iOS逆向，搞了几个函数，发现苹果自己都已经公布了源码。。。。看来以后还是要多注意，搞之前先去苹果的源码库翻一翻。苹果的源码比较恶心，</description>
+    </item>
+    
+    <item>
+      <title>关于libusb,libusbx,libusbK,libusb-win32,WinUSB的关系</title>
+      <link>https://xchen.com/post/%E5%85%B3%E4%BA%8Elibusblibusbxlibusbklibusb-win32winusb%E7%9A%84%E5%85%B3%E7%B3%BB/</link>
+      <pubDate>Sat, 08 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%85%B3%E4%BA%8Elibusblibusbxlibusbklibusb-win32winusb%E7%9A%84%E5%85%B3%E7%B3%BB/</guid>
+      <description>刚开始接触USB驱动编程，一般是利用现成的库来做，但是网上一搜索，发现一大堆各种各样的lib把人搞的很头疼，这边总结一下。 == libusb == **说明：*</description>
+    </item>
+    
+    <item>
+      <title>EOSIO 1.0.7 编译配置运行</title>
+      <link>https://xchen.com/post/eosio-1-0-7-%E7%BC%96%E8%AF%91%E9%85%8D%E7%BD%AE%E8%BF%90%E8%A1%8C/</link>
+      <pubDate>Fri, 29 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/eosio-1-0-7-%E7%BC%96%E8%AF%91%E9%85%8D%E7%BD%AE%E8%BF%90%E8%A1%8C/</guid>
+      <description>EOS主网已经上线，但是市面上还没有特别好用的钱包，所以只能自己动手丰衣足食了，在编译运行EOS代码的时候遇到不少的问题，这边记录一下。 使用</description>
+    </item>
+    
+    <item>
+      <title>github加快访问</title>
+      <link>https://xchen.com/post/github%E5%8A%A0%E5%BF%AB%E8%AE%BF%E9%97%AE/</link>
+      <pubDate>Tue, 27 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/github%E5%8A%A0%E5%BF%AB%E8%AE%BF%E9%97%AE/</guid>
+      <description>每次想从GitHub上下载时都需要重新从网上搜方法嫌麻烦于是自己写篇博客mark一下。 首先需要确认打开了ss代理之后win+R输入cmd回车</description>
+    </item>
+    
+    <item>
+      <title>Verified Boot</title>
+      <link>https://xchen.com/post/%E8%BD%AC%E8%BD%BDverified-boot/</link>
+      <pubDate>Thu, 07 Dec 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E8%BD%AC%E8%BD%BDverified-boot/</guid>
+      <description>在Android6.0 （Android M）userdebug版本上(eng版本不存在该问题)，发现使用adb remount 系统之后，还是不能对syste</description>
+    </item>
+    
+    <item>
+      <title>windows环境下64位汇编语言程序设计</title>
+      <link>https://xchen.com/post/windows%E7%8E%AF%E5%A2%83%E4%B8%8B64%E4%BD%8D%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/</link>
+      <pubDate>Thu, 08 Jun 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/windows%E7%8E%AF%E5%A2%83%E4%B8%8B64%E4%BD%8D%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/</guid>
+      <description>进入x64时代用汇编写程序的越来越少了, 经常去的几个汇编论坛也越来越没人气. 也是,现在很少事情非得找到一个用汇编来写的理由了. 所以慢慢也就没</description>
+    </item>
+    
+    <item>
+      <title>Linux有趣命令</title>
+      <link>https://xchen.com/post/linux%E6%9C%89%E8%B6%A3%E5%91%BD%E4%BB%A4/</link>
+      <pubDate>Mon, 20 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/linux%E6%9C%89%E8%B6%A3%E5%91%BD%E4%BB%A4/</guid>
+      <description>以下工具都需要安装 sudo apt-get install xxx rev 将输入的字符串反转 sl 一辆火车从屏幕右边开往左边 oneko 桌面出现喵星人，跟随鼠标跑动。 boxes 在输入的文本或者代码周围围上AS</description>
+    </item>
+    
+    <item>
+      <title>vs2015使用qt静态库5.7</title>
+      <link>https://xchen.com/post/vs2015%E4%BD%BF%E7%94%A8qt%E9%9D%99%E6%80%81%E5%BA%935-7/</link>
+      <pubDate>Fri, 30 Dec 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/vs2015%E4%BD%BF%E7%94%A8qt%E9%9D%99%E6%80%81%E5%BA%935-7/</guid>
+      <description>MFC库现在基本上没落了， 用的人越来越少，现在一般做GUI开发都是使用Qt， Qt这个东西实现比MFC不知道高到哪里去了， 使用起来更符合直觉，</description>
+    </item>
+    
+    <item>
+      <title>hex_to_ascii</title>
+      <link>https://xchen.com/post/hex_to_ascii/</link>
+      <pubDate>Tue, 27 Dec 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/hex_to_ascii/</guid>
+      <description>总是在不经意间需要使用的函数有很多.. 字符串转换方面是个大头.. 刚好这边有两个非常好用的函数, 收集起来.. char *hex_to_ascii(char *dest, const char src[], int size) { char *ret = dest; int i; for (i</description>
+    </item>
+    
+    <item>
+      <title>小米路由器R2D高级玩法</title>
+      <link>https://xchen.com/post/%E5%B0%8F%E7%B1%B3%E8%B7%AF%E7%94%B1%E5%99%A8r2d%E9%AB%98%E7%BA%A7%E7%8E%A9%E6%B3%95/</link>
+      <pubDate>Tue, 27 Dec 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%B0%8F%E7%B1%B3%E8%B7%AF%E7%94%B1%E5%99%A8r2d%E9%AB%98%E7%BA%A7%E7%8E%A9%E6%B3%95/</guid>
+      <description>最近买了一台小米路由器的R2D版， 1T硬盘。 买回来试着倒腾了一段时间， 结论是路由器的性价比是比较高的， 但是如果你是资深玩家，或者程序员， 那么</description>
+    </item>
+    
+    <item>
+      <title>hashcat暴力破解密码</title>
+      <link>https://xchen.com/post/hashcat%E6%9A%B4%E5%8A%9B%E7%A0%B4%E8%A7%A3%E5%AF%86%E7%A0%81/</link>
+      <pubDate>Thu, 10 Nov 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/hashcat%E6%9A%B4%E5%8A%9B%E7%A0%B4%E8%A7%A3%E5%AF%86%E7%A0%81/</guid>
+      <description>最近参加看雪的CrackMe挑战赛, 因为我写的CrackMe使用了散列算法. 所以为了测试时间, 在网上发现一个暴力破解密码的好东西, hashcat 刚开始的</description>
+    </item>
+    
+    <item>
+      <title>ida Pro ARM指令集和Thumb指令集的切换</title>
+      <link>https://xchen.com/post/ida-pro-arm%E6%8C%87%E4%BB%A4%E9%9B%86%E5%92%8Cthumb%E6%8C%87%E4%BB%A4%E9%9B%86%E7%9A%84%E5%88%87%E6%8D%A2/</link>
+      <pubDate>Wed, 09 Mar 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/ida-pro-arm%E6%8C%87%E4%BB%A4%E9%9B%86%E5%92%8Cthumb%E6%8C%87%E4%BB%A4%E9%9B%86%E7%9A%84%E5%88%87%E6%8D%A2/</guid>
+      <description>在动态调试android的ndk程序的时候，发现很多程序都会反汇编错误，原来是ARM反汇编的模式没搞对。因为在动态调试的时候，ida Pro并</description>
+    </item>
+    
+    <item>
+      <title>Linux留后门程序</title>
+      <link>https://xchen.com/post/linux%E7%95%99%E5%90%8E%E9%97%A8%E7%A8%8B%E5%BA%8F/</link>
+      <pubDate>Wed, 02 Mar 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/linux%E7%95%99%E5%90%8E%E9%97%A8%E7%A8%8B%E5%BA%8F/</guid>
+      <description>今天在freeBuf上看到一个给Linux留后门的办法， 挺不错的， 看完之后身体力行的在ubuntu下面试了下效果还不错！ freeBuf的链接</description>
+    </item>
+    
+    <item>
+      <title>android 6.0三星5.1.1Root</title>
+      <link>https://xchen.com/post/android-6-0%E4%B8%89%E6%98%9F5-1-1root/</link>
+      <pubDate>Tue, 01 Dec 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/android-6-0%E4%B8%89%E6%98%9F5-1-1root/</guid>
+      <description>现在google是越来越不给我们留活路了&amp;hellip; 从android 6.0开始, 三星的5.1.1开始. 默认都开启了data分区的forc</description>
+    </item>
+    
+    <item>
+      <title>getprop与dumpsys命令</title>
+      <link>https://xchen.com/post/getprop%E4%B8%8Edumpsys%E5%91%BD%E4%BB%A4/</link>
+      <pubDate>Wed, 18 Nov 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/getprop%E4%B8%8Edumpsys%E5%91%BD%E4%BB%A4/</guid>
+      <description>拿到Android手机以后, 想查看一些手机信息. 其实Android获取手机信息就是两个命令, 一个是getprop 一个是dumpsys. dumpsys iphonesubinfo Phone</description>
+    </item>
+    
+    <item>
+      <title>ida调试Dalvik显示局部变量</title>
+      <link>https://xchen.com/post/ida%E8%B0%83%E8%AF%95dalvik%E6%98%BE%E7%A4%BA%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F/</link>
+      <pubDate>Tue, 25 Aug 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/ida%E8%B0%83%E8%AF%95dalvik%E6%98%BE%E7%A4%BA%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F/</guid>
+      <description>用ida进行Dalvik调试还是有很大的优势, 最关键的是可以不用打包. 现在有很多app都开始检查是否重新打包的. 虽然也可以去pass调这些地</description>
+    </item>
+    
+    <item>
+      <title>android手机内核提取及逆向分析</title>
+      <link>https://xchen.com/post/%E8%BD%ACandroid%E6%89%8B%E6%9C%BA%E5%86%85%E6%A0%B8%E6%8F%90%E5%8F%96%E5%8F%8A%E9%80%86%E5%90%91%E5%88%86%E6%9E%90/</link>
+      <pubDate>Wed, 05 Aug 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E8%BD%ACandroid%E6%89%8B%E6%9C%BA%E5%86%85%E6%A0%B8%E6%8F%90%E5%8F%96%E5%8F%8A%E9%80%86%E5%90%91%E5%88%86%E6%9E%90/</guid>
+      <description>Android手机获得Root权限,可以让/system和/data分区获得读写的权限.这两个分区的权限配置,一般在根分区的init.rc文</description>
+    </item>
+    
+    <item>
+      <title>android一批漏洞</title>
+      <link>https://xchen.com/post/%E8%BD%ACandroid%E4%B8%80%E6%89%B9%E6%BC%8F%E6%B4%9E/</link>
+      <pubDate>Mon, 29 Jun 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E8%BD%ACandroid%E4%B8%80%E6%89%B9%E6%BC%8F%E6%B4%9E/</guid>
+      <description>arm exploits 技术教程： Learning Pentesting for Android Devices CVE-2015-1530 ，CVE-2015-1474 两个android整数溢出漏洞 分析 An integer overflow in Android media could be exploited to get media_server permission（CVE</description>
+    </item>
+    
+    <item>
+      <title>CVE-2015-3636 三星S6 pingpong</title>
+      <link>https://xchen.com/post/cve-2015-3636-%E4%B8%89%E6%98%9Fs6-pingpong/</link>
+      <pubDate>Wed, 13 May 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/cve-2015-3636-%E4%B8%89%E6%98%9Fs6-pingpong/</guid>
+      <description>5月2号, Keen Team 向CVE曝出了一个非常劲爆的漏洞, 编号是CVE-2015-3636, 这个漏洞的细节可以关注这个链接 https://loudong.sjtu.edu.cn/show/CNVD-2015-02891 应该是比去年那个CVE-2</description>
+    </item>
+    
+    <item>
+      <title>Android分区查看</title>
+      <link>https://xchen.com/post/android%E5%88%86%E5%8C%BA%E6%9F%A5%E7%9C%8B/</link>
+      <pubDate>Tue, 07 Apr 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/android%E5%88%86%E5%8C%BA%E6%9F%A5%E7%9C%8B/</guid>
+      <description>android 下面没有像以前windows 那样那么方便的查看分区情况. 前两天提到说查看android 下面的分区情况. 今天好好的看了下. 发现android</description>
+    </item>
+    
+    <item>
+      <title>为什么会有mov edi, edi</title>
+      <link>https://xchen.com/post/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E6%9C%89mov-edi-edi/</link>
+      <pubDate>Wed, 11 Mar 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E6%9C%89mov-edi-edi/</guid>
+      <description>原来一直被windows上的一些固定汇编指令搞的有点糊涂, 各种说法其实都有, 比如这个mov edi, edi. 实际这个指令是干什么用的呢? 每个人都有不同的说</description>
+    </item>
+    
+    <item>
+      <title>Windows CrashDump</title>
+      <link>https://xchen.com/post/windows-crashdump/</link>
+      <pubDate>Thu, 01 Jan 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/windows-crashdump/</guid>
+      <description>在自动化测试过程中，如果碰到应用程序崩溃，往往会弹出一个”error reporting”的对话框，如果不人工关闭这个对话框的话会导致程序无法</description>
+    </item>
+    
+    <item>
+      <title>Android Linux内核编译调试</title>
+      <link>https://xchen.com/post/android-linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91%E8%B0%83%E8%AF%95/</link>
+      <pubDate>Sat, 27 Sep 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/android-linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91%E8%B0%83%E8%AF%95/</guid>
+      <description>对于在Windows上写代码写习惯的人,调试是必不可少的手段,但是转到Android以后,发现调试手段异常简陋,跟Windows简直不是一个</description>
+    </item>
+    
+    <item>
+      <title>android 刷机</title>
+      <link>https://xchen.com/post/android-%E5%88%B7%E6%9C%BA/</link>
+      <pubDate>Sat, 20 Sep 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/android-%E5%88%B7%E6%9C%BA/</guid>
+      <description>1. 刷一个合适的Recovery Clockwork Recovery http://www.clockworkmod.com/rommanager/ adb reboot bootloader // 启动进入bootloader模式 fastboot flash recovery recovery_package // 刷入recovery // Edify 语言 // 自己制作recovery</description>
+    </item>
+    
+    <item>
+      <title>IDA 6.6中文字体解决办法</title>
+      <link>https://xchen.com/post/ida-6-6%E4%B8%AD%E6%96%87%E5%AD%97%E4%BD%93%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/</link>
+      <pubDate>Fri, 12 Sep 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/ida-6-6%E4%B8%AD%E6%96%87%E5%AD%97%E4%BD%93%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/</guid>
+      <description>这个是编码问题，需要手动添加GBK编码之类。先找到Options-&amp;gt;ASCII String Style..。选择Change Encoding。打开</description>
+    </item>
+    
+    <item>
+      <title>Ida 调试so文件</title>
+      <link>https://xchen.com/post/ida-%E8%B0%83%E8%AF%95so%E6%96%87%E4%BB%B6/</link>
+      <pubDate>Wed, 03 Sep 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/ida-%E8%B0%83%E8%AF%95so%E6%96%87%E4%BB%B6/</guid>
+      <description>Eclipse配合NDK写so文件不错, 但是调试是个麻烦事, 老是报错. 一会这样一会那样. 目前可能用NDK写so并且调试的毕竟还是太少啊. 调试</description>
+    </item>
+    
+    <item>
+      <title>ARM汇编联合C语言</title>
+      <link>https://xchen.com/post/arm%E6%B1%87%E7%BC%96%E8%81%94%E5%90%88c%E8%AF%AD%E8%A8%80/</link>
+      <pubDate>Fri, 29 Aug 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/arm%E6%B1%87%E7%BC%96%E8%81%94%E5%90%88c%E8%AF%AD%E8%A8%80/</guid>
+      <description>GUN arm汇编不能像MASM那样支持类C那样的函数写法. 也不支持结构体, 所以注定了GUN汇编不能像MASM那样写大型的程序, 不能像Window</description>
+    </item>
+    
+    <item>
+      <title>ARM汇编HelloWorld</title>
+      <link>https://xchen.com/post/arm%E6%B1%87%E7%BC%96helloworld/</link>
+      <pubDate>Fri, 04 Jul 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/arm%E6%B1%87%E7%BC%96helloworld/</guid>
+      <description>在Windows上习惯了, 感觉一切都是那么自然, 一切都应该就是这样, 会不会在Linux下习惯了, 也会觉得Windows上的一切都不习惯? 我记</description>
+    </item>
+    
+    <item>
+      <title>Windbg Version</title>
+      <link>https://xchen.com/post/windbg-version/</link>
+      <pubDate>Tue, 04 Mar 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/windbg-version/</guid>
+      <description>windbg 的版本现在让人越来越糊涂了. 我原来一直以为6.12 比6.3版本高.. 按说, 这是当然的事情. 最近仔细看老外总结的一篇文章, 发现我错了. 微软真</description>
+    </item>
+    
+    <item>
+      <title>windbg 命令收集</title>
+      <link>https://xchen.com/post/windbg-%E5%91%BD%E4%BB%A4%E6%94%B6%E9%9B%86/</link>
+      <pubDate>Wed, 05 Feb 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/windbg-%E5%91%BD%E4%BB%A4%E6%94%B6%E9%9B%86/</guid>
+      <description>windbg的命令非常多. 有很多漂亮的命令, 用一次以后突然会忘记. 还是记下来比较合适啊. 符号相关: !sym noisy :开启符号打印. 这样符号加载的信息显示</description>
+    </item>
+    
+    <item>
+      <title>windows API操作链表</title>
+      <link>https://xchen.com/post/windows-api%E6%93%8D%E4%BD%9C%E9%93%BE%E8%A1%A8/</link>
+      <pubDate>Mon, 06 Jan 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/windows-api%E6%93%8D%E4%BD%9C%E9%93%BE%E8%A1%A8/</guid>
+      <description>今天逆向的时候, 又看到有人用了几个api函数, 记录下. IsProcessorFeaturePresent判断系统的一些特性. 还有下面这个链表</description>
+    </item>
+    
+    <item>
+      <title>特殊窗口</title>
+      <link>https://xchen.com/post/%E7%89%B9%E6%AE%8A%E7%AA%97%E5%8F%A3/</link>
+      <pubDate>Thu, 26 Dec 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E7%89%B9%E6%AE%8A%E7%AA%97%E5%8F%A3/</guid>
+      <description>以前我们有时候会创建一个隐藏的窗口, 然后让他们和其他窗口进行通信. 确实有这种需求啊. 今天在看某软件的时候发现一个办法. 当然这个办法在MSDN</description>
+    </item>
+    
+    <item>
+      <title>Prezi Desktop 5.0.5  5.2.8破解版</title>
+      <link>https://xchen.com/post/prezi-desktop-5-0-5-%E7%A0%B4%E8%A7%A3%E7%89%88/</link>
+      <pubDate>Tue, 24 Dec 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/prezi-desktop-5-0-5-%E7%A0%B4%E8%A7%A3%E7%89%88/</guid>
+      <description>前一段时间, 无意上传了一个Prezi 4.7版本的破解补丁, 没有想到效果出奇的好. 我看了下, 我网站流量的20%都是来自于这个破解补丁. 中国人,</description>
+    </item>
+    
+    <item>
+      <title>汇编实现二叉树</title>
+      <link>https://xchen.com/post/%E6%B1%87%E7%BC%96%E5%AE%9E%E7%8E%B0%E4%BA%8C%E5%8F%89%E6%A0%91/</link>
+      <pubDate>Thu, 07 Nov 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%B1%87%E7%BC%96%E5%AE%9E%E7%8E%B0%E4%BA%8C%E5%8F%89%E6%A0%91/</guid>
+      <description>今天翻找以前的代码, 突然发现, 以前曾经用汇编写的二叉树, 以前对汇编过于执着. 是好事, 也是坏事. 个人觉得, 用MASM写代码其实和C语言的差别是</description>
+    </item>
+    
+    <item>
+      <title>RSA算法</title>
+      <link>https://xchen.com/post/rsa%E7%AE%97%E6%B3%95/</link>
+      <pubDate>Wed, 06 Nov 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/rsa%E7%AE%97%E6%B3%95/</guid>
+      <description>RSA算法可以说在我们使用计算机的每一方面都在发挥着作用, EXE文件的签名算法用的是SHA1 + RSA. 我们每天登陆网银, 使用QQ 无时不刻都在使用着</description>
+    </item>
+    
+    <item>
+      <title>拒绝平庸 观后感</title>
+      <link>https://xchen.com/post/%E6%8B%92%E7%BB%9D%E5%B9%B3%E5%BA%B8-%E8%A7%82%E5%90%8E%E6%84%9F/</link>
+      <pubDate>Mon, 30 Sep 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%8B%92%E7%BB%9D%E5%B9%B3%E5%BA%B8-%E8%A7%82%E5%90%8E%E6%84%9F/</guid>
+      <description>前几天参加isc人手送了一本写周鸿祎的书, 昨晚闲来没事, 准备随便翻翻, 结果昨晚一口气就看完了. 搞得快天亮才睡下, 太坑爹了. 果然是教主的风格.</description>
+    </item>
+    
+    <item>
+      <title>Prezi Desktop 4.7 破解版</title>
+      <link>https://xchen.com/post/prezi-desktop-4-7-%E7%A0%B4%E8%A7%A3%E7%89%88/</link>
+      <pubDate>Mon, 02 Sep 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/prezi-desktop-4-7-%E7%A0%B4%E8%A7%A3%E7%89%88/</guid>
+      <description>Prezi 这个软件现在使用的人是越来越多了, 官方号称已经上千万的下载了.. 目前的4.7.xx版本也开始支持中文了. 以前的版本是无法支持中文的, 还要自</description>
+    </item>
+    
+    <item>
+      <title>IDA脚本的编写方法</title>
+      <link>https://xchen.com/post/ida%E8%84%9A%E6%9C%AC%E7%9A%84%E7%BC%96%E5%86%99%E6%96%B9%E6%B3%95/</link>
+      <pubDate>Tue, 27 Aug 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/ida%E8%84%9A%E6%9C%AC%E7%9A%84%E7%BC%96%E5%86%99%E6%96%B9%E6%B3%95/</guid>
+      <description>IDA cfg 目录下-&amp;gt; idagui.cfg ,把DISPLAY_PATCH_SUBMENU = NO 修改这个 NO 为 YES这样在编辑菜单下会多出一个 PATCH Program 的选项，然后就可以用</description>
+    </item>
+    
+    <item>
+      <title>基于VT技术的OllyDbg插件Ddvp</title>
+      <link>https://xchen.com/post/%E5%9F%BA%E4%BA%8Evt%E6%8A%80%E6%9C%AF%E7%9A%84ollydbg%E6%8F%92%E4%BB%B6ddvp/</link>
+      <pubDate>Thu, 15 Aug 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%9F%BA%E4%BA%8Evt%E6%8A%80%E6%9C%AF%E7%9A%84ollydbg%E6%8F%92%E4%BB%B6ddvp/</guid>
+      <description>随着软件产业的发展, 在Windows平台上, 为了防止软件被逆向, 破解, 出现了很多保护软件的手段, 其中一种就是反调试, 在反调试领域, 最强的莫过</description>
+    </item>
+    
+    <item>
+      <title>IDA 自定义结构体快捷键操作方法</title>
+      <link>https://xchen.com/post/ida-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BB%93%E6%9E%84%E4%BD%93%E5%BF%AB%E6%8D%B7%E9%94%AE%E6%93%8D%E4%BD%9C%E6%96%B9%E6%B3%95/</link>
+      <pubDate>Tue, 13 Aug 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/ida-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BB%93%E6%9E%84%E4%BD%93%E5%BF%AB%E6%8D%B7%E9%94%AE%E6%93%8D%E4%BD%9C%E6%96%B9%E6%B3%95/</guid>
+      <description>简单记录下，在IDA里面自定义结构体的快捷方法。 1、Shift + F1：打开本地类型； 2、insert：插入自定义的结构体, 可以是联合体 3、S</description>
+    </item>
+    
+    <item>
+      <title>Easy RM to MP3 Converter(version 2.7.3.700)缓冲区溢出利用</title>
+      <link>https://xchen.com/post/easy-rm-to-mp3-converterversion-2-7-3-700%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%E5%88%A9%E7%94%A8-txt/</link>
+      <pubDate>Fri, 09 Aug 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/easy-rm-to-mp3-converterversion-2-7-3-700%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%E5%88%A9%E7%94%A8-txt/</guid>
+      <description>看了&amp;laquo;Oday安全软件漏洞分析技术&amp;raquo;这本书, 在开始入手之前有一个缓冲区溢出的实例, 不过我感觉那个溢出实例不够接近实战</description>
+    </item>
+    
+    <item>
+      <title>KiFastCallEntry KiServiceExit</title>
+      <link>https://xchen.com/post/kifastcallentry-kiserviceexit/</link>
+      <pubDate>Mon, 10 Dec 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/kifastcallentry-kiserviceexit/</guid>
+      <description>从R3进入R0的代码很多人也有做过分析了. 这几天我也仔细看了下, 算是弄明白了. Windows不但有从R3进入R0的框架代码, 其实R0反调用R</description>
+    </item>
+    
+    <item>
+      <title>DbgkCreateThread</title>
+      <link>https://xchen.com/post/dbgkcreatethread/</link>
+      <pubDate>Tue, 27 Nov 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/dbgkcreatethread/</guid>
+      <description>首先我们需要替换的是 rdmsr, wrmsr替换掉系统的sysenter跳转地址. 这样整个SSDT表函数都处于被我们的监控当中. 一个新的进程创建线程的时</description>
+    </item>
+    
+    <item>
+      <title>DbgkExitThread, DbgkExitProcess</title>
+      <link>https://xchen.com/post/dbgkexitthread-dbgkexitprocess/</link>
+      <pubDate>Tue, 27 Nov 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/dbgkexitthread-dbgkexitprocess/</guid>
+      <description>线程创建和进程要做的事情稍微多一点, 但是线程退出和进程退出要做的事情就不多了. 再加上上一篇我们已经分析了几个调试辅助函数, 所以这篇有营养的内</description>
+    </item>
+    
+    <item>
+      <title>CreateDialogParam非模态对话框</title>
+      <link>https://xchen.com/post/createdialogparam%E9%9D%9E%E6%A8%A1%E6%80%81%E5%AF%B9%E8%AF%9D%E6%A1%86/</link>
+      <pubDate>Fri, 23 Nov 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/createdialogparam%E9%9D%9E%E6%A8%A1%E6%80%81%E5%AF%B9%E8%AF%9D%E6%A1%86/</guid>
+      <description>恩, 非模态对话框有时候还是有些应用的. // WinTest.cpp : Defines the entry point for the application. // #include &amp;ldquo;stdafx.h&amp;rdquo; #include &amp;ldquo;resource.h&amp;rdquo; BOOL InitDialog(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam); BOOL CALLBACK DialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam); int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) { HWND hWndDlg = NULL; MSG msg;</description>
+    </item>
+    
+    <item>
+      <title>VT VMCS结构信息</title>
+      <link>https://xchen.com/post/vt-vmcs%E7%BB%93%E6%9E%84%E4%BF%A1%E6%81%AF/</link>
+      <pubDate>Thu, 18 Oct 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/vt-vmcs%E7%BB%93%E6%9E%84%E4%BF%A1%E6%81%AF/</guid>
+      <description>熟悉Intel VT的人都知道. 使用VT的过程, 基本上就是操作VMCS结构的过程. 这个结构非常的大. 非常复杂, 基本上和VT有关的东西都在这里.</description>
+    </item>
+    
+    <item>
+      <title>bochs调试VT代码</title>
+      <link>https://xchen.com/post/bochs%E8%B0%83%E8%AF%95vt%E4%BB%A3%E7%A0%81/</link>
+      <pubDate>Wed, 17 Oct 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/bochs%E8%B0%83%E8%AF%95vt%E4%BB%A3%E7%A0%81/</guid>
+      <description>这边使用bochs调试代码实在是太郁闷了. 今天我索性要将我所有bochs上遇到的调试问题说一下.想要用bochs调试(VT)代码一定要耐心,</description>
+    </item>
+    
+    <item>
+      <title>Windows的分页机制</title>
+      <link>https://xchen.com/post/windows%E7%9A%84%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/</link>
+      <pubDate>Wed, 26 Sep 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/windows%E7%9A%84%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/</guid>
+      <description>对于Windows的分页机制, 我一直还是比较自信的, 但是今天我发现在重写NewBluePill的X64分页机制到Win32上面的时候, 居然感</description>
+    </item>
+    
+    <item>
+      <title>NewBluePill打印系统</title>
+      <link>https://xchen.com/post/newbluepill%E6%89%93%E5%8D%B0%E7%B3%BB%E7%BB%9F/</link>
+      <pubDate>Tue, 25 Sep 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/newbluepill%E6%89%93%E5%8D%B0%E7%B3%BB%E7%BB%9F/</guid>
+      <description>最近十一想着不要浪费, 就顺着敲敲NewBluePill的代码吧. 脱壳的话, 又没有什么进展, 表面那层壳好拖, 随便找个脚本就完事了. 自己手工脱也</description>
+    </item>
+    
+    <item>
+      <title>搞定Windbg 串口双机调试</title>
+      <link>https://xchen.com/post/%E6%90%9E%E5%AE%9Awindbg-%E4%B8%B2%E5%8F%A3%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/</link>
+      <pubDate>Mon, 17 Sep 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%90%9E%E5%AE%9Awindbg-%E4%B8%B2%E5%8F%A3%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/</guid>
+      <description>原来一直以为这个挺复杂的, 昨天我去买了串口线, 顺便买了1394的线. 串口线的话买的时候注意说两头都是母口的, 9针口. 母口的话, 就是可 以被插入</description>
+    </item>
+    
+    <item>
+      <title>Themida 脱壳1(IAT定位)</title>
+      <link>https://xchen.com/post/themida-%E8%84%B1%E5%A3%B31/</link>
+      <pubDate>Thu, 13 Sep 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/themida-%E8%84%B1%E5%A3%B31/</guid>
+      <description>Themida1.3.5.5已经算是比较旧的版本了吧, 我想这个壳应该可以代表1.3.x以前的比如1.2什么的. 不带驱动的壳. 好吧, 就从它开始</description>
+    </item>
+    
+    <item>
+      <title>Themida脱壳2(IAT填写代码分析)</title>
+      <link>https://xchen.com/post/themida%E8%84%B1%E5%A3%B32iat%E5%A1%AB%E5%86%99%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-2/</link>
+      <pubDate>Thu, 13 Sep 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/themida%E8%84%B1%E5%A3%B32iat%E5%A1%AB%E5%86%99%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-2/</guid>
+      <description>今天下午本来兴奋的以为可以拿那个Themida的壳来实验实验Oreans UnVirtualizer. 结果发现还是掉链子啊, 这个工具还是不行. 绝对的不行.还是老实一点,</description>
+    </item>
+    
+    <item>
+      <title>ACProtect v2.1.3版本脱壳.</title>
+      <link>https://xchen.com/post/acprotect-v2-1-3%E7%89%88%E6%9C%AC%E8%84%B1%E5%A3%B3/</link>
+      <pubDate>Fri, 07 Sep 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/acprotect-v2-1-3%E7%89%88%E6%9C%AC%E8%84%B1%E5%A3%B3/</guid>
+      <description>我还是使用delphi7的例子..首先上来还是找OEP.. 这个OEP被偷的很过分啊, 如果不是使用退出法找到OEP.. 估计其他类似的程序够呛.</description>
+    </item>
+    
+    <item>
+      <title>手脱SoftDefender1.12版本壳</title>
+      <link>https://xchen.com/post/%E6%89%8B%E8%84%B1softdefender1-12%E7%89%88%E6%9C%AC%E5%A3%B3/</link>
+      <pubDate>Thu, 06 Sep 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%89%8B%E8%84%B1softdefender1-12%E7%89%88%E6%9C%AC%E5%A3%B3/</guid>
+      <description>我使用加壳软件是:SoftDefender1.12, 还有一个最简单的delphi7程序, 只有一个窗口那种.SoftDefender1.12还</description>
+    </item>
+    
+    <item>
+      <title>脱一些简单的压缩壳</title>
+      <link>https://xchen.com/post/%E8%84%B1%E4%B8%80%E4%BA%9B%E7%AE%80%E5%8D%95%E7%9A%84%E5%8E%8B%E7%BC%A9%E5%A3%B3/</link>
+      <pubDate>Thu, 06 Sep 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E8%84%B1%E4%B8%80%E4%BA%9B%E7%AE%80%E5%8D%95%E7%9A%84%E5%8E%8B%E7%BC%A9%E5%A3%B3/</guid>
+      <description>脱一些简单的压缩壳. 首先看看一个壳的基本流程 1:保存入口参数, 一般都有这一步了 2:获取外壳所需的地址, 比如LoadLibrary, GetProcAddress 3:解密</description>
+    </item>
+    
+    <item>
+      <title>各种程序的按钮事件</title>
+      <link>https://xchen.com/post/%E5%90%84%E7%A7%8D%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%8C%89%E9%92%AE%E4%BA%8B%E4%BB%B6/</link>
+      <pubDate>Fri, 31 Aug 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%90%84%E7%A7%8D%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%8C%89%E9%92%AE%E4%BA%8B%E4%BB%B6/</guid>
+      <description>按钮事件找法 MFC程序: 方法1: OD命令：bp TranslateMessage MSG==WM_LBUTTONUP 点击按钮以后就断在CALL 到 TranslateMessage函数. 这时候按Ctrl+F9执</description>
+    </item>
+    
+    <item>
+      <title>冒个泡</title>
+      <link>https://xchen.com/post/%E5%86%92%E4%B8%AA%E6%B3%A1/</link>
+      <pubDate>Thu, 12 Jul 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%86%92%E4%B8%AA%E6%B3%A1/</guid>
+      <description>确实很久没有写blog了.. 前一段时间主要是忙, 另外一个确实也没有什么好写的, 我发现人一旦懒惰, 就会在越来越懒, 如果勤奋也会越来越勤奋, 而我</description>
+    </item>
+    
+    <item>
+      <title>虚拟磁盘光驱(FileDisk)</title>
+      <link>https://xchen.com/post/%E8%99%9A%E6%8B%9F%E7%A3%81%E7%9B%98%E5%85%89%E9%A9%B1filedisk/</link>
+      <pubDate>Sat, 03 Dec 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E8%99%9A%E6%8B%9F%E7%A3%81%E7%9B%98%E5%85%89%E9%A9%B1filedisk/</guid>
+      <description>这几天总算把这个开源的FileDisk给分析完了. 分析完以后收获不少, 有些经验了. 其实对于前面写的那个中断无法和R3进行交互的问题, 我们可以</description>
+    </item>
+    
+    <item>
+      <title>WDF虚拟磁盘驱动(RamDisk)</title>
+      <link>https://xchen.com/post/wdf%E8%99%9A%E6%8B%9F%E7%A3%81%E7%9B%98%E9%A9%B1%E5%8A%A8ramdisk/</link>
+      <pubDate>Tue, 29 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/wdf%E8%99%9A%E6%8B%9F%E7%A3%81%E7%9B%98%E9%A9%B1%E5%8A%A8ramdisk/</guid>
+      <description>这是寒江独钓里面第5章的例子了, 分析自DDK中的RamDisk驱动. 具体来说没有太大的用处, 只是对WDF驱动的套路有个了解吧, 但是这个WDF</description>
+    </item>
+    
+    <item>
+      <title>键盘过滤二(接管93h中断)</title>
+      <link>https://xchen.com/post/%E9%94%AE%E7%9B%98%E8%BF%87%E6%BB%A4%E4%BA%8C%E6%8E%A5%E7%AE%A193h%E4%B8%AD%E6%96%AD/</link>
+      <pubDate>Sun, 27 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E9%94%AE%E7%9B%98%E8%BF%87%E6%BB%A4%E4%BA%8C%E6%8E%A5%E7%AE%A193h%E4%B8%AD%E6%96%AD/</guid>
+      <description>这两天确实有些纠结啊, 理想很丰满, 现实很骨感.. 上一篇已经把键盘过滤写完, 用的是挂一个设备到KbdClass类驱动的设备上面.这是很正统的做</description>
+    </item>
+    
+    <item>
+      <title>键盘过滤一(绑定KbdClass)</title>
+      <link>https://xchen.com/post/%E9%94%AE%E7%9B%98%E8%BF%87%E6%BB%A4%E4%B8%80%E7%BB%91%E5%AE%9Akbdclass/</link>
+      <pubDate>Fri, 25 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E9%94%AE%E7%9B%98%E8%BF%87%E6%BB%A4%E4%B8%80%E7%BB%91%E5%AE%9Akbdclass/</guid>
+      <description>这是寒江独钓里面的第4章的第一个例子, 绑定键盘设备, 采用的是绑定KbdClass驱动对象下的所有设备对象的做法, 算是比较高层了. 不过在这层进</description>
+    </item>
+    
+    <item>
+      <title>串口过滤</title>
+      <link>https://xchen.com/post/%E4%B8%B2%E5%8F%A3%E8%BF%87%E6%BB%A4/</link>
+      <pubDate>Thu, 24 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E4%B8%B2%E5%8F%A3%E8%BF%87%E6%BB%A4/</guid>
+      <description>终于鸟枪换炮, 可以写点东西了. Windows驱动编程详解从12章后面基本上就是讲各种硬件的开发了, 先放放, 还是以内核模块的开发为主. 所以可以</description>
+    </item>
+    
+    <item>
+      <title>完成例程返回Status_Processing_Required</title>
+      <link>https://xchen.com/post/%E5%AE%8C%E6%88%90%E4%BE%8B%E7%A8%8B%E8%BF%94%E5%9B%9Estatus_processing_required/</link>
+      <pubDate>Tue, 15 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%AE%8C%E6%88%90%E4%BE%8B%E7%A8%8B%E8%BF%94%E5%9B%9Estatus_processing_required/</guid>
+      <description>上一篇谈到了这个完成例程, 我们在完成例程中返回的是Status_Success, 这样Irp会继续向上回卷, 此时的完成例程仅仅是一个通知, 表明</description>
+    </item>
+    
+    <item>
+      <title>遍历设备栈</title>
+      <link>https://xchen.com/post/%E9%81%8D%E5%8E%86%E9%A9%B1%E5%8A%A8%E4%B8%8A%E7%9A%84%E8%AE%BE%E5%A4%87%E5%AF%B9%E8%B1%A1/</link>
+      <pubDate>Mon, 14 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E9%81%8D%E5%8E%86%E9%A9%B1%E5%8A%A8%E4%B8%8A%E7%9A%84%E8%AE%BE%E5%A4%87%E5%AF%B9%E8%B1%A1/</guid>
+      <description>这一篇基本上就没有什么新东西了, 就是上几篇的应用. 遍历一个驱动的所有设备对象, 还有绑定在设备上面的所有的驱动对象, 设备对象. 其实就是对驱动对</description>
+    </item>
+    
+    <item>
+      <title>完成例程</title>
+      <link>https://xchen.com/post/%E5%AE%8C%E6%88%90%E4%BE%8B%E7%A8%8B/</link>
+      <pubDate>Mon, 14 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%AE%8C%E6%88%90%E4%BE%8B%E7%A8%8B/</guid>
+      <description>在将Irp发送给底层驱动程序, 或者其他驱动之前, 我们可以对Irp设置一个完成例程, 这样一旦在底层驱动程序将Irp完成以后, Irp完成例程将被</description>
+    </item>
+    
+    <item>
+      <title>分层驱动程序</title>
+      <link>https://xchen.com/post/%E5%88%86%E5%B1%82%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F/</link>
+      <pubDate>Sun, 13 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%88%86%E5%B1%82%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F/</guid>
+      <description>分层驱动程序也不难嘛, 就是逻辑上有点乱了. 不过逻辑上分开以后写代码就清晰多了. 在结构上可以得到很多好处,恩, 这个分层驱动也不只是WDM式驱动</description>
+    </item>
+    
+    <item>
+      <title>驱动程序调用驱动程序2</title>
+      <link>https://xchen.com/post/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E7%94%A8%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F2/</link>
+      <pubDate>Sun, 13 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E7%94%A8%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F2/</guid>
+      <description>上一篇说到内核里面用户态这边差不多的函数, 比如ZwCreateFile, ZwReadFile什么之类的, 内核里面其实还有些更加暴力的东西存在</description>
+    </item>
+    
+    <item>
+      <title>驱动程序调用驱动程序1</title>
+      <link>https://xchen.com/post/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E7%94%A8%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F1/</link>
+      <pubDate>Sat, 12 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E7%94%A8%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F1/</guid>
+      <description>除了在Win32下面可以调用ReadFile, WriteFile之类的函数打开设备对象, 在内核中也是可以的, 而且方法比用户态这边更多. 首先这</description>
+    </item>
+    
+    <item>
+      <title>Irp超时处理</title>
+      <link>https://xchen.com/post/irp%E8%B6%85%E6%97%B6%E5%A4%84%E7%90%86/</link>
+      <pubDate>Fri, 11 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/irp%E8%B6%85%E6%97%B6%E5%A4%84%E7%90%86/</guid>
+      <description>很多时候Irp被送到底层驱动程序后, 由于硬件设备的问题, Irp不能够得到及时的处理, 甚至有可能永远都不会被处理.这时候需要对Irp超时情况作</description>
+    </item>
+    
+    <item>
+      <title>内核定时器</title>
+      <link>https://xchen.com/post/%E5%86%85%E6%A0%B8%E5%AE%9A%E6%97%B6%E5%99%A8/</link>
+      <pubDate>Fri, 11 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%86%85%E6%A0%B8%E5%AE%9A%E6%97%B6%E5%99%A8/</guid>
+      <description>在Win32上面基本上定时做事情事情的话, 一般会使用WM_TIMER消息, 当然其他还有很多种选择, 同样的, 在内核中一样很多种的定时器对象可供</description>
+    </item>
+    
+    <item>
+      <title>StartIo例程</title>
+      <link>https://xchen.com/post/startio%E4%BE%8B%E7%A8%8B/</link>
+      <pubDate>Thu, 10 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/startio%E4%BE%8B%E7%A8%8B/</guid>
+      <description>凡是和多线程有关的东西, 一般就涉及非常恼火的线程同步问题, 而这个问题还不是那么直观, 不像其他一般的bug比较好调试, 有时候这个多线程的问题,</description>
+    </item>
+    
+    <item>
+      <title>自定义StartIo</title>
+      <link>https://xchen.com/post/%E8%87%AA%E5%AE%9A%E4%B9%89startio/</link>
+      <pubDate>Thu, 10 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E8%87%AA%E5%AE%9A%E4%B9%89startio/</guid>
+      <description>这个系统给的StartIo虽然好用, 但是很多时候我们还是需要使用自定义的StartIo例程的. 因为系统提供的只能使用一个队列.如果是我们自己</description>
+    </item>
+    
+    <item>
+      <title>挂起当前IRP</title>
+      <link>https://xchen.com/post/%E6%8C%82%E8%B5%B7%E5%BD%93%E5%89%8Dirp/</link>
+      <pubDate>Wed, 09 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%8C%82%E8%B5%B7%E5%BD%93%E5%89%8Dirp/</guid>
+      <description>如果需要将IRP异步完成, 一般不会在处理函数中调用IoCompleteRequest函数, 因为调用IoCompleteRequest函数就意</description>
+    </item>
+    
+    <item>
+      <title>取消IRP</title>
+      <link>https://xchen.com/post/%E5%8F%96%E6%B6%88irp/</link>
+      <pubDate>Wed, 09 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%8F%96%E6%B6%88irp/</guid>
+      <description>上一篇说的是挂起IRP, 并在挂起IRP的时候将挂起的IRP结束, 还有另外一个办法就是取消IRP, 逐个结束. 这就是传说中的取消IRP请求. 这个</description>
+    </item>
+    
+    <item>
+      <title>Win32与内核同步</title>
+      <link>https://xchen.com/post/win32%E4%B8%8E%E5%86%85%E6%A0%B8%E5%90%8C%E6%AD%A5/</link>
+      <pubDate>Sat, 05 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/win32%E4%B8%8E%E5%86%85%E6%A0%B8%E5%90%8C%E6%AD%A5/</guid>
+      <description>关于这个线程同步这块, 就比较恶心了, Windows驱动开发技术详解里面 这章的源码都没有. 难道是当时忘记了? 不应该啊! 我倒. 虽然说起来和Win</description>
+    </item>
+    
+    <item>
+      <title>指针的几个小问题</title>
+      <link>https://xchen.com/post/%E6%8C%87%E9%92%88%E7%9A%84%E5%87%A0%E4%B8%AA%E5%B0%8F%E9%97%AE%E9%A2%98/</link>
+      <pubDate>Thu, 03 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%8C%87%E9%92%88%E7%9A%84%E5%87%A0%E4%B8%AA%E5%B0%8F%E9%97%AE%E9%A2%98/</guid>
+      <description>本来一切都安好的, 听唐老师讲了几节指针的课, 发现有很多问题过去并不是很清晰啊, 还有一些认为想当然的问题也遇到了挑战. 最近做笔记比较少. 写下本</description>
+    </item>
+    
+    <item>
+      <title>和内核共享内存</title>
+      <link>https://xchen.com/post/%E5%92%8C%E5%86%85%E6%A0%B8%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98/</link>
+      <pubDate>Tue, 01 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%92%8C%E5%86%85%E6%A0%B8%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98/</guid>
+      <description>Windows确实给我们提供了很多的内存共享方法,有同进程的, 有不同进程的, 各种方法都有, 我看kmdkit中介绍了一种和内核共享内存的方法,</description>
+    </item>
+    
+    <item>
+      <title>DeviceIoControl与驱动交互</title>
+      <link>https://xchen.com/post/deviceiocontrol%E4%B8%8E%E9%A9%B1%E5%8A%A8%E4%BA%A4%E4%BA%92-2/</link>
+      <pubDate>Mon, 31 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/deviceiocontrol%E4%B8%8E%E9%A9%B1%E5%8A%A8%E4%BA%A4%E4%BA%92-2/</guid>
+      <description>DeviceIoControl的其实和ReadFile和WriteFile是一样的, 不过这个功能更强, 一次交互能够输入数据, 也可以输出数据.</description>
+    </item>
+    
+    <item>
+      <title>其他缓冲区方式模拟文件操作</title>
+      <link>https://xchen.com/post/%E5%85%B6%E4%BB%96%E7%BC%93%E5%86%B2%E5%8C%BA%E6%96%B9%E5%BC%8F%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/</link>
+      <pubDate>Sun, 30 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%85%B6%E4%BB%96%E7%BC%93%E5%86%B2%E5%8C%BA%E6%96%B9%E5%BC%8F%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/</guid>
+      <description>还有一种操作内存的方式, MicroSoft没有给其起名字, 然后Windows驱动编程详解上面就叫这种方式为其他方式, 其实什么方式没有什么所谓</description>
+    </item>
+    
+    <item>
+      <title>缓冲区设备模拟文件读写</title>
+      <link>https://xchen.com/post/%E7%BC%93%E5%86%B2%E5%8C%BA%E8%AE%BE%E5%A4%87%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99/</link>
+      <pubDate>Sat, 29 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E7%BC%93%E5%86%B2%E5%8C%BA%E8%AE%BE%E5%A4%87%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99/</guid>
+      <description>原来以为写Win32程序基于消息处理, 原来内核里面也是一个套路, 也差不多. 不过内核里面和这个消息肯定是有些区别的, 不过既然款式是一样的, 那么</description>
+    </item>
+    
+    <item>
+      <title>直接方式模拟文件读写</title>
+      <link>https://xchen.com/post/%E7%9B%B4%E6%8E%A5%E6%96%B9%E5%BC%8F%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99-3/</link>
+      <pubDate>Sat, 29 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E7%9B%B4%E6%8E%A5%E6%96%B9%E5%BC%8F%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99-3/</guid>
+      <description>上一篇说的是直接方式的读取设备, 这篇接着说. 其实还有两种方式的, 一种是直接方式读写设备, 这种方式需要创建完设备以后将Flags设置成DO_D</description>
+    </item>
+    
+    <item>
+      <title>C语言结构体的内存结构</title>
+      <link>https://xchen.com/post/c%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/</link>
+      <pubDate>Fri, 28 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/c%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/</guid>
+      <description>原来一直没有试验过用结构体作为参数传递和返回, 一直说结构体作为参数传递很慢撒的, 所以也没有 去关心过结构体在内存中的存储形式, 这下上课讲到这个</description>
+    </item>
+    
+    <item>
+      <title>内核中注册表操作</title>
+      <link>https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E6%B3%A8%E5%86%8C%E8%A1%A8%E6%93%8D%E4%BD%9C/</link>
+      <pubDate>Fri, 28 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E6%B3%A8%E5%86%8C%E8%A1%A8%E6%93%8D%E4%BD%9C/</guid>
+      <description>内核中的注册表操作和Win32下面是没有什么区别的. 最多来说就是函数的名字稍微换了下. 都是一个套路. 所以说学习新东西啊, 都是建立在旧东西的基</description>
+    </item>
+    
+    <item>
+      <title>内核中文件操作</title>
+      <link>https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/</link>
+      <pubDate>Tue, 11 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/</guid>
+      <description>文件操作也是比较有用的功能, 而且这部分功能也比较有用. 当然全部记录下来也没有什么营养. 学内核还是要学内核的架构. 关于这个函数的使用. 我觉得不</description>
+    </item>
+    
+    <item>
+      <title>内核中的字符串操作</title>
+      <link>https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C/</link>
+      <pubDate>Mon, 10 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C/</guid>
+      <description>内核下面操作字符串也不外乎就是初始化, 然后增,删,改,连接, 撒的. 和Win32下面没有太大的区别, 只是需要更多的耐心. 因为操作的是一个结构!</description>
+    </item>
+    
+    <item>
+      <title>内核中内存操作的一些函数</title>
+      <link>https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E5%86%85%E5%AD%98%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%BA%9B%E5%87%BD%E6%95%B0/</link>
+      <pubDate>Mon, 10 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E5%86%85%E5%AD%98%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%BA%9B%E5%87%BD%E6%95%B0/</guid>
+      <description>内核下面分配内存很简单. 我倒. 比3环下面还简单呢. 3环还需要调用两次函数, 0环更加方便.. 呵呵! 当然这只是使用上了. 内核中比用户态多了个后备</description>
+    </item>
+    
+    <item>
+      <title>最简单的NT式驱动</title>
+      <link>https://xchen.com/post/%E6%9C%80%E7%AE%80%E5%8D%95%E7%9A%84nt%E5%BC%8F%E9%A9%B1%E5%8A%A8/</link>
+      <pubDate>Sun, 09 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%9C%80%E7%AE%80%E5%8D%95%E7%9A%84nt%E5%BC%8F%E9%A9%B1%E5%8A%A8/</guid>
+      <description>一直想着, 再写点东西. 本来关于驱动这方面的话, 网上资料很丰富. 相对保护模式来说吧!所以不是很想写了. 还有说到这个写点东西的话. 我发现我也不是</description>
+    </item>
+    
+    <item>
+      <title>保护模式12:将一个线性地址映射到不同的物理地址上</title>
+      <link>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F12%E5%B0%86%E4%B8%80%E4%B8%AA%E7%BA%BF%E6%80%A7%E5%9C%B0%E5%9D%80%E6%98%A0%E5%B0%84%E5%88%B0%E4%B8%8D%E5%90%8C%E7%9A%84%E7%89%A9%E7%90%86%E5%9C%B0%E5%9D%80/</link>
+      <pubDate>Fri, 30 Sep 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F12%E5%B0%86%E4%B8%80%E4%B8%AA%E7%BA%BF%E6%80%A7%E5%9C%B0%E5%9D%80%E6%98%A0%E5%B0%84%E5%88%B0%E4%B8%8D%E5%90%8C%E7%9A%84%E7%89%A9%E7%90%86%E5%9C%B0%E5%9D%80/</guid>
+      <description>这篇还是上一篇的加强版. 上一篇我们漏说了很多东西, 包括我们在内存中使用了4M+4K的内存来存放页目录和页表. 这肯定是有问题的. 不行的. 那么我</description>
+    </item>
+    
+    <item>
+      <title>保护模式11:初探分页机制</title>
+      <link>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F11%E5%88%9D%E6%8E%A2%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/</link>
+      <pubDate>Thu, 29 Sep 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F11%E5%88%9D%E6%8E%A2%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/</guid>
+      <description>在没有学保护模式之前, 我一直觉得两个应用程序的虚拟地址都是一样的感觉非常神奇, 那时候一直认为系统有什么比较暴力的东西在里面,等过了一阵看了保</description>
+    </item>
+    
+    <item>
+      <title>保护模式10:输入输出保护敏感指令</title>
+      <link>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F10%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E4%BF%9D%E6%8A%A4%E6%95%8F%E6%84%9F%E6%8C%87%E4%BB%A4/</link>
+      <pubDate>Wed, 28 Sep 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F10%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E4%BF%9D%E6%8A%A4%E6%95%8F%E6%84%9F%E6%8C%87%E4%BB%A4/</guid>
+      <description>为了支持多任务, X86体系不但需要实现任务的隔离与共享, 前面几篇我们已经有了一些体验, 但是仅仅任务隔离与保护还是不够的, 还需要对输入/输出进</description>
+    </item>
+    
+    <item>
+      <title>保护模式9:特权指令的演示</title>
+      <link>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F9%E7%89%B9%E6%9D%83%E6%8C%87%E4%BB%A4%E7%9A%84%E6%BC%94%E7%A4%BA/</link>
+      <pubDate>Sun, 25 Sep 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F9%E7%89%B9%E6%9D%83%E6%8C%87%E4%BB%A4%E7%9A%84%E6%BC%94%E7%A4%BA/</guid>
+      <description>在Intel的386CPU中, 增加了一系列的指令用于支持保护模式的操作, 前面的代码其实我们已经使用了不少, 另外还有些针对段描述符的指令也是非</description>
+    </item>
+    
+    <item>
+      <title>保护模式8:各种中断的演示</title>
+      <link>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F8%E5%90%84%E7%A7%8D%E4%B8%AD%E6%96%AD%E7%9A%84%E6%BC%94%E7%A4%BA/</link>
+      <pubDate>Sat, 24 Sep 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F8%E5%90%84%E7%A7%8D%E4%B8%AD%E6%96%AD%E7%9A%84%E6%BC%94%E7%A4%BA/</guid>
+      <description>呵呵前一篇我们已经明白了保护模式下如何进行中断处理,但是并没有比较理性的了解, 那么这篇我们还应该再演示演示 中断处理的实际情况.. 上一篇我们的</description>
+    </item>
+    
+    <item>
+      <title>保护模式7:中断处理</title>
+      <link>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F6%E4%B8%AD%E6%96%AD%E5%A4%84%E7%90%86/</link>
+      <pubDate>Wed, 21 Sep 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F6%E4%B8%AD%E6%96%AD%E5%A4%84%E7%90%86/</guid>
+      <description>在实模式下写一个中断程序是比较简单的, DOS也直接由中断给调用, 要替换一个中断也是比较简单的. 但是一到保护模式的话, 中断就比较复杂了. 要处理</description>
+    </item>
+    
+    <item>
+      <title>保护模式6:特权级转换的任务切换</title>
+      <link>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F6%E7%89%B9%E6%9D%83%E7%BA%A7%E8%BD%AC%E6%8D%A2%E7%9A%84%E4%BB%BB%E5%8A%A1%E5%88%87%E6%8D%A2/</link>
+      <pubDate>Tue, 20 Sep 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F6%E7%89%B9%E6%9D%83%E7%BA%A7%E8%BD%AC%E6%8D%A2%E7%9A%84%E4%BB%BB%E5%8A%A1%E5%88%87%E6%8D%A2/</guid>
+      <description>上一篇我们已经演示了特权级变换, 这一篇我们讲讲任务切换, 任务切换的话, 主要是特权级要注意, 如果特权级设置有错的话, 会崩溃. 关于这个任务切换可</description>
+    </item>
+    
+    <item>
+      <title>保护模式5:特权级</title>
+      <link>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F5%E7%89%B9%E6%9D%83%E7%BA%A7/</link>
+      <pubDate>Sun, 18 Sep 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F5%E7%89%B9%E6%9D%83%E7%BA%A7/</guid>
+      <description>对于Intel的CPU, 关于这个特权级转换, 套用小胡的话说, 有点罗嗦.. 当前特权级(CPL): 当前执行程序或任务的特权级存在于已装载的CS,</description>
+    </item>
+    
+    <item>
+      <title>保护模式4:任务内特权级变换转移</title>
+      <link>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F4%E4%BB%BB%E5%8A%A1%E5%86%85%E7%89%B9%E6%9D%83%E7%BA%A7%E5%8F%98%E6%8D%A2%E8%BD%AC%E7%A7%BB/</link>
+      <pubDate>Fri, 16 Sep 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F4%E4%BB%BB%E5%8A%A1%E5%86%85%E7%89%B9%E6%9D%83%E7%BA%A7%E5%8F%98%E6%8D%A2%E8%BD%AC%E7%A7%BB/</guid>
+      <description>在上一篇我们说到利用call和jmp实现转移, 但是一直都是在0环下面.. 很显然一个现代的CPU是有多个特权级别的. 所以我们应该实验下在特权级</description>
+    </item>
+    
+    <item>
+      <title>保护模式3:任务内无特权级转移</title>
+      <link>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F3%E4%BB%BB%E5%8A%A1%E5%86%85%E6%97%A0%E7%89%B9%E6%9D%83%E7%BA%A7%E8%BD%AC%E7%A7%BB/</link>
+      <pubDate>Wed, 14 Sep 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F3%E4%BB%BB%E5%8A%A1%E5%86%85%E6%97%A0%E7%89%B9%E6%9D%83%E7%BA%A7%E8%BD%AC%E7%A7%BB/</guid>
+      <description>在前面那篇文章中已经有从16位代码到32位代码的转换, 其实那就是任务内无特权级转换, 那么对于控制转移还没有特别提到. 这篇和下一篇就专门讲控制</description>
+    </item>
+    
+    <item>
+      <title>保护模式2:保护模式下32位代码段和16位代码段切换</title>
+      <link>https://xchen.com/post/protect2/</link>
+      <pubDate>Sun, 11 Sep 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/protect2/</guid>
+      <description>为了兼容, 386的保护模式可以在16位代码段和32位代码段之间随意转换, 用于标示是32位或者16位代码段的是段描述符内第6字节的第6位标示出</description>
+    </item>
+    
+    <item>
+      <title>保护模式1:由实模式切换到保护模式实例</title>
+      <link>https://xchen.com/post/%E7%94%B1%E5%AE%9E%E6%A8%A1%E5%BC%8F%E5%88%87%E6%8D%A2%E5%88%B0%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F%E5%AE%9E%E4%BE%8B1/</link>
+      <pubDate>Sat, 10 Sep 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E7%94%B1%E5%AE%9E%E6%A8%A1%E5%BC%8F%E5%88%87%E6%8D%A2%E5%88%B0%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F%E5%AE%9E%E4%BE%8B1/</guid>
+      <description>简单的由实模式切换到保护模式的例子, 在MASM9下面写的, 运行的时候必须在Dos下面运行. 保护模式确实是比较复杂啊, 对这个保护模式的复杂度又</description>
+    </item>
+    
+    <item>
+      <title>引导扇区代码</title>
+      <link>https://xchen.com/post/%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E4%BB%A3%E7%A0%81/</link>
+      <pubDate>Fri, 09 Sep 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E4%BB%A3%E7%A0%81/</guid>
+      <description>想要自己实现一个操作系统的初步就是不依赖任何的软件运行自己的代码.. 那么这个是初步.. 这个代码实现的逻辑也很简单就是调用10h号中断显示一个</description>
+    </item>
+    
+    <item>
+      <title>Bochs命令一览</title>
+      <link>https://xchen.com/post/bochs%E5%91%BD%E4%BB%A4%E4%B8%80%E8%A7%88/</link>
+      <pubDate>Thu, 08 Sep 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/bochs%E5%91%BD%E4%BB%A4%E4%B8%80%E8%A7%88/</guid>
+      <description>Bochs是一个给力的东西.. 在准备自己写点想在裸机上跑的东西. 这个工具是必备的. Bochs继承自Unix和Windows不一路. 命令和Wi</description>
+    </item>
+    
+    <item>
+      <title>保护模式分段机制和分页机制</title>
+      <link>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6%E5%92%8C%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/</link>
+      <pubDate>Thu, 08 Sep 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6%E5%92%8C%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/</guid>
+      <description>闲着没事, 叫小胡同学给我做了张保护模式分段分页机制的图片.. 原来学习PE文件的时候就想搞一张出来, 不过那时候自己也不会什么专业的画图软件, 但</description>
+    </item>
+    
+    <item>
+      <title>写自定位代码</title>
+      <link>https://xchen.com/post/%E5%86%99%E8%87%AA%E5%AE%9A%E4%BD%8D%E4%BB%A3%E7%A0%81/</link>
+      <pubDate>Sun, 24 Jul 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%86%99%E8%87%AA%E5%AE%9A%E4%BD%8D%E4%BB%A3%E7%A0%81/</guid>
+      <description>我刚才其实已经写了一篇了, 然后不知怎么的不见了, 所以我不想说话了. 自己看源码 源码下载地址： http://www.joenchen.com/JoenTools/LocateAddr.rar .586 .model flat, stdcall option casemap:none Include Windows.inc Include kernel32.inc Includelib kernel32.lib ;=========================================================================== .Code REMOTE_CODE_START equ this byte Include GetApiAddr.inc Include GetApiAddr.asm ;=========================================================================== ;</description>
+    </item>
+    
+    <item>
+      <title>打造超小PE文件</title>
+      <link>https://xchen.com/post/%E6%89%93%E9%80%A0%E8%B6%85%E5%B0%8Fpe%E6%96%87%E4%BB%B6/</link>
+      <pubDate>Sun, 17 Jul 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%89%93%E9%80%A0%E8%B6%85%E5%B0%8Fpe%E6%96%87%E4%BB%B6/</guid>
+      <description>PE文件能够多小?? 一次一次的打破了我的想象, 网上有人发了133B的PE文件, 我就在想他是如何做到的? 分析了下. 相当的给力. 不知道还能不能够</description>
+    </item>
+    
+    <item>
+      <title>好用的字符串宏</title>
+      <link>https://xchen.com/post/%E5%A5%BD%E7%94%A8%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%AE%8F/</link>
+      <pubDate>Wed, 06 Jul 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%A5%BD%E7%94%A8%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%AE%8F/</guid>
+      <description>字符串对于每一个程序都是非常重要的, 在masm里面如果利用好字符串宏, 那写代码就非常舒服和方便了, 这几个字符串宏是我平时使用的非常多的宏, 包</description>
+    </item>
+    
+    <item>
+      <title>建立新博客了</title>
+      <link>https://xchen.com/post/%E5%BB%BA%E7%AB%8B%E6%96%B0%E5%8D%9A%E5%AE%A2%E4%BA%86/</link>
+      <pubDate>Thu, 02 Jun 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%BB%BA%E7%AB%8B%E6%96%B0%E5%8D%9A%E5%AE%A2%E4%BA%86/</guid>
+      <description>正式的开始的BlogCn开始写博客了, 有很多时候发现知识点学过了很容易忘记. 找半天也找不着原来接触的知识点. 我想写个博客什么的!估计对这个有</description>
+    </item>
+    
+    <item>
+      <title>数组实现的链表(ArrayList)</title>
+      <link>https://xchen.com/post/%E6%95%B0%E7%BB%84%E5%AE%9E%E7%8E%B0%E7%9A%84%E9%93%BE%E8%A1%A8arraylist/</link>
+      <pubDate>Thu, 02 Jun 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%95%B0%E7%BB%84%E5%AE%9E%E7%8E%B0%E7%9A%84%E9%93%BE%E8%A1%A8arraylist/</guid>
+      <description>链表, 底层以数组来实现, 记得原来Java里面好像有ArrayList和Linketlist. 这个就是ArrayList. 还没有经过严格的测试</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>好用的字符串宏 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="字符串对于每一个程序都是非常重要的, 在masm里面如果利用好字符串宏, 那写代码就非常舒服和方便了, 这几个字符串宏是我平时使用的非常多的宏, 包" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E5%A5%BD%E7%94%A8%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%AE%8F/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="好用的字符串宏" />
+<meta property="og:description" content="字符串对于每一个程序都是非常重要的, 在masm里面如果利用好字符串宏, 那写代码就非常舒服和方便了, 这几个字符串宏是我平时使用的非常多的宏, 包" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E5%A5%BD%E7%94%A8%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%AE%8F/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-07-06T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-07-06T00:00:00+00:00" />
+
+<meta itemprop="name" content="好用的字符串宏">
+<meta itemprop="description" content="字符串对于每一个程序都是非常重要的, 在masm里面如果利用好字符串宏, 那写代码就非常舒服和方便了, 这几个字符串宏是我平时使用的非常多的宏, 包"><meta itemprop="datePublished" content="2011-07-06T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-07-06T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1004">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="好用的字符串宏"/>
+<meta name="twitter:description" content="字符串对于每一个程序都是非常重要的, 在masm里面如果利用好字符串宏, 那写代码就非常舒服和方便了, 这几个字符串宏是我平时使用的非常多的宏, 包"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">好用的字符串宏</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-07-06 </span>
+        <div class="post-category">
+            <a href="/categories/sdk/"> sdk </a>
+            </div>
+          <span class="more-meta"> 约 1004 字 </span>
+          <span class="more-meta"> 预计阅读 3 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>字符串对于每一个程序都是非常重要的, 在masm里面如果利用好字符串宏, 那写代码就非常舒服和方便了, 这几个字符串宏是我平时使用的非常多的宏, 包括Unicode宏, 我以前一直觉得非常遗憾, 不过有了这个宏, 就不是问题了!</p>
+<p> </p>
+<p>因为masm不支持中文的Unicode, 我曾经也想自己写一个编码转换的宏, 不过一直觉得会比较麻烦. 后来在csdn偶得一大牛写的宏, 真是佩服啊, 呵呵不但有支持Unicode的字符串宏, 还有很多好用的支持SSSE3,SSE4的宏. 非常的给力! 可以在这里下载 <a href="http://bmu009001.chinaw3.com/JoenTools/Unicode.rar" title="Unicode.rar">UnicodeString.mac</a></p>
+<p>看看这个试用代码, 和C语言的字符串定义也是不相上下啊, 而且不乏汇编的灵活, 多舒服啊!</p>
+<pre><code>Include JoenWin.inc
+
+.Data
+</code></pre>
+<p>String		&ldquo;\\Device\\devVirtToPhys&rdquo;, MyString, 4</p>
+<p>MyUString	UString	(&lsquo;This is not a star.&rsquo;,10,13,&ldquo;这不是一颗流星&rdquo;,0)</p>
+<p>StUString	&ldquo;\\Device\\devVirtToPhys&rdquo;, g_StUStringName, 4</p>
+<pre><code>.Code
+</code></pre>
+<p>Jmain	Proc</p>
+<pre><code>pushad
+</code></pre>
+<p>;===========================================================================
+;定义Unicode类型的字符串
+mov	eax, UString$(&lsquo;This is not a star.&rsquo;,10,13,&ldquo;这不是一颗流星&rdquo;,0)
+mov	ecx, offset MyUString
+;===========================================================================
+;定义普通Ascii类型的字符串, 这个支持\t\nC语言那些格式符号
+mov	ebx, String$( &ldquo;helll\t\n&rdquo;, MyString2, 4 )
+mov	eax, offset MyString
+;===========================================================================
+;定义内核编程说需要的Unicode结构类型
+mov	ecx, offset g_StUStringName
+mov	edx, StUString$( &ldquo;\\Device\\devVirtToPhys&rdquo;, g_StUStringName2, 4  )
+;===========================================================================
+popad
+mov	eax, -1
+ret
+Jmain 	Endp</p>
+<p>End	Jmain</p>
+<p>最上面那个UString$是定义Unicode的, 这个非常给力, 支持中文, 以后汇编就避免了这个比支持Unicode的问题了,关于这个宏,是从CSDN上down来的, 我只是修改了下名称, 统一方便使用而已, 当然压缩包里面有他们公司的信息, 我就不多说了. 第二个是普通的我们一般写代码使用Ascii码的时候用的非常多, 第3个是内核里面使用结构定义Unicode字符串使用的, 这个修改自 Kernel Mode Driver KMD开发包中的, 作者当然是个大牛, 不过写代码的风格好像和国人不太一样, 国人受罗云彬的影响很深, 很多人的代码风格都趋向于罗云彬.. 当然说这个就扯远了..</p>
+<p>相信有了这几个字符串宏, 写代码会更加舒服的, 其实我说的不是很多, 关于里面宏的代码实现我也没有提到,我想如果你有兴趣的话. 会自己去看看的.</p>
+<p>对了还有那个String.mac宏文件中的已经被翻译成中文了, 也不是我翻译的, 没有前人的工作. 哪有小辈们的今天啊. 哈哈哈!!</p>
+<p>你可以使用转义字符, 和C语言的有些区别, 主要是被汇编的宏函数所限制</p>
+<p>esc. char.     code         symbol &mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&ndash; \:         21h            &lsquo;!&rsquo; \{         28h            &lsquo;(&rsquo; \}         29h            &lsquo;)&rsquo; \[         3Ch            &lsquo;&lt;&rsquo; \]         3Eh            &lsquo;&gt;&rsquo; \=         22h            &lsquo;&quot;&rsquo; \-         27h            &ldquo;&rsquo;&rdquo; \\         5Ch            &lsquo;\&rsquo; \*          -              -   ;; To workaround &ldquo;CopyFile&rdquo; -&gt; CopyFileA problem \0          0             zero byte/word \a          7             alert (BEL) \b          8             backspace \t          9             horizontal tabulation \n         0Dh, 0Ah       new line \l         0Ah            line feed \v         0Bh            verticalal tabulation \f         0Ch            formfeed \r         0Dh            carrige return</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-07-06
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E6%89%93%E9%80%A0%E8%B6%85%E5%B0%8Fpe%E6%96%87%E4%BB%B6/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">打造超小PE文件</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E5%BB%BA%E7%AB%8B%E6%96%B0%E5%8D%9A%E5%AE%A2%E4%BA%86/">
+            <span class="next-text nav-default">建立新博客了</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

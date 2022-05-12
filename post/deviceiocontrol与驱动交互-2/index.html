@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>DeviceIoControl与驱动交互 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="DeviceIoControl的其实和ReadFile和WriteFile是一样的, 不过这个功能更强, 一次交互能够输入数据, 也可以输出数据." /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/deviceiocontrol%E4%B8%8E%E9%A9%B1%E5%8A%A8%E4%BA%A4%E4%BA%92-2/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="DeviceIoControl与驱动交互" />
+<meta property="og:description" content="DeviceIoControl的其实和ReadFile和WriteFile是一样的, 不过这个功能更强, 一次交互能够输入数据, 也可以输出数据." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/deviceiocontrol%E4%B8%8E%E9%A9%B1%E5%8A%A8%E4%BA%A4%E4%BA%92-2/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-10-31T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-10-31T00:00:00+00:00" />
+
+<meta itemprop="name" content="DeviceIoControl与驱动交互">
+<meta itemprop="description" content="DeviceIoControl的其实和ReadFile和WriteFile是一样的, 不过这个功能更强, 一次交互能够输入数据, 也可以输出数据."><meta itemprop="datePublished" content="2011-10-31T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-10-31T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2053">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="DeviceIoControl与驱动交互"/>
+<meta name="twitter:description" content="DeviceIoControl的其实和ReadFile和WriteFile是一样的, 不过这个功能更强, 一次交互能够输入数据, 也可以输出数据."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">DeviceIoControl与驱动交互</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-10-31 </span>
+        <div class="post-category">
+            <a href="/categories/kernel/"> kernel </a>
+            </div>
+          <span class="more-meta"> 约 2053 字 </span>
+          <span class="more-meta"> 预计阅读 5 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>DeviceIoControl的其实和ReadFile和WriteFile是一样的, 不过这个功能更强, 一次交互能够输入数据, 也可以输出数据. 更加暴力. DeviceIoControl内部创建的IRP是IRP_MJ_DEVICE_CONTROL类型的IRP, 然后操作系统会将这个IRP转发给驱动程序的分发函数中. 就是类似Win32下面的发送自定义消息了.. 但是又有点区别, 如果发送自定义消息, 如果跨进程, 那是不可以传递指针的, 但是和驱动那就无所谓了, 可以传递一块缓冲区过去, 多舒服.</p>
+<p>其实这个也没有什么好说的,前面几篇已经试验过了ReadFile, 和WriteFile. 所以这个没有什么区别了.就是多了个定义I/O控制码的流程. I/O控制码也是非常简单的, 使用CTL_CODE宏来创建, 第一个参数是设备类型, 第二个参数就是控制码, 随便选一个大于0x800就可以. 然后就是缓冲区的操作方式了. 前面几篇我们已经见识过3种缓冲区操作方式了. 所以呢, 这个也不是什么问题了.. 最后一个是操作权限, 不要多想. 用FILE_ANY_ACCESS所有权限就OK..</p>
+<p>其他就没有什么好说了. 这个代码的话就是用户层这边试验了3中缓冲区方式发送的内核这边, 内核这个做个响应. 没有什么难以理解的地方. 直接上代码!</p>
+<p><a href="http://www.joenchen.com/JoenTools/DeviceIoControlIo.rar">http://www.joenchen.com/JoenTools/DeviceIoControlIo.rar</a></p>
+<p>用户态:</p>
+<p>/*
+Windows内核下DeviceIoControl与驱动进行交互 3环代码
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;winioctl.h&gt;</p>
+<p>#define  SYS_LINK_NAME	&quot;\\\\.\\SysLinkJoenDevice&quot;
+#define  MAX_LENGTH	1024</p>
+<p>//		             设备类型             功能号 I/O访问内存使用方式 权限
+#define IOCTL_CONTROL_BUFFERED	CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800, METHOD_BUFFERED, FILE_ANY_ACCESS )
+#define IOCTL_CONTROL_DIRECT	CTL_CODE(FILE_DEVICE_UNKNOWN, 0x801, METHOD_IN_DIRECT, FILE_ANY_ACCESS )
+#define IOCTL_CONTROL_NEITHER	CTL_CODE(FILE_DEVICE_UNKNOWN, 0x802, METHOD_NEITHER, FILE_ANY_ACCESS )</p>
+<p>#pragma comment(linker, &quot;/Entry:Jmain&quot;)
+#pragma comment(linker, &quot;/subsystem:console&quot;)</p>
+<p>//===========================================================================
+int Jmain() {
+HANDLE	hFile = 0;
+BYTE	byBuf[10];
+BYTE	byBuf2[10];
+BOOL	bRet;
+DWORD	dwByteRead, i;</p>
+<pre><code>//打开设备
+hFile = CreateFile( SYS\_LINK\_NAME, GENERIC\_READ | GENERIC\_WRITE, 0, 0,
+                    OPEN\_EXISTING, FILE\_ATTRIBUTE\_NORMAL, 0  );
+
+if ( hFile == INVALID\_HANDLE\_VALUE ) {
+	printf( &amp;quot;打开设备错误了!\\n&amp;quot; );
+	return -1;
+}
+
+printf( &amp;quot;打开设备成功!\\n&amp;quot; );
+
+RtlFillMemory( byBuf, sizeof( byBuf ), &amp;#39;1&amp;#39; );
+bRet = DeviceIoControl( hFile, IOCTL\_CONTROL\_BUFFERED, byBuf, sizeof( byBuf ), \\
+                        byBuf2, sizeof( byBuf2 ), &amp;amp;dwByteRead, NULL );
+
+if ( bRet ) {
+	printf( &amp;quot;BUFFERED  返回缓冲区长度%d, 数据:&amp;quot; );
+	for ( i = 0; i &amp;lt; dwByteRead; i++ ) {
+		printf( &amp;quot;%c&amp;quot;, byBuf2\[i\] );
+	}
+	printf( &amp;quot;\\n&amp;quot; );
+}
+
+RtlFillMemory( byBuf, sizeof( byBuf ), &amp;#39;2&amp;#39; );
+
+bRet = DeviceIoControl( hFile, IOCTL\_CONTROL\_DIRECT, byBuf, sizeof( byBuf ),
+                        byBuf2, sizeof( byBuf2 ), &amp;amp;dwByteRead, NULL );
+
+if ( bRet ) {
+
+	printf( &amp;quot;DIRECT  返回缓冲区长度%d, 数据:&amp;quot; );
+	for ( i = 0; i &amp;lt; dwByteRead; i++ ) {
+		printf( &amp;quot;%c&amp;quot;, byBuf2\[i\] );
+	}
+	printf( &amp;quot;\\n&amp;quot; );
+}
+
+RtlFillMemory( byBuf, sizeof( byBuf ), &amp;#39;3&amp;#39; );
+
+bRet = DeviceIoControl( hFile, IOCTL\_CONTROL\_NEITHER, byBuf, sizeof( byBuf ),
+                        byBuf2, sizeof( byBuf2 ), &amp;amp;dwByteRead, NULL );
+
+if ( bRet ) {
+	printf( &amp;quot;NEITHER  返回缓冲区长度%d, 数据:&amp;quot; );
+	for ( i = 0; i &amp;lt; dwByteRead; i++ ) {
+		printf( &amp;quot;%c&amp;quot;, byBuf2\[i\] );
+	}
+	printf( &amp;quot;\\n&amp;quot; );
+}
+
+if ( hFile ) {
+	CloseHandle( hFile );
+}
+
+system( &amp;quot;pause&amp;quot; );
+
+ExitProcess(0);
+return 0;
+</code></pre>
+<p>}</p>
+<p>内核态:</p>
+<p>/*
+Windows内核下DeviceIoControl与驱动进行交互 0环代码
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;ntddk.h&gt;</p>
+<p>#define  DEVICE_NAME	L&quot;\\Device\\DevJoenDevice&quot;
+#define  SYS_LINK_NAME	L&quot;\\??\\SysLinkJoenDevice&quot;
+#define  MAX_LENGTH	1024</p>
+<p>//		             设备类型             功能号 I/O访问内存使用方式 权限
+#define IOCTL_CONTROL_BUFFERED	CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800, METHOD_BUFFERED, FILE_ANY_ACCESS )
+#define IOCTL_CONTROL_DIRECT	CTL_CODE(FILE_DEVICE_UNKNOWN, 0x801, METHOD_IN_DIRECT, FILE_ANY_ACCESS )
+#define IOCTL_CONTROL_NEITHER	CTL_CODE(FILE_DEVICE_UNKNOWN, 0x802, METHOD_NEITHER, FILE_ANY_ACCESS )</p>
+<p>typedef struct tagDeviceExt {
+PDEVICE_OBJECT pDeviceObj;
+UNICODE_STRING USzDeviceName;
+UNICODE_STRING USzSysLinkName;
+}DEVICEEXT, *PDEVICEEXT;</p>
+<p>//===========================================================================
+//驱动卸载例程
+#pragma  code_seg( &quot;PAGE&quot; )
+VOID DriverUnload( PDRIVER_OBJECT pDriverObj ) {
+PDEVICEEXT pDeviceExt;
+PDEVICE_OBJECT pNextDeviceObj;</p>
+<pre><code>pNextDeviceObj = pDriverObj-&amp;gt;DeviceObject;
+
+while ( pNextDeviceObj != NULL ) {
+	pDeviceExt = pNextDeviceObj-&amp;gt;DeviceExtension;
+
+	IoDeleteDevice( pDeviceExt-&amp;gt;pDeviceObj );
+	IoDeleteSymbolicLink( &amp;amp;pDeviceExt-&amp;gt;USzSysLinkName );
+	KdPrint( ( &amp;quot;删除%wZ设备成功!\\n&amp;quot;, &amp;amp;pDeviceExt-&amp;gt;USzDeviceName ) );
+	pNextDeviceObj = pNextDeviceObj-&amp;gt;NextDevice;
+}
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//所有不关心的IRP处理例程
+NTSTATUS DispatchRoutine( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {</p>
+<pre><code>pIrp-&amp;gt;IoStatus.Information = 0;
+pIrp-&amp;gt;IoStatus.Status = STATUS\_SUCCESS;
+IoCompleteRequest( pIrp, IO\_NO\_INCREMENT );
+return STATUS\_SUCCESS;
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//设备控制请求
+NTSTATUS DispatchDeviceControl( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+ULONG		Code, i;
+NTSTATUS	Status;
+ULONG		ulInBufLen;
+ULONG		ulOutBufLen;
+ULONG		ulOutInfo;
+UCHAR*		InputBuffer = NULL;
+UCHAR*		OutputBuffer = NULL;
+PIO_STACK_LOCATION Stack;</p>
+<pre><code>Stack = IoGetCurrentIrpStackLocation( pIrp );
+//输入缓冲区大小
+ulInBufLen = Stack-&amp;gt;Parameters.DeviceIoControl.InputBufferLength;
+//输出缓冲区大小
+ulOutBufLen = Stack-&amp;gt;Parameters.DeviceIoControl.OutputBufferLength;
+//IO控制码
+Code = Stack-&amp;gt;Parameters.DeviceIoControl.IoControlCode;
+
+Status = STATUS\_SUCCESS;
+ulOutInfo = ulOutBufLen;
+
+switch ( Code ) {
+</code></pre>
+<p>//===========================================================================
+//		缓冲区IO, 很安全
+case IOCTL_CONTROL_BUFFERED:
+InputBuffer = ( UCHAR* )pIrp-&gt;AssociatedIrp.SystemBuffer;</p>
+<pre><code>	if ( InputBuffer ) {
+
+		KdPrint( ( &amp;quot;BUFFERED输入缓冲区数据:\\n&amp;quot; ) );
+
+		for ( i = 0; i &amp;lt; ulInBufLen; i++ ) {
+			KdPrint( ( &amp;quot;%X&amp;quot;, InputBuffer\[i\]  ) );
+		}
+		KdPrint(( &amp;quot;\\n&amp;quot; ));
+
+		RtlFillMemory( pIrp-&amp;gt;AssociatedIrp.SystemBuffer, ulOutBufLen, &amp;#39;a&amp;#39; );
+	}
+	break;
+</code></pre>
+<p>//===========================================================================
+//		MDL类型的IO, MDL的输入缓冲区和缓冲区IO是一样的.
+case IOCTL_CONTROL_DIRECT:
+InputBuffer = ( UCHAR* )pIrp-&gt;AssociatedIrp.SystemBuffer;</p>
+<pre><code>	if ( InputBuffer ) {
+		KdPrint( ( &amp;quot;IN\_DIRECT/IO输入缓冲区的数据:\\n&amp;quot; ) );
+
+		for ( i = 0; i &amp;lt; ulInBufLen; i++ ) {
+			KdPrint( ( &amp;quot;%X&amp;quot;, InputBuffer\[i\] ) );
+		}
+		KdPrint( ( &amp;quot;\\n&amp;quot; ) );
+	}
+
+	KdPrint( ( &amp;quot;用户传入OutputBuffer地址: %p\\n&amp;quot;,
+	           MmGetMdlVirtualAddress( pIrp-&amp;gt;MdlAddress ) ) );
+
+	//得到输出缓冲地址
+	OutputBuffer = MmGetSystemAddressForMdlSafe( pIrp-&amp;gt;MdlAddress, NormalPagePriority );
+
+	if ( OutputBuffer ) {
+		KdPrint( ( &amp;quot;映射到内核中的地址是: %p\\n&amp;quot;, OutputBuffer ) );
+
+		RtlFillMemory( OutputBuffer,ulOutBufLen, &amp;#39;b&amp;#39; );
+	}
+	break;
+</code></pre>
+<p>//===========================================================================
+//		其他方式的IO
+case IOCTL_CONTROL_NEITHER:</p>
+<pre><code>	//得到输入/输出缓冲区
+	InputBuffer = ( UCHAR\* )Stack-&amp;gt;Parameters.DeviceIoControl.Type3InputBuffer;
+	OutputBuffer = ( UCHAR\* )pIrp-&amp;gt;UserBuffer;
+
+	KdPrint( ( &amp;quot;NEITHER/IO用户模式传入的地址%p\\n&amp;quot;, InputBuffer ) );
+
+	\_\_try {
+		//测试用户层传递的内存可读性
+		ProbeForRead( InputBuffer, ulInBufLen, 4 );
+
+		for ( i = 0; i &amp;lt; ulInBufLen; i++ ) {
+			KdPrint( ( &amp;quot;%X&amp;quot;, InputBuffer\[i\] ) );
+		}
+		KdPrint(( &amp;quot;\\n&amp;quot; ));
+
+		ProbeForWrite( OutputBuffer, ulOutBufLen, 4 );
+
+		RtlFillMemory( OutputBuffer, ulOutBufLen, &amp;#39;c&amp;#39; );
+
+	}\_\_except( EXCEPTION\_EXECUTE\_HANDLER ) {
+		KdPrint( ( &amp;quot;Win32程序传入了一个无效的地址!\\n&amp;quot; ) );
+		Status = STATUS\_UNSUCCESSFUL;
+	}
+
+	break;
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;</p>
+<pre><code>default:
+	Status = STATUS\_INVALID\_VARIANT;
+}
+
+pIrp-&amp;gt;IoStatus.Status = Status;
+pIrp-&amp;gt;IoStatus.Information = ulOutInfo;
+IoCompleteRequest( pIrp, IO\_NO\_INCREMENT );
+return Status;
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//驱动程序入口
+#pragma  code_seg( &quot;INIT&quot; )
+NTSTATUS DriverEntry( PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pUSzRegPath ) {
+ULONG i;
+NTSTATUS Status;
+PDEVICEEXT pDeviceExt;
+PDEVICE_OBJECT pDeviceObj;
+UNICODE_STRING USzDeviceName = RTL_CONSTANT_STRING( DEVICE_NAME );
+UNICODE_STRING USzSysLinkName = RTL_CONSTANT_STRING( SYS_LINK_NAME );</p>
+<pre><code>Status = IoCreateDevice( pDriverObj, sizeof( DEVICEEXT ), &amp;amp;USzDeviceName,
+                         FILE\_DEVICE\_UNKNOWN, 0, TRUE, &amp;amp;pDeviceObj );
+
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint( ( &amp;quot;创建设备失败!\\n&amp;quot; ) );
+	return Status;
+}
+
+Status = IoCreateSymbolicLink( &amp;amp;USzSysLinkName, &amp;amp;USzDeviceName );
+
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint( ( &amp;quot;创建符号链接!\\n&amp;quot; ) );
+	return Status;
+}
+
+//采用直接IO方式
+pDeviceObj-&amp;gt;Flags |= DO\_DIRECT\_IO;
+pDeviceExt = pDeviceObj-&amp;gt;DeviceExtension;
+pDeviceExt-&amp;gt;pDeviceObj = pDeviceObj;
+pDeviceExt-&amp;gt;USzDeviceName = USzDeviceName;
+pDeviceExt-&amp;gt;USzSysLinkName = USzSysLinkName;
+
+for ( i = 0; i &amp;lt; IRP\_MJ\_MAXIMUM\_FUNCTION; i++ ) {
+	pDriverObj-&amp;gt;MajorFunction\[i\] = &amp;amp;DispatchRoutine;
+}
+pDriverObj-&amp;gt;MajorFunction\[IRP\_MJ\_DEVICE\_CONTROL\] = &amp;amp;DispatchDeviceControl;
+pDriverObj-&amp;gt;DriverUnload = &amp;amp;DriverUnload;
+
+return Status;
+</code></pre>
+<p>}</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-10-31
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E5%92%8C%E5%86%85%E6%A0%B8%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">和内核共享内存</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E5%85%B6%E4%BB%96%E7%BC%93%E5%86%B2%E5%8C%BA%E6%96%B9%E5%BC%8F%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/">
+            <span class="next-text nav-default">其他缓冲区方式模拟文件操作</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

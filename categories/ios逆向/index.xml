@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ios逆向 on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+    <link>https://xchen.com/categories/ios%E9%80%86%E5%90%91/</link>
+    <description>Recent content in ios逆向 on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 08 Nov 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://xchen.com/categories/ios%E9%80%86%E5%90%91/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>SSL流量捕获</title>
+      <link>https://xchen.com/post/sslcapturing/</link>
+      <pubDate>Mon, 08 Nov 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/sslcapturing/</guid>
+      <description>现在基本上互联网的流量都是https了，一般正常的抓包方法是使用Charles一类的抓包工具，这种抓包工具都会在系统里面安装一个根证书，通过</description>
+    </item>
+    
+    <item>
+      <title>iMessage安全性如何</title>
+      <link>https://xchen.com/post/%E8%BD%ACimessage%E5%AE%89%E5%85%A8%E6%80%A7%E5%A6%82%E4%BD%95/</link>
+      <pubDate>Tue, 29 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E8%BD%ACimessage%E5%AE%89%E5%85%A8%E6%80%A7%E5%A6%82%E4%BD%95/</guid>
+      <description>iMessage安全性如何 iMessage安全性如何，最近这些天挺火的，那么我也来凑凑热闹。 基于对iOS 6.1.3的分析。 iMessage加</description>
+    </item>
+    
+    <item>
+      <title>apple源码查看下载</title>
+      <link>https://xchen.com/post/apple%E6%BA%90%E7%A0%81%E6%9F%A5%E7%9C%8B%E4%B8%8B%E8%BD%BD/</link>
+      <pubDate>Fri, 14 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/apple%E6%BA%90%E7%A0%81%E6%9F%A5%E7%9C%8B%E4%B8%8B%E8%BD%BD/</guid>
+      <description>最近搞iOS逆向，搞了几个函数，发现苹果自己都已经公布了源码。。。。看来以后还是要多注意，搞之前先去苹果的源码库翻一翻。苹果的源码比较恶心，</description>
+    </item>
+    
+  </channel>
+</rss>

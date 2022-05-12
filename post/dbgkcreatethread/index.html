@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>DbgkCreateThread - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="首先我们需要替换的是 rdmsr, wrmsr替换掉系统的sysenter跳转地址. 这样整个SSDT表函数都处于被我们的监控当中. 一个新的进程创建线程的时" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/dbgkcreatethread/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="DbgkCreateThread" />
+<meta property="og:description" content="首先我们需要替换的是 rdmsr, wrmsr替换掉系统的sysenter跳转地址. 这样整个SSDT表函数都处于被我们的监控当中. 一个新的进程创建线程的时" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/dbgkcreatethread/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2012-11-27T00:00:00+00:00" />
+<meta property="article:modified_time" content="2012-11-27T00:00:00+00:00" />
+
+<meta itemprop="name" content="DbgkCreateThread">
+<meta itemprop="description" content="首先我们需要替换的是 rdmsr, wrmsr替换掉系统的sysenter跳转地址. 这样整个SSDT表函数都处于被我们的监控当中. 一个新的进程创建线程的时"><meta itemprop="datePublished" content="2012-11-27T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2012-11-27T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2115">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="DbgkCreateThread"/>
+<meta name="twitter:description" content="首先我们需要替换的是 rdmsr, wrmsr替换掉系统的sysenter跳转地址. 这样整个SSDT表函数都处于被我们的监控当中. 一个新的进程创建线程的时"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">DbgkCreateThread</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2012-11-27 </span>
+        <div class="post-category">
+            <a href="/categories/virtual-technology/"> virtual-technology </a>
+            </div>
+          <span class="more-meta"> 约 2115 字 </span>
+          <span class="more-meta"> 预计阅读 5 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>首先我们需要替换的是 rdmsr, wrmsr替换掉系统的sysenter跳转地址. 这样整个SSDT表函数都处于被我们的监控当中.</p>
+<p>一个新的进程创建线程的时候就会调用到DbgkCreateThread.DbgkCreateThread可以发出两种消息, 一种进程创建,和线程创建消息.</p>
+<p>当然, ntdll.dll的消息也在此列.DbgkCreateThread函数内部主要是判断进程是否有PSF_CREATE_REPORTED_BIT标记, 如果有那么就发送进程创建消息, 如果没有那么就发送线程创建消息, 他们都会调用到 DbgkpSendApiMessage 函数.</p>
+<p>DbgkpSendApiMessage函数内部做的事情也不多. 主要是挂起线程和恢复线程一类的事情. 然后调用了更底层的DbgkpQueueMessage函数.</p>
+<p>DbgkpQueueMessage函数内部大体逻辑就是将消息封装好, 插入队列, 等待R3过来取. 差不多就是这些.下面的代码是ReactOS的代码.</p>
+<p>VOID
+NTAPI
+DbgkCreateThread(IN PETHREAD Thread,
+IN PVOID StartAddress)
+{
+PEPROCESS Process = PsGetCurrentProcess();
+ULONG ProcessFlags;
+IMAGE_INFO ImageInfo;
+PIMAGE_NT_HEADERS NtHeader;
+POBJECT_NAME_INFORMATION ModuleName;
+UNICODE_STRING NtDllName;
+NTSTATUS Status;
+PVOID DebugPort;
+DBGKM_MSG ApiMessage;
+PDBGKM_CREATE_THREAD CreateThread = &amp;ApiMessage.CreateThread;
+PDBGKM_CREATE_PROCESS CreateProcess = &amp;ApiMessage.CreateProcess;
+PDBGKM_LOAD_DLL LoadDll = &amp;ApiMessage.LoadDll;
+OBJECT_ATTRIBUTES ObjectAttributes;
+IO_STATUS_BLOCK IoStatusBlock;
+PTEB Teb;
+PAGED_CODE();</p>
+<pre><code>/\* Sanity check \*/
+ASSERT(Thread == PsGetCurrentThread());
+
+//
+// 获取是否要调用LoadImageNotifyRoutines标记
+//
+ProcessFlags = PspSetProcessFlag(Process,
+                                 PSF\_CREATE\_REPORTED\_BIT |
+                                 PSF\_IMAGE\_NOTIFY\_DONE\_BIT);
+
+//
+// 如果进程标记中有设置PSF\_IMAGE\_NOTIFY\_DONE\_BIT 并且系统中开启了LoadImageNotifyRoutines服务
+// 这个if 和调试没有关系, 不管. 
+//
+if (!(ProcessFlags &amp; PSF\_IMAGE\_NOTIFY\_DONE\_BIT) &amp;&amp; (PsImageNotifyEnabled))
+{
+    /\* It hasn't.. set up the image info for the process \*/
+    ImageInfo.Properties = 0;
+    ImageInfo.ImageAddressingMode = IMAGE\_ADDRESSING\_MODE\_32BIT;
+    ImageInfo.ImageBase = Process-&gt;SectionBaseAddress;
+    ImageInfo.ImageSize = 0;
+    ImageInfo.ImageSelector = 0;
+    ImageInfo.ImageSectionNumber = 0;
+
+    /\* Get the NT Headers \*/
+    NtHeader = RtlImageNtHeader(Process-&gt;SectionBaseAddress);
+    if (NtHeader)
+    {
+        /\* Set image size \*/
+        ImageInfo.ImageSize = NtHeader-&gt;OptionalHeader.SizeOfImage;
+    }
+
+    /\* Get the image name \*/
+    Status = MmGetFileNameForSection(Process-&gt;SectionObject, &amp;ModuleName);
+    if (NT\_SUCCESS(Status))
+    {
+        /\* Call the notify routines and free the name \*/
+        PspRunLoadImageNotifyRoutines(&amp;ModuleName-&gt;Name,
+                                      Process-&gt;UniqueProcessId,
+                                      &amp;ImageInfo);
+        ExFreePool(ModuleName);
+    }
+    else
+    {
+        /\* Call the notify routines \*/
+        PspRunLoadImageNotifyRoutines(NULL,
+                                      Process-&gt;UniqueProcessId,
+                                      &amp;ImageInfo);
+    }
+
+    /\* Setup the info for ntdll.dll \*/
+    ImageInfo.Properties = 0;
+    ImageInfo.ImageAddressingMode = IMAGE\_ADDRESSING\_MODE\_32BIT;
+    ImageInfo.ImageBase = PspSystemDllBase;
+    ImageInfo.ImageSize = 0;
+    ImageInfo.ImageSelector = 0;
+    ImageInfo.ImageSectionNumber = 0;
+
+    /\* Get the NT Headers \*/
+    NtHeader = RtlImageNtHeader(PspSystemDllBase);
+    if (NtHeader)
+    {
+        /\* Set image size \*/
+        ImageInfo.ImageSize = NtHeader-&gt;OptionalHeader.SizeOfImage;
+    }
+
+    /\* Call the notify routines \*/
+    RtlInitUnicodeString(&amp;NtDllName,
+                         L&quot;\\\\SystemRoot\\\\System32\\\\ntdll.dll&quot;);
+    PspRunLoadImageNotifyRoutines(&amp;NtDllName,
+                                  Process-&gt;UniqueProcessId,
+                                  &amp;ImageInfo);
+}
+
+//
+// 这里才真的关于调试部分的代码
+//
+DebugPort = Process-&gt;DebugPort;
+if (!DebugPort) return;
+
+//
+// 如果调试设置了创建进程通知消息
+//
+if (!(ProcessFlags &amp; PSF\_CREATE\_REPORTED\_BIT))
+{
+	//
+    // CreateProcess 是R0这边传递调试消息的主要结构. 既然是创建进程
+    // 那么线程当然都是空了
+    //
+    CreateProcess-&gt;InitialThread.SubSystemKey = 0;
+    CreateProcess-&gt;InitialThread.StartAddress = NULL;
+
+	//
+   	// 填写新进程的句柄
+   	//
+    CreateProcess-&gt;SubSystemKey = 0;
+    CreateProcess-&gt;FileHandle = DbgkpSectionToFileHandle(Process-&gt;
+                                                         SectionObject);
+  	//
+  	// 其他一些信息
+  	//
+    CreateProcess-&gt;BaseOfImage = Process-&gt;SectionBaseAddress;
+    CreateProcess-&gt;DebugInfoFileOffset = 0;
+    CreateProcess-&gt;DebugInfoSize = 0;
+
+	//
+   	// 这些信息其实也不重要, 程序入口, 符号表的地址和数量
+   	//
+    NtHeader = RtlImageNtHeader(Process-&gt;SectionBaseAddress);
+    if (NtHeader)
+    {
+    	//
+        // 根据PE信息获取入口
+        //
+        CreateProcess-&gt;InitialThread.StartAddress =
+            (PVOID)((ULONG\_PTR)NtHeader-&gt;OptionalHeader.ImageBase +
+                    NtHeader-&gt;OptionalHeader.AddressOfEntryPoint);
+
+        //
+        // 获取调试信息表地址
+        //
+        CreateProcess-&gt;DebugInfoFileOffset = NtHeader-&gt;FileHeader.
+                                             PointerToSymbolTable;
+
+        //                                   
+        // 获取调试信息的数量
+        //
+        CreateProcess-&gt;DebugInfoSize = NtHeader-&gt;FileHeader.
+                                       NumberOfSymbols;
+    }
+
+    // 这边开始设置
+    ApiMessage.h.u1.Length = sizeof(DBGKM\_MSG) &lt;&lt; 16 |
+                             (8 + sizeof(DBGKM\_CREATE\_PROCESS));
+    ApiMessage.h.u2.ZeroInit = 0;
+    ApiMessage.h.u2.s2.Type = LPC\_DEBUG\_EVENT;
+    ApiMessage.ApiNumber = DbgKmCreateProcessApi;
+
+	//
+    // 这个函数是内核里面分发调试消息的主要函数了, 后面一个参数表示
+    // 是否要冻结进程的所有线程
+    //
+    DbgkpSendApiMessage(&amp;ApiMessage, FALSE);
+
+	//
+   	// 内核这边其实会给R3关闭句柄, 所以R3那边其实不用操心的
+   	//
+    ObCloseHandle(CreateProcess-&gt;FileHandle, KernelMode);
+
+	//
+    // 我们看到, 其实创建进程的时候, 默认就会发送nt.dll的LoadDll消息
+    //
+    LoadDll-&gt;BaseOfDll = PspSystemDllBase;
+    LoadDll-&gt;DebugInfoFileOffset = 0;
+    LoadDll-&gt;DebugInfoSize = 0;
+    LoadDll-&gt;NamePointer = NULL;
+
+	//
+    // 获取nt.dll的调试符号偏移和大小. PspSystemDllBase真神奇
+    //
+    NtHeader = RtlImageNtHeader(PspSystemDllBase);
+    if (NtHeader)
+    {
+        /\* Fill out debug information \*/
+        LoadDll-&gt;DebugInfoFileOffset = NtHeader-&gt;
+                                       FileHeader.PointerToSymbolTable;
+        LoadDll-&gt;DebugInfoSize = NtHeader-&gt;FileHeader.NumberOfSymbols;
+    }
+
+	//
+   	// 保存一点nt.dll的信息
+   	//
+    Teb = Thread-&gt;Tcb.Teb;
+    if (Teb)
+    {
+        /\* Copy the system library name and link to it \*/
+        wcsncpy(Teb-&gt;StaticUnicodeBuffer,
+                L&quot;ntdll.dll&quot;,
+                sizeof(Teb-&gt;StaticUnicodeBuffer) / sizeof(WCHAR));
+
+        Teb-&gt;NtTib.ArbitraryUserPointer = Teb-&gt;StaticUnicodeBuffer;
+
+        /\* Return it in the debug event as well \*/
+        LoadDll-&gt;NamePointer = &amp;Teb-&gt;NtTib.ArbitraryUserPointer;
+    }
+
+	//
+    // 获取nt.dll的句柄
+    //
+    InitializeObjectAttributes(&amp;ObjectAttributes,
+                               &amp;PsNtDllPathName,
+                               OBJ\_CASE\_INSENSITIVE |
+                               OBJ\_KERNEL\_HANDLE |
+                               OBJ\_FORCE\_ACCESS\_CHECK,
+                               NULL,
+                               NULL);
+
+    Status = ZwOpenFile(&amp;LoadDll-&gt;FileHandle,
+                        GENERIC\_READ | SYNCHRONIZE,
+                        &amp;ObjectAttributes,
+                        &amp;IoStatusBlock,
+                        FILE\_SHARE\_DELETE |
+                        FILE\_SHARE\_READ |
+                        FILE\_SHARE\_WRITE,
+                        FILE\_SYNCHRONOUS\_IO\_NONALERT);
+    if (NT\_SUCCESS(Status))
+    {
+    	//
+       	// 句柄也有了. 有酒有肉了. 可以发送DLL加载消息了
+       	//
+        ApiMessage.h.u1.Length = sizeof(DBGKM\_MSG) &lt;&lt; 16 |
+                                 (8 + sizeof(DBGKM\_LOAD\_DLL));
+        ApiMessage.h.u2.ZeroInit = 0;
+        ApiMessage.h.u2.s2.Type = LPC\_DEBUG\_EVENT;
+        ApiMessage.ApiNumber = DbgKmLoadDllApi;
+
+        /\* Send the message \*/
+        DbgkpSendApiMessage(&amp;ApiMessage, TRUE);
+
+		//
+        // 同样的, R3不需要关闭句柄, 以前真是纠结啊. 
+        //
+        ObCloseHandle(LoadDll-&gt;FileHandle, KernelMode);
+    }
+}
+else
+{
+	//
+    // 如果不是首次创建进程, 那么也好办, 直接发送线程创建消息就可以了
+    //
+    CreateThread-&gt;SubSystemKey = 0;
+    CreateThread-&gt;StartAddress = StartAddress;
+
+    /\* Setup the API Message \*/
+    ApiMessage.h.u1.Length = sizeof(DBGKM\_MSG) &lt;&lt; 16 |
+                             (8 + sizeof(DBGKM\_CREATE\_THREAD));
+    ApiMessage.h.u2.ZeroInit = 0;
+    ApiMessage.h.u2.s2.Type = LPC\_DEBUG\_EVENT;
+    ApiMessage.ApiNumber = DbgKmCreateThreadApi;
+
+    /\* Send the message \*/
+    DbgkpSendApiMessage(&amp;ApiMessage, TRUE);
+}
+</code></pre>
+<p>}</p>
+<p>NTSTATUS
+NTAPI
+DbgkpSendApiMessage(IN OUT PDBGKM_MSG ApiMsg,
+IN BOOLEAN SuspendProcess)
+{
+NTSTATUS Status;
+BOOLEAN Suspended = FALSE;
+PAGED_CODE();</p>
+<pre><code>// 看看是否需要挂起整个线程. 
+if (SuspendProcess)
+{
+	Suspended = DbgkpSuspendProcess();
+}
+
+//
+// 将调试包设置成忙状态
+//
+ApiMsg-&gt;ReturnedStatus = STATUS\_PENDING;
+
+//
+// 设置进程的PSF\_CREATE\_REPORTED\_BIT位
+//
+PspSetProcessFlag(PsGetCurrentProcess(), PSF\_CREATE\_REPORTED\_BIT);
+
+//
+// 将调试消息插入队列中
+//
+Status = DbgkpQueueMessage(PsGetCurrentProcess(),
+                           PsGetCurrentThread(),
+                           ApiMsg,
+                           0,
+                           NULL);
+
+//
+// 刷新指令缓存
+//
+ZwFlushInstructionCache(NtCurrentProcess(), NULL, 0);
+
+//
+// 如果挂起了线程, 那么还需要重新恢复线程运行
+//
+if (Suspended)
+{
+	DbgkpResumeProcess();
+}
+return Status;
+</code></pre>
+<p>}</p>
+<p>NTSTATUS
+NTAPI
+DbgkpQueueMessage(IN PEPROCESS Process,
+IN PETHREAD Thread,
+IN PDBGKM_MSG Message,
+IN ULONG Flags,
+IN PDEBUG_OBJECT TargetObject OPTIONAL)
+{
+PDEBUG_EVENT DebugEvent;
+DEBUG_EVENT LocalDebugEvent;
+PDEBUG_OBJECT DebugObject;
+NTSTATUS Status;
+BOOLEAN NewEvent;
+PAGED_CODE();</p>
+<pre><code>//
+// 检测是否需要分配调试事件句柄, 根据调试, 从来就没有进来过. 忽略
+//
+NewEvent = (Flags &amp; DEBUG\_EVENT\_NOWAIT) ? TRUE : FALSE;
+if (NewEvent)
+{
+    /\* Allocate it \*/
+    DebugEvent = ExAllocatePoolWithTag(NonPagedPool,
+                                       sizeof(DEBUG\_EVENT),
+                                       'EgbD');
+    if (!DebugEvent) return STATUS\_INSUFFICIENT\_RESOURCES;
+
+    /\* Set flags \*/
+    DebugEvent-&gt;Flags = Flags | DEBUG\_EVENT\_INACTIVE;
+
+    /\* Reference the thread and process \*/
+    ObReferenceObject(Thread);
+    ObReferenceObject(Process);
+
+    /\* Set the current thread \*/
+    DebugEvent-&gt;BackoutThread = PsGetCurrentThread();
+
+    /\* Set the debug object \*/
+    DebugObject = TargetObject;
+}
+else
+{
+    /\* Use the debug event on the stack \*/
+    DebugEvent = &amp;LocalDebugEvent;
+    DebugEvent-&gt;Flags = Flags;
+
+	//
+    // 获取调试消息发送自旋锁
+    //
+    ExAcquireFastMutex(&amp;DbgkpProcessDebugPortMutex);
+
+   	// 调试对象
+    DebugObject = Process-&gt;DebugPort;
+
+	//
+   	// 这里检测是否要跳过某些消息, 显然是没有什么用的.
+   	//
+    switch (Message-&gt;ApiNumber)
+    {
+        /\* Process or thread creation \*/
+        case DbgKmCreateThreadApi:
+        case DbgKmCreateProcessApi:
+
+            /\* Make sure we're not skipping creation messages \*/
+            if (Thread-&gt;SkipCreationMsg) DebugObject = NULL;
+            break;
+
+        /\* Process or thread exit \*/
+        case DbgKmExitThreadApi:
+        case DbgKmExitProcessApi:
+
+            /\* Make sure we're not skipping exit messages \*/
+            if (Thread-&gt;SkipTerminationMsg) DebugObject = NULL;
+
+        /\* No special handling for other messages \*/
+        default:
+            break;
+    }
+}
+
+//
+// 初始化调试信息发送完成事件
+//
+KeInitializeEvent(&amp;DebugEvent-&gt;ContinueEvent, SynchronizationEvent, FALSE);
+DebugEvent-&gt;Process = Process;
+DebugEvent-&gt;Thread = Thread;
+DebugEvent-&gt;ApiMsg = \*Message;
+DebugEvent-&gt;ClientId = Thread-&gt;Cid;
+
+//
+// 检测调试端口是否正常
+//
+if (!DebugObject)
+{
+    /\* Fail \*/
+    Status = STATUS\_PORT\_NOT\_SET;
+}
+else
+{
+	//
+    // 这是进程内调试对象获取的自旋锁
+    //
+    ExAcquireFastMutex(&amp;DebugObject-&gt;Mutex);
+
+	//
+    // 检测调试器目前是否激活
+    //
+    if (!DebugObject-&gt;DebuggerInactive)
+    {
+    	//
+       	// 插入进程的调试端口事件链表
+       	//
+        InsertTailList(&amp;DebugObject-&gt;EventList, &amp;DebugEvent-&gt;EventList);
+
+		//
+        // 事件置位, 这是干什么用的事件呢?
+        //
+        if (!NewEvent)
+        {
+            /\* Signal it \*/
+            KeSetEvent(&amp;DebugObject-&gt;EventsPresent,
+                       IO\_NO\_INCREMENT,
+                       FALSE);
+        }
+
+        /\* Set success \*/
+        Status = STATUS\_SUCCESS;
+    }
+    else
+    {
+    	//
+        // 没有调试
+        //
+        Status = STATUS\_DEBUGGER\_INACTIVE;
+    }
+
+    /\* Release the object lock \*/
+    ExReleaseFastMutex(&amp;DebugObject-&gt;Mutex);
+}
+
+/\* Check if we had acquired the port lock \*/
+if (!NewEvent)
+{
+	//
+    // 这里释放快速互斥锁
+    //
+    ExReleaseFastMutex(&amp;DbgkpProcessDebugPortMutex);
+
+    /\* Check if we got here through success \*/
+    if (NT\_SUCCESS(Status))
+    {
+    	//
+       	// 等待R3那边过来取消息
+       	//
+        KeWaitForSingleObject(&amp;DebugEvent-&gt;ContinueEvent,
+                              Executive,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+
+        /\* Copy API Message back \*/
+        \*Message = DebugEvent-&gt;ApiMsg;
+
+        /\* Set return status \*/
+        Status = DebugEvent-&gt;Status;
+    }
+}
+else
+{
+    /\* Check if we failed \*/
+    if (!NT\_SUCCESS(Status))
+    {
+        /\* Dereference the process and thread \*/
+        ObDereferenceObject(Thread);
+        ObDereferenceObject(Process);
+
+        /\* Free the debug event \*/
+        ExFreePool(DebugEvent);
+    }
+}
+
+return Status;
+</code></pre>
+<p>}</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2012-11-27
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/kifastcallentry-kiserviceexit/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">KiFastCallEntry KiServiceExit</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/dbgkexitthread-dbgkexitprocess/">
+            <span class="next-text nav-default">DbgkExitThread, DbgkExitProcess</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Android Linux内核编译调试 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="对于在Windows上写代码写习惯的人,调试是必不可少的手段,但是转到Android以后,发现调试手段异常简陋,跟Windows简直不是一个" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/android-linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91%E8%B0%83%E8%AF%95/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Android Linux内核编译调试" />
+<meta property="og:description" content="对于在Windows上写代码写习惯的人,调试是必不可少的手段,但是转到Android以后,发现调试手段异常简陋,跟Windows简直不是一个" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/android-linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91%E8%B0%83%E8%AF%95/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2014-09-27T00:00:00+00:00" />
+<meta property="article:modified_time" content="2014-09-27T00:00:00+00:00" />
+
+<meta itemprop="name" content="Android Linux内核编译调试">
+<meta itemprop="description" content="对于在Windows上写代码写习惯的人,调试是必不可少的手段,但是转到Android以后,发现调试手段异常简陋,跟Windows简直不是一个"><meta itemprop="datePublished" content="2014-09-27T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2014-09-27T00:00:00+00:00" />
+<meta itemprop="wordCount" content="3439">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Android Linux内核编译调试"/>
+<meta name="twitter:description" content="对于在Windows上写代码写习惯的人,调试是必不可少的手段,但是转到Android以后,发现调试手段异常简陋,跟Windows简直不是一个"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Android Linux内核编译调试</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2014-09-27 </span>
+        <div class="post-category">
+            <a href="/categories/android/"> android </a>
+            </div>
+          <span class="more-meta"> 约 3439 字 </span>
+          <span class="more-meta"> 预计阅读 7 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>对于在Windows上写代码写习惯的人,调试是必不可少的手段,但是转到Android以后,发现调试手段异常简陋,跟Windows简直不是一个级别,特别是Android的内核调试,网上资料也相对较少,不过通过一段时间的倒腾,我终于找到了还算靠谱的调试方法.就是利用Emulator + Eclipse进行Android Linux内核调试.</p>
+<p>1.系统预装环境</p>
+<p>在目前为止,都是使用的最新版本的Android开发环境</p>
+<p>Ubuntu 14.04</p>
+<p>Android SDK( adt-bundle-linux-x86_64-20140702 )</p>
+<p>Android NDK( android-ndk32-r10b-linux-x86_64 )</p>
+<p>安装好这几个环境以后,设置一下环境变量</p>
+<p>export PATH=$PATH:ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.6/prebuilt/linux-x86_64/bin</p>
+<p>ANDROID_NDK_HOME键值为Android NDK安装目录,设置这个环境变量的目的主要是为了使用gcc 4.6版本编译linux内核.</p>
+<p>export PATH=$PATH:ANDROID_SDK_HOME/sdk/tools</p>
+<p>ANDROID_SDK_HOME是Android SDK的安装目录,设置这个环境变量的目的是方便使用emulator命令!</p>
+<p>万事具备.使用前面安装的Android SDK创建一个虚拟的设备.并且确保 emulator -avd Device_Test这条命令可以启动Android 模拟器.先热身下.</p>
+<p><img src="images/57EB1021F59CD9EB930D052193FFBD6714A7060B.png" alt=""></p>
+<p>2.Android Linux内核编译</p>
+<p>2.1 下载GoldFish 源码</p>
+<p>mkdir kernel</p>
+<p>cd kernel</p>
+<p>git clone http://android.googlesource.com/kernel/goldfish.git</p>
+<p>GoldFish是适配模拟器的内核源码,如果是要具体适配其他机型,请选择其他源码,这边不展开了,详情参考链接有说明. 如果失败了,换https.我换https是因为使用了代理,现在google被墙,不使用代理搞不动!</p>
+<p>git clone https://android.googlesource.com/kernel/goldfish.git</p>
+<p><img src="images/91EBBB45C42B10BF3E01F0ADCC0E95A3308D8BF2.png" alt=""></p>
+<p>下载过程看你的代理速度了,而且不能中断.中断了就要重新来,特别的麻烦和恶心!所以我上传了一份到百度云. 和上面goldfish出来的一样.可以考虑去下载</p>
+<p><a href="http://pan.baidu.com/s/1i3yzhbv">http://pan.baidu.com/s/1i3yzhbv</a></p>
+<p>下载或者解压完成以后会在kernel目录下会生成一个goldfish文件夹,进入此目录.查看所有分支</p>
+<p><img src="images/2A9D2B31588CF932926EDBB97E16B606C89F4ABF.png" alt=""></p>
+<p>可以看到, 有很多的版本, 2.6.29和3.4我都测试过. 编译和运行没有任何问题. 所以这边我们拉2.6.29的源码</p>
+<p>git checkout remotes/origin/android-goldfish-2.6.29</p>
+<p><img src="images/488E79B6F6D4C052796A7DF3B46DFA05051CDFAB.png" alt=""></p>
+<p>然后目录下就有很多文件了,说明Android Linux的源码下载成功!</p>
+<p><img src="images/96DB22911050DBEA2F6D0303B01215C1AA5DB36A.png" alt=""></p>
+<p>3.2 编译GoldFish 源码</p>
+<p>编译源码之前,请确认已经将NDK的编译工具设置到环境变量中.我们将使用上述这个目录下的<a href="http://www.so.com/s?q=%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E5%99%A8&amp;ie=utf-8&amp;src=se_lighten_f">交叉编译器</a>arm-linux-androideabi-gcc</p>
+<p>export PATH=$PATH:ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.6/prebuilt/linux-x86_64/bin</p>
+<p>然后在glodfish目录下用gedit打开<a href="http://www.so.com/s?q=Makefile%E6%96%87%E4%BB%B6&amp;ie=utf-8&amp;src=se_lighten_f">Makefile文件</a>,找到这两行文字:</p>
+<p>#ARCH ?= $(SUBARCH)</p>
+<p>#CROSS_COMPILE ?=</p>
+<p>修改成</p>
+<p>ARCH ?= arm</p>
+<p>CROSS_COMPILE ?= arm-linux-androideabi-</p>
+<p><img src="images/F9D24B1AE16F13DD860529C9F1AAC17D496BB04C.png" alt=""></p>
+<p>保存文件, 然后</p>
+<p>make goldfish_armv7_defconfig</p>
+<p><img src="images/1092FFFDC5E2265FBC77A13344C56AE2F3D264AF.png" alt=""></p>
+<p>注:用$make goldfish_defconfig这样配置也可以编译通过,模拟器也可以启动,但是Android的开机画机就显示不了,$adb shell也死活连不上,原因就是这个goldfish_defconfig这个配置文件问题.</p>
+<p>Android Linux的基本编译就设置完成了.我们先make 一下</p>
+<p>make</p>
+<p><img src="images/D4E267FA412BE8C5825244BDBDF728822D3C32E9.png" alt=""></p>
+<p>这就表示编译成功了,Linux的源码是Linux上少有的一键make过去的软件,比编译其他Linux应用简单不少.当然到这里编译出来的这个zImage已经可以运行了,但是离我们用来做调试的还是有差距.我们还要开启内核调试和关闭优化.</p>
+<p>3.3 开启调试选项</p>
+<p>开启Linux内核的调试选项, 先安装依赖性</p>
+<p>sudo apt-get install ncurses-dev</p>
+<p>然后</p>
+<p>make menuconfig</p>
+<p><img src="images/94B9E26B7171DB1C8B34015A6837B6911A86EC6A.png" alt=""></p>
+<p>进入内核配置界面,勾选下列选项,同时关闭优化</p>
+<p>General setup —&gt;</p>
+<p>[ ] Optimize for size，进行开启/关闭</p>
+<p>[*] Kernel hacking</p>
+<p>[*] Compile the kernel with debug info</p>
+<p>[*] KGDB: kernel debugging with remote gdb &mdash;&gt;</p>
+<p>[*] Enable dynamic printk() call support</p>
+<p>关闭Linux内核优化比较麻烦.我通过和朋友讨论,以及网络搜索还没有找到很好的解决办法,原因是默认的Linux内核编译是开启-O2优化的,这种模式之下会造成gdb和实际的源码对不上,相信使用过windbg调试-O2的朋友都有这个经历,所以我们需要关闭Linux的-O2,不过目前还没有很好的解决办法下面这篇文章讨论的解决办法是.针对文件进行关闭优化.下面这两篇文章的讨论都非常有意义:</p>
+<p><a href="http://www.lenky.info/archives/2013/03/2238">http://www.lenky.info/archives/2013/03/2238</a></p>
+<p><a href="http://www.ibm.com/developerworks/cn/linux/l-kdb/">http://www.ibm.com/developerworks/cn/linux/l-kdb/</a></p>
+<p>这边我们将-Os 和-O2都调成-O.针对具体文件关闭优化,这边就不搞了.具体到自己的调试任务的时候再看.</p>
+<p><img src="images/8268DB88D51D1D56F9BF7336FB54501CDA6C7273.png" alt=""></p>
+<p>再进行编译,</p>
+<p>make -B</p>
+<p>选项-B以强制所有内核源文件全部重新编译(因为我前面编译过一次了,为了保险起见,就让目标文件全部重新生成吧)当出现这个画面,就表示编译成功了</p>
+<p><img src="images/F4EFED8E86032619D078A7FD0EC6EB12A5450787.png" alt=""></p>
+<p>4.Android Linux内核调试</p>
+<p>使用emulator 启动我们编译的内核试试</p>
+<p>emulator -verbose -show-kernel -kernel ~/kernel/goldfish/arch/arm/boot/zImage -avd Device_Test</p>
+<p><img src="images/21974B47FFE151588E52CB3A7336261FF6BF069D.png" alt=""></p>
+<p>没错, 启动的就是我们的内核2.6.29 时间也对的上.说明我们编译的内核是可以运行的.下一步使用这条命令</p>
+<p>emulator -verbose -show-kernel -kernel -netfast ~/kernel/goldfish/arch/arm/boot/zImage -avd Device_Test -qemu -gdb tcp::1234,ipv4, -S</p>
+<p>这条命令会在tcp端口的1234监听.加了-S还会暂停下来,等待着gdb链接上来.这时候我们开启NDK目录下面的gdb.链上去然后</p>
+<p>target remote localhost:1234</p>
+<p><img src="images/BBA04B5A12D5CE44384B718B9A4F831B7FD121F7.png" alt=""></p>
+<p>还可以测试几条命令, 看看源码是否跟上了.</p>
+<p><img src="images/A6A2B020263E3E417C2DA98BDA872A145984C2C9.png" alt=""></p>
+<p>到这里为止,基本上是用gdb连上emulator 进行内核调试应该没问题了.但是仅仅到这里那离windbg的调试还是差好几条街.所以我们还是需要一个更好的调试方法.是用eclipse来作为调试的前端!</p>
+<p>5.Eclipse前端</p>
+<p>是用Eclipse作为前端的好处是,无论是在windows,在linux下面都没有问题.可以在一台windows的机器上,远程调试android内核.所以为了截图方便,我下面的操作都是在windows上弄的,在Linux上也是一样!当然要在windows上进行调试,首先要将上面的gold目录复制到windows的机器上,或者是共享给windows.这里就不展开了!</p>
+<p>运行Eclipse,点击菜单Help-&gt;Install New Software… 在弹出的对话框里点击Work with:后面的下拉按钮,选择Kepler – http://download.eclipse.org/releases/kepler</p>
+<p>不同的Eclipse版本选择不一样,与自己下载的版本一致一即可.然后在下面的选择框中将以下选项安装上</p>
+<p>Programming Languages</p>
+<p>C/C++ Autotools support</p>
+<p>C/C++ Visual C++ Support</p>
+<p>C/C++ Development Tools</p>
+<p>C/C++ Development Tools SDK</p>
+<p>Linux Tools</p>
+<p>GDB Tracepoint Analysis</p>
+<p>Mobile and Device Development</p>
+<p>C/C++ GDB Hardware Debugging</p>
+<p>安装好后自动重启Eclipse即可.再配置点击菜单Window -&gt; Preferences在弹出的对话框中,点击左边的General-&gt;Workspace将右边的Build automatically复选框不选中.</p>
+<p>再点击对话框左边的C/C++-&gt;Indexer,将右边的Enable indexer和Automatically update the index两复选框不选中.</p>
+<p>接下来就简单了.创建一个工程,点击菜单File-&gt;New-&gt;Project…在弹出的对话框中选择C/C++-&gt;C Project再点击Next &gt;按钮</p>
+<p><img src="images/578AA051F5795958CE5B3C1BEC880DF16C3CBC11.png" alt=""><img src="images/90FD57BC24C13364D3EA4F9F4B1A97591EB19971.png" alt=""></p>
+<p>其中Project name:为工程名,可自定义.而Location:则为工程文件所在路径,此处设置为我们下载的源码路径而Project type:则设置为Makefile project/Empty Project, Toolchains:则设置为Linux GCC,如果是windows设置成Android GCC最后点击Finish即可.</p>
+<p>接下来Windows和Linux都一样,进行DEBUG配置,在Project Explorer里右击刚创建的Linux_Kernel项目,在右键菜单中点击Debug As-&gt;Debug Configurations…在弹出的对话框中双击GDB Hardware Debugging 然后配置调试选项如下图</p>
+<p><img src="images/D10C415DD25E33645413ABA5B448097907658264.png" alt=""></p>
+<p>将C/C++ Application:栏设置为Linux Kernel源码编译出来的vmlinux文件所在路径(包含文件名),然后将Disable auto build选上,切换到Debugger页,修改配置如下截图.</p>
+<p><img src="images/934B82A13A481BF4530D58AE919FBB151B5CBE46.png" alt=""></p>
+<p>这里是设置gdb的路径还有远程地址和端口. Gdb的路径在ndk安装目录下的如下路径</p>
+<p>\toolchains\arm-linux-androideabi-4.6\prebuilt\windows-x86_64\bin</p>
+<p>远程地址,我的ubuntu机器是192.168.1.2这个随机应变即可.端口是我们运行emulator命令定义的端口.搞定这个切换到Startup页面</p>
+<p><img src="images/C14F4339A2579D6F9D4E12793700CCCDA144C9B2.png" alt=""></p>
+<p>将Reset and Delay(seconds)和 Halt 还有Load image复选框的勾都去掉.然后点击Debug,这时候就停在第一条指令了</p>
+<p><img src="images/2F0296358C816A6DC1403AC76D2684939D5061E6.png" alt=""></p>
+<p>这时候还不能按F5, F6单步.我们在Execut窗口指定到main.c 然后在 start_kernel上下个断点也可以再Console窗口敲命令break start_kernel. 然后敲入命令C.</p>
+<p><img src="images/E3803C04CB88FB4F5C5D84D9A44D60DF5D01845A.png" alt=""></p>
+<p>这时候就停在了Linux内核的入口函数start_kernel.也可以使用F5,F6了.寄存器显示各方面都可以了.如果在Windows上,有一个毛病,源文件都要自己重新指定路径.不然认不到. 默认都是编译路径/home/xxx什么的.要重新指定成Windows的盘符形式.不过在Linux上调试就没有这个问题了!</p>
+<p><img src="images/60A7E3105AD8B2EEF852FFB8813970806C3B2E5D.png" alt=""></p>
+<p>这个调试差不多是搞起走了.如果是分析Android的源码,看一看跟一下还是很不错的.不过还是有一个问题没有解决,关于汇编和符号不对应的问题.大家可以群策群力搞一下!</p>
+<p>参考链接:</p>
+<p><a href="http://wenku.baidu.com/view/95c69448e518964bcf847c2f.html">http://wenku.baidu.com/view/95c69448e518964bcf847c2f.html</a></p>
+<p><a href="http://blog.csdn.net/flydream0/article/details/7070392">http://blog.csdn.net/flydream0/article/details/7070392</a></p>
+<p><a href="http://www.lenky.info/archives/2013/03/2238">http://www.lenky.info/archives/2013/03/2238</a></p>
+<p><a href="http://blog.csdn.net/liushuaikobe/article/details/8646555">http://blog.csdn.net/liushuaikobe/article/details/8646555</a></p>
+<p><a href="http://x-slam.com/da_jian_eclipse_qemu_gdb_diao_shi_linux_kernel_huan_jing">http://x-slam.com/da_jian_eclipse_qemu_gdb_diao_shi_linux_kernel_huan_jing</a></p>
+<p><a href="http://sns.juziyue.com/webinvite.php?u=90714"><img src="images/WebStoryLogo20.png" alt="菊子曰"></a> <a href="http://sns.juziyue.com/webinvite.php?u=90714">菊子曰</a>：专业的<a href="http://sns.juziyue.com">博客管理软件</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2014-09-27
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/windows-crashdump/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Windows CrashDump</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/android-%E5%88%B7%E6%9C%BA/">
+            <span class="next-text nav-default">android 刷机</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

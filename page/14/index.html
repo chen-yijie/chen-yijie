@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="忆杰博客、主要研究关注方向软件逆向、调试、反调试、驱动开发、应用开发、内核开发、VT技术、硬件虚拟化" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/" />
+  <link href="https://xchen.com/index.xml" rel="alternate" type="application/rss+xml" title="忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化" />
+  <link href="https://xchen.com/index.xml" rel="feed" type="application/rss+xml" title="忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化" />
+<meta property="og:description" content="忆杰博客、主要研究关注方向软件逆向、调试、反调试、驱动开发、应用开发、内核开发、VT技术、硬件虚拟化" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://xchen.com/" />
+
+<meta itemprop="name" content="忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化">
+<meta itemprop="description" content="忆杰博客、主要研究关注方向软件逆向、调试、反调试、驱动开发、应用开发、内核开发、VT技术、硬件虚拟化"><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化"/>
+<meta name="twitter:description" content="忆杰博客、主要研究关注方向软件逆向、调试、反调试、驱动开发、应用开发、内核开发、VT技术、硬件虚拟化"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <section id="posts" class="posts">
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title"><a class="post-link" href="/post/%E8%84%B1%E4%B8%80%E4%BA%9B%E7%AE%80%E5%8D%95%E7%9A%84%E5%8E%8B%E7%BC%A9%E5%A3%B3/">脱一些简单的压缩壳</a></h1>
+    <div class="post-meta">
+      <span class="post-time"> 2012-09-06 </span>
+      <div class="post-category">
+          <a href="/categories/%E9%80%86%E5%90%91%E8%84%B1%E5%A3%B3/"> 逆向脱壳 </a>
+          </div>
+        <span class="more-meta"> 约 1274 字 </span>
+        <span class="more-meta"> 预计阅读 3 分钟 </span>
+    </div>
+  </header>
+  
+  <div class="post-content">
+    <div class="post-summary">
+      脱一些简单的压缩壳. 首先看看一个壳的基本流程 1:保存入口参数, 一般都有这一步了 2:获取外壳所需的地址, 比如LoadLibrary, GetProcAddress 3:解密
+    </div>
+    <div class="read-more">
+      <a href="/post/%E8%84%B1%E4%B8%80%E4%BA%9B%E7%AE%80%E5%8D%95%E7%9A%84%E5%8E%8B%E7%BC%A9%E5%A3%B3/" class="read-more-link">阅读更多</a>
+    </div>
+  </div>
+</article>
+
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title"><a class="post-link" href="/post/%E5%90%84%E7%A7%8D%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%8C%89%E9%92%AE%E4%BA%8B%E4%BB%B6/">各种程序的按钮事件</a></h1>
+    <div class="post-meta">
+      <span class="post-time"> 2012-08-31 </span>
+      <div class="post-category">
+          <a href="/categories/%E9%80%86%E5%90%91%E8%84%B1%E5%A3%B3/"> 逆向脱壳 </a>
+          </div>
+        <span class="more-meta"> 约 361 字 </span>
+        <span class="more-meta"> 预计阅读 1 分钟 </span>
+    </div>
+  </header>
+  
+  <div class="post-content">
+    <div class="post-summary">
+      按钮事件找法 MFC程序: 方法1: OD命令：bp TranslateMessage MSG==WM_LBUTTONUP 点击按钮以后就断在CALL 到 TranslateMessage函数. 这时候按Ctrl+F9执
+    </div>
+    <div class="read-more">
+      <a href="/post/%E5%90%84%E7%A7%8D%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%8C%89%E9%92%AE%E4%BA%8B%E4%BB%B6/" class="read-more-link">阅读更多</a>
+    </div>
+  </div>
+</article>
+
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title"><a class="post-link" href="/post/%E5%86%92%E4%B8%AA%E6%B3%A1/">冒个泡</a></h1>
+    <div class="post-meta">
+      <span class="post-time"> 2012-07-12 </span>
+      <div class="post-category">
+          <a href="/categories/nothing/"> nothing </a>
+          </div>
+        <span class="more-meta"> 约 1510 字 </span>
+        <span class="more-meta"> 预计阅读 4 分钟 </span>
+    </div>
+  </header>
+  
+  <div class="post-content">
+    <div class="post-summary">
+      确实很久没有写blog了.. 前一段时间主要是忙, 另外一个确实也没有什么好写的, 我发现人一旦懒惰, 就会在越来越懒, 如果勤奋也会越来越勤奋, 而我
+    </div>
+    <div class="read-more">
+      <a href="/post/%E5%86%92%E4%B8%AA%E6%B3%A1/" class="read-more-link">阅读更多</a>
+    </div>
+  </div>
+</article>
+
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title"><a class="post-link" href="/post/%E8%99%9A%E6%8B%9F%E7%A3%81%E7%9B%98%E5%85%89%E9%A9%B1filedisk/">虚拟磁盘光驱(FileDisk)</a></h1>
+    <div class="post-meta">
+      <span class="post-time"> 2011-12-03 </span>
+      <div class="post-category">
+          <a href="/categories/%E6%AF%94%E8%BE%83%E7%BB%99%E5%8A%9B%E7%9A%84%E5%86%85%E6%A0%B8%E7%A8%8B%E5%BA%8F/"> 比较给力的内核程序 </a>
+          </div>
+        <span class="more-meta"> 约 1017 字 </span>
+        <span class="more-meta"> 预计阅读 3 分钟 </span>
+    </div>
+  </header>
+  
+  <div class="post-content">
+    <div class="post-summary">
+      这几天总算把这个开源的FileDisk给分析完了. 分析完以后收获不少, 有些经验了. 其实对于前面写的那个中断无法和R3进行交互的问题, 我们可以
+    </div>
+    <div class="read-more">
+      <a href="/post/%E8%99%9A%E6%8B%9F%E7%A3%81%E7%9B%98%E5%85%89%E9%A9%B1filedisk/" class="read-more-link">阅读更多</a>
+    </div>
+  </div>
+</article>
+
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title"><a class="post-link" href="/post/wdf%E8%99%9A%E6%8B%9F%E7%A3%81%E7%9B%98%E9%A9%B1%E5%8A%A8ramdisk/">WDF虚拟磁盘驱动(RamDisk)</a></h1>
+    <div class="post-meta">
+      <span class="post-time"> 2011-11-29 </span>
+      <div class="post-category">
+          <a href="/categories/%E6%AF%94%E8%BE%83%E7%BB%99%E5%8A%9B%E7%9A%84%E5%86%85%E6%A0%B8%E7%A8%8B%E5%BA%8F/"> 比较给力的内核程序 </a>
+          </div>
+        <span class="more-meta"> 约 7054 字 </span>
+        <span class="more-meta"> 预计阅读 15 分钟 </span>
+    </div>
+  </header>
+  
+  <div class="post-content">
+    <div class="post-summary">
+      这是寒江独钓里面第5章的例子了, 分析自DDK中的RamDisk驱动. 具体来说没有太大的用处, 只是对WDF驱动的套路有个了解吧, 但是这个WDF
+    </div>
+    <div class="read-more">
+      <a href="/post/wdf%E8%99%9A%E6%8B%9F%E7%A3%81%E7%9B%98%E9%A9%B1%E5%8A%A8ramdisk/" class="read-more-link">阅读更多</a>
+    </div>
+  </div>
+</article>
+
+    </section>
+  
+  <nav class="pagination">
+    <a class="prev" href="/page/13/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">上一页</span>
+      </a>
+    <a class="next" href="/page/15/">
+        <span class="next-text">下一页</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+  </nav>
+        </div>
+        
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

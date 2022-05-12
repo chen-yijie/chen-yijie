@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Themida脱壳2(IAT填写代码分析) - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="今天下午本来兴奋的以为可以拿那个Themida的壳来实验实验Oreans UnVirtualizer. 结果发现还是掉链子啊, 这个工具还是不行. 绝对的不行.还是老实一点," /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/themida%E8%84%B1%E5%A3%B32iat%E5%A1%AB%E5%86%99%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-2/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Themida脱壳2(IAT填写代码分析)" />
+<meta property="og:description" content="今天下午本来兴奋的以为可以拿那个Themida的壳来实验实验Oreans UnVirtualizer. 结果发现还是掉链子啊, 这个工具还是不行. 绝对的不行.还是老实一点," />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/themida%E8%84%B1%E5%A3%B32iat%E5%A1%AB%E5%86%99%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-2/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2012-09-13T00:00:00+00:00" />
+<meta property="article:modified_time" content="2012-09-13T00:00:00+00:00" />
+
+<meta itemprop="name" content="Themida脱壳2(IAT填写代码分析)">
+<meta itemprop="description" content="今天下午本来兴奋的以为可以拿那个Themida的壳来实验实验Oreans UnVirtualizer. 结果发现还是掉链子啊, 这个工具还是不行. 绝对的不行.还是老实一点,"><meta itemprop="datePublished" content="2012-09-13T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2012-09-13T00:00:00+00:00" />
+<meta itemprop="wordCount" content="3676">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Themida脱壳2(IAT填写代码分析)"/>
+<meta name="twitter:description" content="今天下午本来兴奋的以为可以拿那个Themida的壳来实验实验Oreans UnVirtualizer. 结果发现还是掉链子啊, 这个工具还是不行. 绝对的不行.还是老实一点,"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Themida脱壳2(IAT填写代码分析)</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2012-09-13 </span>
+        <div class="post-category">
+            <a href="/categories/%E9%80%86%E5%90%91%E8%84%B1%E5%A3%B3/"> 逆向脱壳 </a>
+            </div>
+          <span class="more-meta"> 约 3676 字 </span>
+          <span class="more-meta"> 预计阅读 8 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>今天下午本来兴奋的以为可以拿那个Themida的壳来实验实验Oreans UnVirtualizer. 结果发现还是掉链子啊, 这个工具还是不行. 绝对的不行.还是老实一点, 自己慢慢倒腾吧..</p>
+<p>接着中午的弄, 中午搞到IAT表了. 下面就是分析IAT处理的代码了. 首先是这里.</p>
+<p>0069997D    68 6969728E     push    8E726969
+00699982    FFB5 DD1C1B07   push    dword ptr [ebp+71B1CDD]
+00699988    8D85 F2361B07   lea     eax, dword ptr [ebp+71B36F2]
+0069998E    FFD0            call    eax                                         ; 获取一系列的需要的函数地址.. 外壳使用</p>
+<p>的
+00699990    8985 7D291B07   mov     dword ptr [ebp+71B297D], eax                ; kernel32.ExitProcess
+00699996    C685 392E1B07 4&gt;mov     byte ptr [ebp+71B2E39], 43
+0069999D    68 5E6B679C     push    9C676B5E
+006999A2    FFB5 DD1C1B07   push    dword ptr [ebp+71B1CDD]
+006999A8    8D85 F2361B07   lea     eax, dword ptr [ebp+71B36F2]
+006999AE    FFD0            call    eax
+006999B0    8985 A6D32C07   mov     dword ptr [ebp+72CD3A6], eax                ; kernel32.CreateThread
+006999B6    C685 392E1B07 5&gt;mov     byte ptr [ebp+71B2E39], 54
+006999BD    68 296862EE     push    EE626829
+006999C2    FFB5 DD1C1B07   push    dword ptr [ebp+71B1CDD]
+006999C8    8D85 F2361B07   lea     eax, dword ptr [ebp+71B36F2]
+006999CE    FFD0            call    eax
+006999D0    8985 AAD32C07   mov     dword ptr [ebp+72CD3AA], eax                ; kernel32.TerminateThread</p>
+<p>这里是获取外壳所需函数阶段, 大部分都是获取的真实的函数地址. 当然也有一些获取的是重定位内核里面的函数地址, 比如VirtualFree.函数的种类也很丰富, 有打开文件一类的, 查找文件, 复制文件, 还有内存操作的函数.. 函数获取完了就是下面的动作了.</p>
+<p>0069A11C    8985 56D42C07   mov     dword ptr [ebp+72CD456], eax                ; 处理IAT开始了感觉好像是加密
+0069A122    6A 04           push    4
+0069A124    68 00100000     push    1000
+0069A129    68 00100000     push    1000
+0069A12E    6A 00           push    0
+0069A130    FF95 111C1B07   call    dword ptr [ebp+71B1C11]                     ; VirtualAlloc
+0069A136    8985 49041B07   mov     dword ptr [ebp+71B0449], eax
+0069A13C    8D85 CE9C2C07   lea     eax, dword ptr [ebp+72C9CCE]
+0069A142    FFD0            call    eax
+0069A144    6A 04           push    4
+0069A146    68 00100000     push    1000
+0069A14B    68 00200000     push    2000
+0069A150    6A 00           push    0
+0069A152    FF95 111C1B07   call    dword ptr [ebp+71B1C11]                     ; VirtualAlloc
+0069A158    8985 C90D1B07   mov     dword ptr [ebp+71B0DC9], eax
+0069A15E    8985 F1151B07   mov     dword ptr [ebp+71B15F1], eax
+0069A164    6A 40           push    40
+0069A166    68 00100000     push    1000
+0069A16B    68 00000100     push    10000
+0069A170    6A 00           push    0
+0069A172    FF95 111C1B07   call    dword ptr [ebp+71B1C11]                     ; VirtualAlloc
+0069A178    8985 41201B07   mov     dword ptr [ebp+71B2041], eax</p>
+<p>这里申请了3块内存, 这3块内存的作用下面有讲到</p>
+<p>0069A17E    8BB5 952A1B07   mov     esi, dword ptr [ebp+71B2A95]                ; 这句代码非常重要esi&ndash;&gt;IAT加密表地址
+0069A184    8B9D 411D1B07   mov     ebx, dword ptr [ebp+71B1D41]
+0069A18A    89B5 95211B07   mov     dword ptr [ebp+71B2195], esi
+0069A190    899D ED0F1B07   mov     dword ptr [ebp+71B0FED], ebx                ; 这里指向所有DLL的模块基址
+0069A196    8B9D 411D1B07   mov     ebx, dword ptr [ebp+71B1D41]                ; 这里是获取IAT加密表的地址.. 准备开始</p>
+<p>处理IAT了
+0069A19C    8B0B            mov     ecx, dword ptr [ebx]                        ; 取某个DLL 模块基址
+0069A19E    83F9 00         cmp     ecx, 0
+0069A1A1    0F84 690A0000   je      delphi7_.0069AC10                           ; 输入表处理完成等于0后跳</p>
+<p>这里有几个关键的地方. esi&ndash;&gt;指向的就是上面加密出来的IAT加密表. ebx&ndash;&gt;里面是所有DLL的模块基址. 然后mov ecx, [ebx] 我们可以获取到某个DLL的模块基址, 接着一个一个处理, 直到为0. 处理完毕.</p>
+<p>0069A1A9    60              pushad
+0069A1AA    33C0            xor     eax, eax
+0069A1AC    8985 D9091B07   mov     dword ptr [ebp+71B09D9], eax
+0069A1B2    BE 3C000000     mov     esi, 3C
+0069A1B7    037424 20       add     esi, dword ptr [esp+20]
+0069A1BB    66:AD           lods    word ptr [esi]                              ; PE头到了
+0069A1BD    034424 20       add     eax, dword ptr [esp+20]
+0069A1C1    8B70 78         mov     esi, dword ptr [eax+78]                     ; 定位到PE的导出表RVA
+0069A1C4    037424 20       add     esi, dword ptr [esp+20]                     ; 导出表RVA+模块基址
+0069A1C8    8B7E 18         mov     edi, dword ptr [esi+18]                     ; NumberOfFunctions导出函数个数
+0069A1CB    89BD 691F1B07   mov     dword ptr [ebp+71B1F69], edi                ; edi == 导出函数数量
+0069A1D1    85FF            test    edi, edi</p>
+<p>这段代码是定位到某个DLL的导出表上面.</p>
+<p>0069A1EF    6A 04           push    4
+0069A1F1    68 00100000     push    1000
+0069A1F6    52              push    edx
+0069A1F7    6A 00           push    0
+0069A1F9    FF95 111C1B07   call    dword ptr [ebp+71B1C11]                     ; 重定位的VirtualAlloc函数
+0069A1FF    8985 511A1B07   mov     dword ptr [ebp+71B1A51], eax                ; 分配到内存
+0069A205    8BD0            mov     edx, eax
+0069A207    59              pop     ecx
+0069A208    E8 10100000     call    delphi7_.0069B21D                           ; 获取到导出表中的名称函数序号偏移
+0069A20D    56              push    esi
+0069A20E    AD              lods    dword ptr [esi]                             ; 这是函数的字符串名称
+0069A20F    034424 24       add     eax, dword ptr [esp+24]                     ; 到这里就已经得到了函数的真实地址
+0069A213    97              xchg    eax, edi
+0069A214    8BDF            mov     ebx, edi
+0069A216    57              push    edi
+0069A217    32C0            xor     al, al
+0069A219    AE              scas    byte ptr es:[edi]                           ; 求函数字符串的长度
+0069A21A  ^ 0F85 F9FFFFFF   jnz     delphi7_.0069A219
+0069A220    5E              pop     esi
+0069A221    2BFB            sub     edi, ebx
+0069A223    52              push    edx
+0069A224    8BD7            mov     edx, edi
+0069A226    8BBD 49041B07   mov     edi, dword ptr [ebp+71B0449]                ; edi = 前面申请的内存,存放解码用的数据表
+0069A22C    83C9 FF         or      ecx, FFFFFFFF
+0069A22F    33C0            xor     eax, eax
+0069A231    8A06            mov     al, byte ptr [esi]
+0069A233    32C1            xor     al, cl
+0069A235    46              inc     esi                                         ; 查表, 得到解码Key
+0069A236    8B0487          mov     eax, dword ptr [edi+eax*4]                  ; 求字符串的Hash码
+0069A239    C1E9 08         shr     ecx, 8
+0069A23C    33C8            xor     ecx, eax
+0069A23E    4A              dec     edx
+0069A23F  ^ 0F85 EAFFFFFF   jnz     delphi7_.0069A22F
+0069A245    8BC1            mov     eax, ecx
+0069A247    F7D0            not     eax
+0069A249    5A              pop     edx
+0069A24A    8902            mov     dword ptr [edx], eax                        ; 上面求出来的的 HASH保存起来
+0069A24C    83C2 04         add     edx, 4
+0069A24F    52              push    edx
+0069A250    FF85 D9091B07   inc     dword ptr [ebp+71B09D9]                     ; 已Hash的函数个数
+0069A256    8B95 D9091B07   mov     edx, dword ptr [ebp+71B09D9]
+0069A25C    3995 691F1B07   cmp     dword ptr [ebp+71B1F69], edx
+0069A262    0F84 0A000000   je      delphi7_.0069A272
+0069A268    5A              pop     edx
+0069A269    5E              pop     esi
+0069A26A    83C6 04         add     esi, 4
+0069A26D  ^ E9 9BFFFFFF     jmp     delphi7_.0069A20D
+0069A272    5A              pop     edx                                         ; 到这里一个DLL就处理完成了
+0069A273    5E              pop     esi                                         ; 感觉上面是加密IAT组建自己的加密IAT表..</p>
+<p>上面这段代码是将函数名称的Hash码都保存起来. 反正就是瞎倒腾, 也不知道倒腾出什么东西来.. 下面我们要修改代码, 但是不是这一段.</p>
+<p>0069A2BD    60              pushad
+0069A2BE    8DB5 82D42C07   lea     esi, dword ptr [ebp+72CD482]
+0069A2C4    8DBD 9AEF2C07   lea     edi, dword ptr [ebp+72CEF9A]
+0069A2CA    2BFE            sub     edi, esi
+0069A2CC    8BD7            mov     edx, edi
+0069A2CE    8BBD 49041B07   mov     edi, dword ptr [ebp+71B0449]
+0069A2D4    83C9 FF         or      ecx, FFFFFFFF
+0069A2D7    33C0            xor     eax, eax
+0069A2D9    8A06            mov     al, byte ptr [esi]
+0069A2DB    32C1            xor     al, cl
+0069A2DD    46              inc     esi
+0069A2DE    8B0487          mov     eax, dword ptr [edi+eax*4]
+0069A2E1    C1E9 08         shr     ecx, 8
+0069A2E4    33C8            xor     ecx, eax
+0069A2E6    4A              dec     edx                                         ; 难道这里是求CRC的代码?
+0069A2E7  ^ 0F85 EAFFFFFF   jnz     delphi7_.0069A2D7
+0069A2ED    8BC1            mov     eax, ecx
+0069A2EF    F7D0            not     eax
+0069A2F1    3985 49061B07   cmp     dword ptr [ebp+71B0649], eax
+0069A2F7    0F84 17000000   je      delphi7_.0069A314
+0069A2FD    83BD 85011B07 0&gt;cmp     dword ptr [ebp+71B0185], 0
+0069A304    0F85 0A000000   jnz     delphi7_.0069A314                           ; 自校验path位置1.. 改成jmp
+0069A30A    C785 31291B07 0&gt;mov     dword ptr [ebp+71B2931], 1</p>
+<p>这一段是关于自效验的判断. 我们当然可以随便就跳过了.. 所以这个是要path的位置1.. 其实看到这个代码我有种说不出的亲切. 这个肯定是用assembly写出来的, 而且是手工的. 看着非常的舒服. 我们可以很轻易的就定位到一小段代码的开始位置, 结束位置. 久违的汇编啊&hellip;. 完了之后给其他模块调用的, 我也写过..</p>
+<p>0069A315    B9 B6282501     mov     ecx, 12528B6                                ; 硬编码的解码Key1
+0069A31A    BA F9628A76     mov     edx, 768A62F9                               ; 硬编码的解码Key2
+0069A31F    AD              lods    dword ptr [esi]                             ; 这里是加载IAT加密表的第一个字段
+0069A320    89B5 95211B07   mov     dword ptr [ebp+71B2195], esi
+0069A326    C746 FC 0000000&gt;mov     dword ptr [esi-4], 0                        ; 取出来就清0, 好猥琐
+0069A32D    3D EEEEEEEE     cmp     eax, EEEEEEEE                               ; 结束符标记判断
+0069A332    0F85 20000000   jnz     delphi7_.0069A358
+0069A338    813E DDDDDDDD   cmp     dword ptr [esi], DDDDDDDD                   ; 结束标记判断
+0069A33E    0F85 14000000   jnz     delphi7_.0069A358
+0069A344    C706 00000000   mov     dword ptr [esi], 0                          ; 清零
+0069A34A    83C6 04         add     esi, 4</p>
+<p>0069A358    8BD8            mov     ebx, eax
+0069A35A    3385 31291B07   xor     eax, dword ptr [ebp+71B2931]
+0069A360    C1C8 03         ror     eax, 3
+0069A363    2BC2            sub     eax, edx
+0069A365    C1C0 10         rol     eax, 10
+0069A368    33C1            xor     eax, ecx
+0069A36A    899D 31291B07   mov     dword ptr [ebp+71B2931], ebx                ; 解密出第一个字段值
+0069A370    3D 00000100     cmp     eax, 10000
+0069A375    0F83 45000000   jnb     delphi7_.0069A3C0
+0069A37B    813E BBBBBBBB   cmp     dword ptr [esi], BBBBBBBB                   ; 结束标记判断
+0069A381    0F85 39000000   jnz     delphi7_.0069A3C0
+0069A387    C706 00000000   mov     dword ptr [esi], 0                          ; 清零
+0069A38D    83C6 04         add     esi, 4</p>
+<p>到这里开始就是正式的解码阶段了. 这里首先取出来IAT加密结构的第一个字段. 解密出来.. 现在我们手头上已经有了某个API函数的Hash值. 现在我们需要做的就是在加密表中根据HASH进行查找..</p>
+<p>0069A3C0    51              push    ecx
+0069A3C1    52              push    edx
+0069A3C2    33C9            xor     ecx, ecx
+0069A3C4    8B95 511A1B07   mov     edx, dword ptr [ebp+71B1A51]
+0069A3CA    3B02            cmp     eax, dword ptr [edx]                        ; 比较Hash值
+0069A3CC    0F84 38000000   je      delphi7_.0069A40A
+0069A3D2    83C2 04         add     edx, 4
+0069A3D5    41              inc     ecx
+0069A3D6    3B8D 691F1B07   cmp     ecx, dword ptr [ebp+71B1F69]
+0069A3DC  ^ 0F85 E8FFFFFF   jnz     delphi7_.0069A3CA                           ; 这里是根据Hash值进行查找, 我们可以使用下
+0069A3E2    8DB5 7BD32C07   lea     esi, dword ptr [ebp+72CD37B]
+0069A3E8    8DBD 8D221B07   lea     edi, dword ptr [ebp+71B228D]
+0069A3EE    AC              lods    byte ptr [esi]
+0069A3EF    84C0            test    al, al
+0069A3F1    0F84 06000000   je      delphi7_.0069A3FD
+0069A3F7    AA              stos    byte ptr es:[edi]
+0069A3F8  ^ E9 F1FFFFFF     jmp     delphi7_.0069A3EE
+0069A3FD    B8 07000000     mov     eax, 7
+0069A402    8D8D D04E1B07   lea     ecx, dword ptr [ebp+71B4ED0]
+0069A408    FFE1            jmp     ecx
+0069A40A    898D D9091B07   mov     dword ptr [ebp+71B09D9], ecx		 ; 这是IAT加密表中的下标
+0069A410    5A              pop     edx
+0069A411    59              pop     ecx</p>
+<p>这一段就是查找代码.. 查到到以后我们就在IAT加密表中定位到了函数的Hash值. mov [ebp+71B09D9], ecx里面保存的就是下标了.</p>
+<p>0069A412    56              push    esi
+0069A413    8B9D 411D1B07   mov     ebx, dword ptr [ebp+71B1D41]                ; DLL模块表
+0069A419    8B0B            mov     ecx, dword ptr [ebx]                        ; 取得模块基址
+0069A41B    8B85 D9091B07   mov     eax, dword ptr [ebp+71B09D9]
+0069A421    D1E0            shl     eax, 1                                      ; IAT加密表下标
+0069A423    0385 2D201B07   add     eax, dword ptr [ebp+71B202D]
+0069A429    33F6            xor     esi, esi
+0069A42B    96              xchg    eax, esi
+0069A42C    66:AD           lods    word ptr [esi]                              ; 在原始的DLL我们也是可以很容易定位到函数的真实地址.
+0069A42E    C1E0 02         shl     eax, 2
+0069A431    0385 452A1B07   add     eax, dword ptr [ebp+71B2A45]
+0069A437    96              xchg    eax, esi
+0069A438    AD              lods    dword ptr [esi]
+0069A439    03C1            add     eax, ecx                                    ; 到这里就根据第一个dword解密出API函数的地址了
+0069A43B    5E              pop     esi</p>
+<p>刚才我们不是加密了么? 又解密出来了, 并且获得了真实的API函数地址.</p>
+<p>0069A43C    83BD F91A1B07 0&gt;cmp     dword ptr [ebp+71B1AF9], 1
+0069A443    0F84 39000000   je      delphi7_.0069A482                           ; 判断是否是特殊DLL的特殊函数,是则加密.这里改jmp
+0069A449    3B8D DD1C1B07   cmp     ecx, dword ptr [ebp+71B1CDD]                ; 判断到底是哪个DLL, 一看就知道了. 有3个DLL
+0069A44F    0F84 2D000000   je      delphi7_.0069A482
+0069A455    3B8D 491C1B07   cmp     ecx, dword ptr [ebp+71B1C49]
+0069A45B    0F84 21000000   je      delphi7_.0069A482
+0069A461    3B8D 89291B07   cmp     ecx, dword ptr [ebp+71B2989]
+0069A467    0F84 15000000   je      delphi7_.0069A482
+0069A46D    8D9D CBE72C07   lea     ebx, dword ptr [ebp+72CE7CB]
+0069A473    FFD3            call    ebx                                         ; 这就是传说中的加密函数了
+0069A475    8BF8            mov     edi, eax
+0069A477    8985 DD261B07   mov     dword ptr [ebp+71B26DD], eax
+0069A47D    E9 3E060000     jmp     delphi7_.0069AAC0
+0069A482    8D9D CBE72C07   lea     ebx, dword ptr [ebp+72CE7CB]
+0069A488    FFD3            call    ebx                                         ; 这是干嘛的??</p>
+<p>这里是判断是否是kernel32.dll user32.dll 或者advapi32.dll中的一个.我们当然要跳过. 这样就可以不加密了. 呵呵. 现在我们要跳过的是两个地方..</p>
+<p>0069AAC6    AD              lods    dword ptr [esi]                             ; 这里取第IAT加密表的第2个dword
+0069AAC7    C746 FC 0000000&gt;mov     dword ptr [esi-4], 0                        ; 清零, 猥琐
+0069AACE    C1C0 05         rol     eax, 5                                      ; 第2个dword是解码出API写入IAT表地址
+0069AAD1    05 B6282501     add     eax, 12528B6                                ; 解码算法
+0069AAD6    0385 F5031B07   add     eax, dword ptr [ebp+71B03F5]
+0069AADC    8B8D DD261B07   mov     ecx, dword ptr [ebp+71B26DD]                ; eax == 要写入IAT表的地址.
+0069AAE2    8908            mov     dword ptr [eax], ecx                        ; Code断点的第2个阶段. 断在这里
+0069AAE4    AD              lods    dword ptr [esi]                             ; 这里取IAT表的第3个dword
+0069AAE5    C746 FC 0000000&gt;mov     dword ptr [esi-4], 0                        ; 清零
+0069AAEC    89B5 95211B07   mov     dword ptr [ebp+71B2195], esi                ; 第3个dword解码出调用这个API的地址
+0069AAF2    83F8 FF         cmp     eax, -1
+0069AAF5    0F85 20000000   jnz     delphi7_.0069AB1B
+0069AAFB    813E DDDDDDDD   cmp     dword ptr [esi], DDDDDDDD                   ; 是否是结束标记
+0069AB01    0F85 14000000   jnz     delphi7_.0069AB1B
+0069AB07    C706 00000000   mov     dword ptr [esi], 0
+0069AB0D    83C6 04         add     esi, 4
+0069AB10    89B5 95211B07   mov     dword ptr [ebp+71B2195], esi
+0069AB16  ^ E9 5CF7FFFF     jmp     delphi7_.0069A277
+0069AB1B    C1C0 03         rol     eax, 3
+0069AB1E    0385 F5031B07   add     eax, dword ptr [ebp+71B03F5]                ; 定位到调用API的地址
+0069AB24    83BD 59251B07 0&gt;cmp     dword ptr [ebp+71B2559], 1
+0069AB2B    0F84 9D000000   je      delphi7_.0069ABCE
+0069AB31    813E AAAAAAAA   cmp     dword ptr [esi], AAAAAAAA                   ; 判断是否是结束标记
+0069AB37    0F85 12000000   jnz     delphi7_.0069AB4F
+0069AB3D    83C6 04         add     esi, 4
+0069AB40    C746 FC 0000000&gt;mov     dword ptr [esi-4], 0                        ; 清零
+0069AB47    97              xchg    eax, edi
+0069AB48    B0 E9           mov     al, 0E9</p>
+<p>这里取出IAT表的第2个字段, 这个字段的作用是定位到调用API的地址..</p>
+<p>0069AB94    B0 90           mov     al, 90
+0069AB96    AA              stos    byte ptr es:[edi]                           ; 调用的地址首字节写90
+0069AB97    58              pop     eax
+0069AB98    AA              stos    byte ptr es:[edi]                           ; 写入E9
+0069AB99    E9 24000000     jmp     delphi7_.0069ABC2
+0069AB9E    58              pop     eax
+0069AB9F    AA              stos    byte ptr es:[edi]
+0069ABA0    807F FF E9      cmp     byte ptr [edi-1], 0E9
+0069ABA4    0F85 18000000   jnz     delphi7_.0069ABC2
+0069ABAA    83BD BED32C07 0&gt;cmp     dword ptr [ebp+72CD3BE], 0
+0069ABB1    0F84 08000000   je      delphi7_.0069ABBF
+0069ABB7    8D9D 7E1B2C07   lea     ebx, dword ptr [ebp+72C1B7E]
+0069ABBD    FFD3            call    ebx
+0069ABBF    8847 04         mov     byte ptr [edi+4], al
+0069ABC2    8B85 DD261B07   mov     eax, dword ptr [ebp+71B26DD]
+0069ABC8    2BC7            sub     eax, edi
+0069ABCA    83E8 04         sub     eax, 4
+0069ABCD    AB              stos    dword ptr es:[edi]                          ; 写入要跳转到的地址
+0069ABCE    AD              lods    dword ptr [esi]                             ; 又加载一个字节
+0069ABCF    C746 FC 0000000&gt;mov     dword ptr [esi-4], 0                        ; 清零.. 太猥琐了</p>
+<p>这里将调用API的地方改成E9 xxxx. 或者E8 xxxx 这个要看程序, 看原来的是ff15或者是ff25一类的..  当然中间还经历了一些偷取代码的过程, 总之是猥琐的很了. 这就不说了. 我们主要关注的是解密这3个dword的过程, 还有后面我们如何脱这个壳, 差不多就是这样了.. 还有其他其他的东西. 我还没有分析到.. 当然明白了作用,肯定不能自己一处一处的去patch代码. 还是用脚本吧, 用人家写的脚本的话, 也没有什么问题, 主要是能够自己知道如何修改脚本, 不然就是死了..差不多了. 刚才我也拿了, 1.9版本以下的壳我脱掉都没有什么问题了.. 现在主要是搞1.9版本往上的.</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2012-09-13
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/themida-%E8%84%B1%E5%A3%B31/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Themida 脱壳1(IAT定位)</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/acprotect-v2-1-3%E7%89%88%E6%9C%AC%E8%84%B1%E5%A3%B3/">
+            <span class="next-text nav-default">ACProtect v2.1.3版本脱壳.</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

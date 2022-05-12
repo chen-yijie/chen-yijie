@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>SSL流量捕获 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="现在基本上互联网的流量都是https了，一般正常的抓包方法是使用Charles一类的抓包工具，这种抓包工具都会在系统里面安装一个根证书，通过" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/sslcapturing/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="SSL流量捕获" />
+<meta property="og:description" content="现在基本上互联网的流量都是https了，一般正常的抓包方法是使用Charles一类的抓包工具，这种抓包工具都会在系统里面安装一个根证书，通过" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/sslcapturing/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2021-11-08T00:00:00+00:00" />
+<meta property="article:modified_time" content="2021-11-08T00:00:00+00:00" />
+
+<meta itemprop="name" content="SSL流量捕获">
+<meta itemprop="description" content="现在基本上互联网的流量都是https了，一般正常的抓包方法是使用Charles一类的抓包工具，这种抓包工具都会在系统里面安装一个根证书，通过"><meta itemprop="datePublished" content="2021-11-08T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2021-11-08T00:00:00+00:00" />
+<meta itemprop="wordCount" content="868">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="SSL流量捕获"/>
+<meta name="twitter:description" content="现在基本上互联网的流量都是https了，一般正常的抓包方法是使用Charles一类的抓包工具，这种抓包工具都会在系统里面安装一个根证书，通过"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">SSL流量捕获</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2021-11-08 </span>
+        <div class="post-category">
+            <a href="/categories/ios%E9%80%86%E5%90%91/"> ios逆向 </a>
+            </div>
+          <span class="more-meta"> 约 868 字 </span>
+          <span class="more-meta"> 预计阅读 2 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>现在基本上互联网的流量都是https了，一般正常的抓包方法是使用Charles一类的抓包工具，这种抓包工具都会在系统里面安装一个根证书，通过中间人的方式，欺上瞒下进行抓包，不过现在越来越多的程序除了使用https外还使用了SSL Pinning技术，导致这种中间人方式抓包会失败。需要手动的patch程序，修改验证客户端或者服务端证书的代码，不过现在又有了一种新的抓包方式，写一个hook工具，把SSL交互的过程那几个重要的值记录下来，然后生成SSLKEYLOGFILE文件，然后使用Wireshark 导入SSLKEYLOGFILE进行解密。</p>
+<p>以下代码可以支持OpenSSL ，生成SSLKEYLOGFILE文件，是通过LD_PRELOAD的方式hook SSL_new，其实就是直接设置OpenSSL的SSL_CTX_set_keylog_callback回调。</p>
+<p><a href="https://zhuanlan.zhihu.com/p/157698929">https://zhuanlan.zhihu.com/p/157698929</a></p>
+<p>以下代码是在iOS上使用frida实现hook的方式，iOS 11之后就切换到BoringSSL了，使用方式也是类似的，直接hook的SSL_CTX_new，道理都是一样的。</p>
+<p><a href="https://andydavies.me/blog/2019/12/12/capturing-and-decrypting-https-traffic-from-ios-apps/">https://andydavies.me/blog/2019/12/12/capturing-and-decrypting-https-traffic-from-ios-apps/</a></p>
+<p>下面是iOS上越狱开发的代码。通过theos hook SSL_CTX_new。</p>
+<p><a href="https://github.com/evilpenguin/BoringSSLKeys">https://github.com/evilpenguin/BoringSSLKeys</a></p>
+<p>Python就更简单了，从Python 3.8开始，是直接支持SSLKEYLOGFILE的.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">urllib.request</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">time</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">os</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">sslkeylog</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Or directly specify a path</span>
+</span></span><span class="line"><span class="cl"><span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span> <span class="s1">&#39;SSLKEYLOGFILE&#39;</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">sslkeylog</span><span class="o">.</span><span class="n">set</span>\<span class="n">_keylog</span><span class="p">(</span> <span class="n">path</span> <span class="p">)</span> 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Do anything involving SSL (Using the built-in ssl module)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">while</span> <span class="p">(</span> <span class="kc">True</span> <span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">data</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span> <span class="s1">&#39;https://www.baidu.com&#39;</span> <span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span> <span class="n">data</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span> <span class="mi">5</span> <span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>搞定了OpenSSL(BoringSSL)还有Python之后，基本上就可以处理Linux上和mac的流量问题了，不过Windows使用的是Schannel， 并没有公布接口导出SSL交互的几个密钥，下面有两篇文章通过hook的生成SSLKEYLOGFILE需要的那几个值</p>
+<p><a href="https://b.poc.fun/decrypting-schannel-tls-part-1/">https://b.poc.fun/decrypting-schannel-tls-part-1/</a></p>
+<p>如果是直接hook系统打印明文收发包可以看这份代码</p>
+<p><a href="https://github.com/NytroRST/NetRipper">https://github.com/NytroRST/NetRipper</a></p>
+<p>一般情况下，其实Windows上我们是很少使用Schannel接口进行通讯的，一般都被更高层的网络库函数所包装了，不过这里也找到一份使用SSPI的代码，用C++做了一遍包装，使用起来就比较方便</p>
+<p><a href="http://www.naughter.com/sslwrappers.html">http://www.naughter.com/sslwrappers.html</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2021-11-08
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/visual-leak-detector%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E6%A3%80%E6%B5%8B/">
+            <span class="next-text nav-default">Visual Leak Detector内存泄漏检测</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

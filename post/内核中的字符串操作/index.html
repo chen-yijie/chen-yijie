@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>内核中的字符串操作 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="内核下面操作字符串也不外乎就是初始化, 然后增,删,改,连接, 撒的. 和Win32下面没有太大的区别, 只是需要更多的耐心. 因为操作的是一个结构!" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="内核中的字符串操作" />
+<meta property="og:description" content="内核下面操作字符串也不外乎就是初始化, 然后增,删,改,连接, 撒的. 和Win32下面没有太大的区别, 只是需要更多的耐心. 因为操作的是一个结构!" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-10-10T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-10-10T00:00:00+00:00" />
+
+<meta itemprop="name" content="内核中的字符串操作">
+<meta itemprop="description" content="内核下面操作字符串也不外乎就是初始化, 然后增,删,改,连接, 撒的. 和Win32下面没有太大的区别, 只是需要更多的耐心. 因为操作的是一个结构!"><meta itemprop="datePublished" content="2011-10-10T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-10-10T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1697">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="内核中的字符串操作"/>
+<meta name="twitter:description" content="内核下面操作字符串也不外乎就是初始化, 然后增,删,改,连接, 撒的. 和Win32下面没有太大的区别, 只是需要更多的耐心. 因为操作的是一个结构!"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">内核中的字符串操作</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-10-10 </span>
+        <div class="post-category">
+            <a href="/categories/kernel/"> kernel </a>
+            </div>
+          <span class="more-meta"> 约 1697 字 </span>
+          <span class="more-meta"> 预计阅读 4 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>内核下面操作字符串也不外乎就是初始化, 然后增,删,改,连接, 撒的. 和Win32下面没有太大的区别, 只是需要更多的耐心. 因为操作的是一个结构! 操作结构比操作以0结尾的字符串总是要难些的. 不过还好了. Windows里面已经提供了非常多的字符串方面操作的函数. 一般情况下也差不多够用了!</p>
+<p> </p>
+<p>关于这个字符串操作没有什么好说的. 就是混个眼熟. 下回就会用了&hellip;  上代码. 还是:</p>
+<p>/*
+Windows内核下操作字符串!
+编译方法参见makefile.
+*/
+#include &lt;ntddk.h&gt;
+#define  BUFFER_SIZE 1024
+#include &lt;ntstrsafe.h&gt;
+//===========================================================================
+//ANSI_STRING结构和UNICODE_STRING结构的使用
+#pragma  code_seg( &ldquo;INIT&rdquo; )
+NTSTATUS StringTest() {
+ANSI_STRING AStString = {0};
+UNICODE_STRING UStString2 = {0};
+UNICODE_STRING UStString3 = RTL_CONSTANT_STRING( L&quot;Initialization string directly!&quot; );
+CHAR* SzHello = &ldquo;hello&rdquo;;
+WCHAR* WSzHello = L&quot;hello&quot;;</p>
+<pre><code>//初始化ANSI\_STRING字符串的做法
+RtlInitAnsiString( &amp;AStString, SzHello );
+//%Z打印ANSI的结构字符串
+KdPrint(( &quot;StringTest-&gt;ANSI\_STRING: %Z\\n&quot;, &amp;AStString ));
+
+SzHello\[0\] = 'H';
+SzHello\[1\] = 'E';
+SzHello\[2\] = 'L';
+SzHello\[3\] = 'L';
+SzHello\[4\] = 'O';
+SzHello\[5\] = '\\0';
+
+//改变SzHello, 结构也会发生改变, ANSI\_STRING里面拥有的只是指针
+KdPrint(( &quot;ANSI\_STRING: %Z\\n&quot;, &amp;AStString ));
+
+//手工初始化字符串
+UStString2.MaximumLength = BUFFER\_SIZE;		//最大缓冲区
+
+//分配内存, 在分页内存中
+UStString2.Buffer = (PWSTR)ExAllocatePool(PagedPool,BUFFER\_SIZE);
+
+//设置字符长度,因为是宽字符，所以是字符长度的2倍
+UStString2.Length = 2 \* wcslen(WSzHello);
+
+//保证缓冲区足够大, 否则程序终止
+ASSERT( UStString2.MaximumLength &gt;= UStString2.Length );
+
+//内存COPY, Copy的长度就是Unicode字符串的长度
+RtlCopyMemory( UStString2.Buffer, WSzHello, UStString2.Length );
+
+//打印UnicodeString的方法%wZ
+KdPrint(( &quot;StringTest-&gt;UStString2:%wZ\\n&quot;,&amp;UStString2 ));
+KdPrint(( &quot;StringTest-&gt;UStString3:%wZ\\n&quot;,&amp;UStString3 ));
+
+//清理内存
+ExFreePool( UStString2.Buffer );
+UStString2.Buffer = NULL;
+UStString2.Length = UStString2.MaximumLength = 0;
+
+return STATUS\_SUCCESS;
+</code></pre>
+<p>}
+//===========================================================================
+//字符串测试2, 字符串之间的Copy
+#pragma  code_seg( &ldquo;INIT&rdquo; )
+NTSTATUS StringCopyTest() {</p>
+<pre><code>UNICODE\_STRING UStString1 = {0};
+UNICODE\_STRING UStString2 = {0};
+
+//RtlInitUnicodeString不用释放
+RtlInitUnicodeString( &amp;UStString1, L&quot;Hello World&quot; );
+
+//这样也是可以初始化的, 不过要记得释放
+UStString2.Buffer = (PWSTR)ExAllocatePool( PagedPool,BUFFER\_SIZE );
+
+//Copy字符串之前必须先填写最大长度
+UStString2.MaximumLength = BUFFER\_SIZE;
+
+//将初始化UStString2拷贝到UStString1
+RtlCopyUnicodeString( &amp;UStString2,&amp;UStString1 );
+
+//分别显示UnicodeString1和UnicodeString2
+KdPrint(( &quot;StringCopyTest-&gt;UnicodeString1:%wZ!\\n&quot;,&amp;UStString1 ));
+KdPrint(( &quot;StringCopyTest-&gt;UnicodeString2:%wZ!\\n&quot;,&amp;UStString2 ));
+
+//字符串的连接
+RtlUnicodeStringCat( &amp;UStString2, &amp;UStString1 );
+KdPrint(( &quot;StringCopyTest-&gt;UnicodeString2:%wZ!\\n&quot;,&amp;UStString2 ));
+
+//销毁UnicodeString2 注意!!UnicodeString1不用销毁
+RtlFreeUnicodeString( &amp;UStString2 );
+
+return STATUS\_SUCCESS;
+</code></pre>
+<p>}
+//===========================================================================
+//字符串的比较试验
+#pragma code_seg( &ldquo;INIT&rdquo; )
+VOID StringCompareTest()
+{
+LONG dwFlags;
+UNICODE_STRING UStString1;
+UNICODE_STRING UStString2;</p>
+<pre><code>RtlInitUnicodeString(&amp;UStString1, L&quot;Hello World&quot; );
+RtlInitUnicodeString(&amp;UStString2, L&quot;Hello WorlD&quot; );
+
+//比较字符串, 区分大小写(FALSE), 相等返回True
+if (RtlEqualUnicodeString(&amp;UStString1,&amp;UStString2, FALSE )) {
+	KdPrint(( &quot;StringCompareTest-&gt;UStString1 and UStString2 are equal\\n&quot; ));
+}else {
+	KdPrint(( &quot;StringCompareTest-&gt;UStString1 and UStString2 are NOT equal\\n&quot; ));
+}
+
+//比较字符串 不区分大小写(TRUE), 相等返回TRUE
+RtlInitUnicodeString(&amp;UStString2, L&quot;Hello World&quot; );
+if (RtlEqualUnicodeString(&amp;UStString1,&amp;UStString2, FALSE )) {
+	KdPrint(( &quot;StringCompareTest-&gt;UStString1 and UStString2 are equal\\n&quot; ));
+}else {
+	KdPrint(( &quot;StringCompareTest-&gt;UStString1 and UStString2 are NOT equal\\n&quot; ));
+}
+
+//比较字符串 不区分大小写(TRUE), 相等返回TRUE
+RtlInitUnicodeString(&amp;UStString2, L&quot;Hello&quot; );
+if (RtlEqualUnicodeString(&amp;UStString1,&amp;UStString2, TRUE )) {
+	KdPrint(( &quot;StringCompareTest-&gt;UStString1 and UStString2 are equal\\n&quot; ));
+}else {
+	KdPrint(( &quot;StringCompareTest-&gt;UStString1 and UStString2 are NOT equal\\n&quot; ));
+}
+
+//比较字符串大小, 不区分大小写(TRUE)
+dwFlags = RtlCompareUnicodeString( &amp;UStString1, &amp;UStString2, TRUE );
+if ( dwFlags == 0 ) {
+	KdPrint(( &quot;StringCompareTest-&gt;UStString1 == UStString2\\n&quot; ));
+}else if( dwFlags &gt; 0 ){
+	KdPrint(( &quot;StringCompareTest-&gt;UStString1 &gt; UStString2\\n&quot; ));
+}else {
+	KdPrint(( &quot;StringCompareTest-&gt;UStString1 &lt; UStString2\\n&quot; ));
+}
+</code></pre>
+<p>}
+//===========================================================================
+//字符串转整数型试验
+#pragma code_seg( &ldquo;INIT&rdquo; )
+VOID StringToIntegerTest()
+{
+ULONG uValue;
+NTSTATUS nStatus;
+UNICODE_STRING UStString1 = RTL_CONSTANT_STRING( L&quot;-100&quot; );
+UNICODE_STRING UStString2={0};</p>
+<pre><code>//转换正常的十进制数字
+nStatus = RtlUnicodeStringToInteger(&amp;UStString1,10,&amp;uValue);
+if ( NT\_SUCCESS(nStatus) ) {
+	KdPrint((&quot;StringToIntegerTest-&gt;Conver to integer succussfully!\\n&quot;));
+	KdPrint((&quot;Result:%d\\n&quot;,uValue));
+}else {
+	KdPrint((&quot;StringToIntegerTest-&gt;Conver to integer unsuccessfully!\\n&quot;));
+}
+
+//转换16进制数据
+RtlInitUnicodeString( &amp;UStString1, L&quot;100&quot; );
+nStatus = RtlUnicodeStringToInteger(&amp;UStString1,16,&amp;uValue);
+if ( NT\_SUCCESS(nStatus) ) {
+	KdPrint((&quot;StringToIntegerTest-&gt;Conver to integer succussfully! &quot; ));
+	KdPrint((&quot;Result:%u 0x%X \\n&quot;,uValue,uValue ));
+}else {
+	KdPrint((&quot;StringToIntegerTest-&gt;Conver to integer unsuccessfully!\\n&quot;));
+}
+
+//数字转换成字符串,初始化UnicodeString2
+UStString2.Buffer = (PWSTR)ExAllocatePool(PagedPool,BUFFER\_SIZE);
+UStString2.MaximumLength = BUFFER\_SIZE;
+nStatus = RtlIntegerToUnicodeString( 200, 10, &amp;UStString2  );
+if ( NT\_SUCCESS(nStatus) ) {
+	KdPrint((&quot;StringToIntegerTest-&gt;Conver to string succussfully! &quot;));
+	KdPrint((&quot;Result:%wZ\\n&quot;,&amp;UStString2 ));
+}else {
+	KdPrint((&quot;StringToIntegerTest-&gt;Conver to string unsuccessfully!\\n&quot;));
+}
+
+//16进制数字转字符串
+nStatus = RtlIntegerToUnicodeString( 300,16, &amp;UStString2  );
+if ( NT\_SUCCESS(nStatus) ) {
+	KdPrint((&quot;StringToIntegerTest-&gt;Conver to string succussfully! &quot;));
+	KdPrint((&quot;Result:%wZ\\n&quot;,&amp;UStString2 ));
+}else {
+	KdPrint((&quot;StringToIntegerTest-&gt;Conver to string unsuccessfully!\\n&quot;));
+}
+
+//UStString2,注意!!UStString1 不用销毁
+RtlFreeUnicodeString( &amp;UStString2 );
+</code></pre>
+<p>}
+//===========================================================================
+//字符串变大写实验
+#pragma code_seg( &ldquo;INIT&rdquo; )
+VOID StringToUpperTest() {
+UNICODE_STRING UStString1 = RTL_CONSTANT_STRING( L&quot;Hello World&quot; );</p>
+<pre><code>//变化前
+KdPrint((&quot;StringToUpperTest-&gt;UnicodeString1:%wZ\\n&quot;, &amp;UStString1 ));
+
+//变大写
+RtlUpcaseUnicodeString( &amp;UStString1,&amp;UStString1,FALSE );
+
+//变化后
+KdPrint((&quot;StringToUpperTest-&gt;UnicodeString1:%wZ\\n&quot;, &amp;UStString1 ));
+</code></pre>
+<p>}
+//===========================================================================
+//ANSI_STRING字符串和UNICODE_STRING之间的转换
+#pragma code_seg( &ldquo;INIT&rdquo; )
+VOID StringConverTest()
+{
+ANSI_STRING StString1 = {0};
+UNICODE_STRING UStString2 = {0};
+ANSI_STRING StString2 = RTL_CONSTANT_STRING( &ldquo;Hello World&rdquo; );
+UNICODE_STRING UStString1 = RTL_CONSTANT_STRING( L&quot;Hello World&quot; );</p>
+<pre><code>//(1)将UNICODE\_STRING字符串转换成ANSI\_STRING字符串
+NTSTATUS nStatus = RtlUnicodeStringToAnsiString(&amp;StString1,&amp;UStString1,TRUE );
+if ( NT\_SUCCESS(nStatus)) {
+	KdPrint((&quot;Conver succussfully! &quot;));
+	KdPrint((&quot;Result:%Z\\n&quot;,&amp;StString1));
+}else {
+	KdPrint((&quot;Conver unsuccessfully!\\n&quot;));
+}
+
+//销毁AnsiString1
+RtlFreeAnsiString(&amp;StString1 );
+
+//(2)将ANSI\_STRING字符串转换成UNICODE\_STRING字符串初始化AnsiString2
+nStatus = RtlAnsiStringToUnicodeString( &amp;UStString2, &amp;StString2,TRUE );
+if ( NT\_SUCCESS(nStatus)) {
+	KdPrint(( &quot;Conver succussfully!\\n&quot; ));
+	KdPrint(( &quot;Result:%wZ\\n&quot;,&amp;UStString2 ));
+}else{
+	KdPrint(( &quot;Conver unsuccessfully!\\n&quot; ));
+}
+//销毁UnicodeString2
+RtlFreeUnicodeString( &amp;UStString2 );
+</code></pre>
+<p>}</p>
+<p>NTSTATUS DriverEntry( PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pUSzReg ) {
+StringTest();			//字符串初始化试验
+StringCopyTest();		//字符串Copy试验
+StringCompareTest();		//字符串的比较试验
+StringToIntegerTest();		//字符串转整数型试验
+StringToUpperTest();		//字符串变大写实验
+StringConverTest();		//ANSI和UNICODE之间的转换
+return -1;
+}</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-10-10
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">内核中文件操作</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E5%86%85%E5%AD%98%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%BA%9B%E5%87%BD%E6%95%B0/">
+            <span class="next-text nav-default">内核中内存操作的一些函数</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

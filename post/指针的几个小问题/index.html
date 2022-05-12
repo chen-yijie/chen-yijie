@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>指针的几个小问题 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="本来一切都安好的, 听唐老师讲了几节指针的课, 发现有很多问题过去并不是很清晰啊, 还有一些认为想当然的问题也遇到了挑战. 最近做笔记比较少. 写下本" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E6%8C%87%E9%92%88%E7%9A%84%E5%87%A0%E4%B8%AA%E5%B0%8F%E9%97%AE%E9%A2%98/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="指针的几个小问题" />
+<meta property="og:description" content="本来一切都安好的, 听唐老师讲了几节指针的课, 发现有很多问题过去并不是很清晰啊, 还有一些认为想当然的问题也遇到了挑战. 最近做笔记比较少. 写下本" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E6%8C%87%E9%92%88%E7%9A%84%E5%87%A0%E4%B8%AA%E5%B0%8F%E9%97%AE%E9%A2%98/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-11-03T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-11-03T00:00:00+00:00" />
+
+<meta itemprop="name" content="指针的几个小问题">
+<meta itemprop="description" content="本来一切都安好的, 听唐老师讲了几节指针的课, 发现有很多问题过去并不是很清晰啊, 还有一些认为想当然的问题也遇到了挑战. 最近做笔记比较少. 写下本"><meta itemprop="datePublished" content="2011-11-03T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-11-03T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1851">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="指针的几个小问题"/>
+<meta name="twitter:description" content="本来一切都安好的, 听唐老师讲了几节指针的课, 发现有很多问题过去并不是很清晰啊, 还有一些认为想当然的问题也遇到了挑战. 最近做笔记比较少. 写下本"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">指针的几个小问题</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-11-03 </span>
+        <div class="post-category">
+            <a href="/categories/sdk/"> sdk </a>
+            </div>
+          <span class="more-meta"> 约 1851 字 </span>
+          <span class="more-meta"> 预计阅读 4 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>本来一切都安好的, 听唐老师讲了几节指针的课, 发现有很多问题过去并不是很清晰啊, 还有一些认为想当然的问题也遇到了挑战. 最近做笔记比较少. 写下本文权当笔记吧!</p>
+<p>前几天唐老师一直讨论的指针是无符号还是有符号数也是比较郁闷, 我问了下小浩, 他说指针应该是无符号的, 不然就不能够指向内存的高2G. 我觉得这个说的很有道理, 另外一个我自己在比较两个指针的时候发现用的是JA, JB所以我也断定这个指针应该内部当做无符号来对待的,但是唐老师提到两个指针做减法的问题, 他说两个指针在做减法的时候再和某个数比较的时候用的却是有符号. 具体这个东西是有符号还是无符号的, 觉得只能让写编译器的人给个答案了!</p>
+<p>另外昨天也接触到指针的一个特殊用法, 我倒. 以前居然从没有见过. 类似于这种形式:<br>
+int*** (**p)[5][5]<br>
+原来对于这个指针数组还是有点明白的, 但是对于这个用一个指针指向数组, 然后数组里面存放的又全是指针, 这个应该叫什么?指针的指针数组?? 以前也没有见过哪里使用过这种语法! 另外我咋一眼看上去觉得这个东西应该是数组, 然后发现其只是一个指针.指针而已. 占用4个字节空间.</p>
+<p>今天早上唐老师又拿了几道题目过来测试, 反写汇编代码, 使我大受打击, 我倒.. 这边就贴代码, 然后跟着代码注释. 以前没有来这边一直没有用过3个*的变量, 来这边以后我倒, 起步价5个*&hellip; 也不知道用没有用处!</p>
+<p>typedef int*** PP;                        //这是命名多级指针的语法.<br>
+typedef int*** PARRY[10][10];            //给指针数组取别名<br>
+typedef int*** (*PPP)[10][10];            //这是对指向多级指针的数组的的指针语法<br>
+typedef PSTUDENT (*PST)[10][10];        //这是指向结构的别名<br>
+typedef int (__cdecl *PFUNCTION)(int,int);//这是给函数指针取别名<br>
+ </p>
+<p>这边是C语言代码. 看看反汇编出来的都是什么东西:</p>
+<p>int funciton1(int*** (*p)[3][4][5], int a[][7][8][9] ) {
+p++;
+*p++;</p>
+<pre><code>p\[2\] \[3\]\[4\]\[5\] \[6\]\[7\]\[8\] = 50;
+
+a++;
+((((a\[2\]+3)\[4\])+5)\[6\])\[5\] = 10;
+
+\*(&amp;amp;a) += 1;
+return 0;
+</code></pre>
+<p>}</p>
+<p>int funciton2(int a[6][7][8][9],int b)
+{
+int j;
+int****** (******p)[10][8][6];
+a++;
+a[3][2][1][4] ='A';
+p[6][5][4][3][2] [1][3][2][1] [1][2][3][4][5][6] = 2;
+return 0;
+}</p>
+<p>int main() {</p>
+<pre><code>int\*\*\* a\[3\]\[4\]\[5\];
+int b\[6\]\[7\]\[8\]\[9\];
+
+funciton1( &amp;amp;a, b );
+funciton2( b, 10 );
+return 0;
+</code></pre>
+<p>}</p>
+<p>总共两个函数了. 看看两个函数反汇编出来的结果:</p>
+<p>;============================================================================
+_funciton1 proc
+push	ebp
+mov	ebp, esp
+;============================================================================
+;	p++
+;	这里加了240是这样计算出来的, p本身是一个int*** (*p)[3][4][5]类型的变量,
+;	按照唐老师的方法, 去掉一个*看类型那么就是int*** (p)[3][4][5]那么, 也就是
+;	一个数组的大小了, (3*4*5)*4 = 240 所以p++是加240
+;============================================================================
+mov	eax, dword ptr _p$[ebp]
+add	eax, 240				; 000000f0h
+mov	dword ptr _p$[ebp], eax
+;============================================================================
+;	*p++
+;	这里这个问题一直是我以前所困扰的, 我以前一直认为*p++是p所指向的内容++
+;	但是很明显也是加了240, 主要的问题只有一个, 就是++的运算符级别比*高,
+;	所以要先和++结合, 剩下的就和我们声明的int变量 a++一样了..
+;============================================================================
+mov	ecx, dword ptr _p$[ebp]
+add	ecx, 240				; 000000f0h
+mov	dword ptr _p$[ebp], ecx
+;============================================================================
+;	p[2][3][4][5][6][7][8] = 50;
+;	上面声明p是int*** (*p)[3][4][5]类型, 使用的时候用的全是[], 有点郁闷.
+;	那么或许我们换成这种形式可以看更清楚一些.前面这种是全*访问,
+;	后面这种才是应该的正统访问方式</p>
+<p>;	(*(*(* (*(*(* (*(p+2) +3)+4)+5) +6)+7)+8)) = 50	;全*</p>
+<p>;	*(*(* ((*(p+2)) [3][4][5] +6)+7)+8) = 50;	;正统访问方式
+;820 = ( sizeof(int)*(3*4*5)*2 ) + (sizeof(int)*(4*5))*3 + (sizeof(int)*5*4)+ sizeof(int***)*5
+;	所以以前认为[]和*没有理解好, 虽然这里每种方式都可以访问, 生成的汇编
+;	代码也是一样的, 但是自己要注意区分, 这里的3, 4, 5都是属于数组的, 前面的
+;	2是属于*p的, 其大小就是整个的数组大小.
+;============================================================================
+mov	edx, dword ptr _p$[ebp]
+mov	eax, dword ptr [edx+820]</p>
+<pre><code>mov	ecx, dword ptr \[eax+24\]
+mov	edx, dword ptr \[ecx+28\]
+mov	dword ptr \[edx+32\], 50			; 00000032h
+</code></pre>
+<p>;============================================================================
+;a++
+;a++的话由于a其实只是一个这种类型的指针 int a* [7][8][9]
+;那么a++的话其实就是 a += (7*8*9)*4		;2016
+;============================================================================
+mov	eax, dword ptr _a$[ebp]
+add	eax, 2016				; 000007e0h
+mov	dword ptr _a$[ebp], eax
+;============================================================================
+;((((a[2]+3)[4])+5)[6])[5] = 10;
+;	那么这句代码其实是这种形式了.
+;	a[2][7][11][5] = 10
+;	所以计算出来应该是这样的
+;	a + 2*(7*8*9)*4 + 7*(8*9)*4 + 11*(9*4) + 5*4	;6464
+;============================================================================
+mov	ecx, dword ptr _a$[ebp]
+mov	dword ptr [ecx+6464], 10		; 0000000ah
+;============================================================================
+;*(&amp;a) += 1
+;	这里再一次证明了数组只是一个指针名称, 传递参数里面.是没有数组的!
+;	当然这里是一句废话, *&amp;同时出现是会抵消的, 所以其实是这句
+;	a += 1
+;============================================================================
+mov	edx, dword ptr _a$[ebp]
+add	edx, 2016				; 000007e0h
+mov	dword ptr _a$[ebp], edx</p>
+<pre><code>xor	eax, eax
+pop	ebp
+ret	0
+</code></pre>
+<p>_funciton1 endp
+;============================================================================
+;这是function2生成的代码
+;============================================================================
+_funciton2 proc
+push	ebp
+mov	ebp, esp
+;============================================================================
+;	这里是代码有少量优化的效果, push ecx而不用sub esp, 4这句上面代码有体现
+;	a += ((7*8*9)*4)				;2016
+;============================================================================
+;	a++;
+push	ecx
+mov	eax, dword ptr _a$[ebp]
+add	eax, 2016				; 000007e0h
+mov	dword ptr _a$[ebp], eax
+;============================================================================
+;这里是以前正常的把带*参数当成数组来用的例子, 其实是这种形式
+;a + 3*(7*8*9)*4 + 2*(8*9)*4 + 1*(9*4) + 4*1*4	;6676
+;============================================================================
+;a[3][2][1][4] ='A';
+mov	ecx, dword ptr _a$[ebp]
+mov	dword ptr [ecx+6676], 65		; 00000041h
+;============================================================================
+;p[6][5][4][3][2] [1][3][2][1] [1][2][3][4][5][6] = 2;
+;其实下面这个表达式才是正统的写法.
+;*(*(*(*(*(*( ((*(*(*(*(*(p+6)+5)+4)+3)+2)) [1][3][2][1] )+1)+2)+3)+4)+5)+6) = 2;
+;或者换成全*方式
+;*(*(*(*(*(*( (*(*(*(*(*(*(*(*(*(p+6)+5)+4)+3)+2) +1)+3)+2)+1) )+1)+2)+3)+4)+5)+6) = 2;
+;主要就是要区分好数组和指针之间的关系, 虽然可以套用. 但是自己心里一定
+;要明白.目前是什么..
+;[1][3][2][1] = 1*(10*8*6)*4 + 3*(8*6)*4 + 2*(6*4)+1*4	;2548
+;============================================================================
+mov	edx, dword ptr _p$[ebp]
+mov	eax, dword ptr [edx+24]
+mov	ecx, dword ptr [eax+20]
+mov	edx, dword ptr [ecx+16]
+mov	eax, dword ptr [edx+12]
+mov	ecx, dword ptr [eax+8]
+mov	edx, dword ptr [ecx+2548]
+mov	eax, dword ptr [edx+4]
+mov	ecx, dword ptr [eax+8]
+mov	edx, dword ptr [ecx+12]
+mov	eax, dword ptr [edx+16]
+mov	ecx, dword ptr [eax+20]
+mov	dword ptr [ecx+24], 2
+;============================================================================
+xor	eax, eax
+mov	esp, ebp
+pop	ebp
+ret	0
+_funciton2 endp</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-11-03
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/win32%E4%B8%8E%E5%86%85%E6%A0%B8%E5%90%8C%E6%AD%A5/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Win32与内核同步</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E5%92%8C%E5%86%85%E6%A0%B8%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98/">
+            <span class="next-text nav-default">和内核共享内存</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

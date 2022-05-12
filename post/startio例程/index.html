@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>StartIo例程 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="凡是和多线程有关的东西, 一般就涉及非常恼火的线程同步问题, 而这个问题还不是那么直观, 不像其他一般的bug比较好调试, 有时候这个多线程的问题," /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/startio%E4%BE%8B%E7%A8%8B/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="StartIo例程" />
+<meta property="og:description" content="凡是和多线程有关的东西, 一般就涉及非常恼火的线程同步问题, 而这个问题还不是那么直观, 不像其他一般的bug比较好调试, 有时候这个多线程的问题," />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/startio%E4%BE%8B%E7%A8%8B/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-11-10T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-11-10T00:00:00+00:00" />
+
+<meta itemprop="name" content="StartIo例程">
+<meta itemprop="description" content="凡是和多线程有关的东西, 一般就涉及非常恼火的线程同步问题, 而这个问题还不是那么直观, 不像其他一般的bug比较好调试, 有时候这个多线程的问题,"><meta itemprop="datePublished" content="2011-11-10T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-11-10T00:00:00+00:00" />
+<meta itemprop="wordCount" content="4578">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="StartIo例程"/>
+<meta name="twitter:description" content="凡是和多线程有关的东西, 一般就涉及非常恼火的线程同步问题, 而这个问题还不是那么直观, 不像其他一般的bug比较好调试, 有时候这个多线程的问题,"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">StartIo例程</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-11-10 </span>
+        <div class="post-category">
+            <a href="/categories/kernel/"> kernel </a>
+            </div>
+          <span class="more-meta"> 约 4578 字 </span>
+          <span class="more-meta"> 预计阅读 10 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>凡是和多线程有关的东西, 一般就涉及非常恼火的线程同步问题, 而这个问题还不是那么直观, 不像其他一般的bug比较好调试, 有时候这个多线程的问题, 在一般情况下又不会有问题, 但是特殊请求下程序又会崩溃. 这种bug想要重现都有点问题.</p>
+<p>前面说了内核下面几种同步的方法, 那些是对线程进行同步的, 但是很明显IRP有很多时候也是需要同步处理的, 这个有个专门的名词, 就是串行化.串行化能够保证各个并行的IRP能够按照顺序执行, 典型情况下, 对某个设备的操作的, 假如有很多个线程同时去操作这个设备, 那么必须将这些操作排队, 然后一一进行处理, 如果不做串行化操作就会变得混乱.<br>
+ </p>
+<p>当一个新的Irp请求来临的时候首先检查设备是否处于&quot;忙&quot;状态, 如果处于忙状态, 那么将Irp插入一个队列中, 等待设备变为闲的时候从队列中取出一个IRP进行处理, 这个就是串行化了, 也就是StartIo. Windows内核中有专门支持这种操作的一系列结构和例程, 但是Windows提供的只有一个队列, 如果需要多个队列, 比如读一个队列写一个队列, 那么就要自己实现队列了. 这里先看看Windows搞的这个队列有多舒服.<br>
+ </p>
+<p>另外必须要说的一点StartIo例程运行在DISPATCH_LEVEL级别上, 所以不会被线程调度打断, 但是在DISPATCH_LEVEL级别上也有很多限制, 要记住这一点. StartIo其他方面就类似于普通写的分发函数了, 只是没有返回值..分发函数如果想把当前Irp串行化, 就调用IoStartPacket函数, 就可以将Irp插入队列, 而且IoStartPacket函数还可以指定一个取消例程. IoStartPacket会判断设备处于忙或者空闲的状态, 如果处于空闲状态, 则提升当前IRQL到DISPATCH_LEVEL级别, 并进入StartIo例程, 串行处理Irp请求. 如果设备处于忙的状态, 则将Irp插入队列后返回.在StartIo例程结束前, 应该调用IoStartNextPacket函数, 其作用是从队列中取下一个Irp进行处理, 这样就链起来了.在调用StartIo前, 操作系统会将设备的Device-&gt;CurrentIrp设置为当前Irp. 这意味着这个Irp正准备由StartIo例程处理.<br>
+ </p>
+<p>当处理StartIo例程的时候, 最复杂的莫过于对取消例程的处理, 准确使用Cancel自旋锁是关键, 在StartIo开始处, 应首先获得自旋锁, 然后判断当前的Irp是否是DeviceObject-&gt;CurrentIrp. 如果是说明这个Irp正在或者即将被StartIo处理, StartIo应该立即释放自旋锁, 什么也不做. 立刻退出. 不过我到现在也没有搞明白取消例程那点代码要那样子.我倒!<br>
+ </p>
+<p>下面这个代码就是关于上面这段长篇大论的具体实现了. 我跑了几次发现这个StartIo和我想象中的处理方式不一样啊,首先将一个线程的发送的Irp一次处理完, 然后在处理另外一个线程的, 但是处理另外一个线程的时候我发现是一个一个慢慢处理, 但是前面那个线程的是一次不停的全部处理, 我倒. 到现在也没有看出来是什么原因.<br>
+ </p>
+<p>凡是和多线程有关的东西, 一般就涉及非常恼火的线程同步问题, 而这个问题还不是那么直观, 不像其他一般的bug比较好调试, 有时候这个多线程的问题, 在一般情况下又不会有问题, 但是特殊请求下程序又会崩溃. 这种bug想要重现都有点问题.</p>
+<p>前面说了内核下面几种同步的方法, 那些是对线程进行同步的, 但是很明显IRP有很多时候也是需要同步处理的, 这个有个专门的名词, 就是串行化.串行化能够保证各个并行的IRP能够按照顺序执行, 典型情况下, 对某个设备的操作的, 假如有很多个线程同时去操作这个设备, 那么必须将这些操作排队, 然后一一进行处理, 如果不做串行化操作就会变得混乱.<br>
+ </p>
+<p>当一个新的Irp请求来临的时候首先检查设备是否处于&quot;忙&quot;状态, 如果处于忙状态, 那么将Irp插入一个队列中, 等待设备变为闲的时候从队列中取出一个IRP进行处理, 这个就是串行化了, 也就是StartIo. Windows内核中有专门支持这种操作的一系列结构和例程, 但是Windows提供的只有一个队列, 如果需要多个队列, 比如读一个队列写一个队列, 那么就要自己实现队列了. 这里先看看Windows搞的这个队列有多舒服.<br>
+ </p>
+<p>另外必须要说的一点StartIo例程运行在DISPATCH_LEVEL级别上, 所以不会被线程调度打断, 但是在DISPATCH_LEVEL级别上也有很多限制, 要记住这一点. StartIo其他方面就类似于普通写的分发函数了, 只是没有返回值..分发函数如果想把当前Irp串行化, 就调用IoStartPacket函数, 就可以将Irp插入队列, 而且IoStartPacket函数还可以指定一个取消例程. IoStartPacket会判断设备处于忙或者空闲的状态, 如果处于空闲状态, 则提升当前IRQL到DISPATCH_LEVEL级别, 并进入StartIo例程, 串行处理Irp请求. 如果设备处于忙的状态, 则将Irp插入队列后返回.在StartIo例程结束前, 应该调用IoStartNextPacket函数, 其作用是从队列中取下一个Irp进行处理, 这样就链起来了.在调用StartIo前, 操作系统会将设备的Device-&gt;CurrentIrp设置为当前Irp. 这意味着这个Irp正准备由StartIo例程处理.<br>
+ </p>
+<p>当处理StartIo例程的时候, 最复杂的莫过于对取消例程的处理, 准确使用Cancel自旋锁是关键, 在StartIo开始处, 应首先获得自旋锁, 然后判断当前的Irp是否是DeviceObject-&gt;CurrentIrp. 如果是说明这个Irp正在或者即将被StartIo处理, StartIo应该立即释放自旋锁, 什么也不做. 立刻退出. 不过我到现在也没有搞明白取消例程那点代码要那样子.我倒!<br>
+ </p>
+<p>下面这个代码就是关于上面这段长篇大论的具体实现了. 我跑了几次发现这个StartIo和我想象中的处理方式不一样啊,首先将一个线程的发送的Irp一次处理完, 然后在处理另外一个线程的, 但是处理另外一个线程的时候我发现是一个一个慢慢处理, 但是前面那个线程的是一次不停的全部处理, 我倒. 到现在也没有看出来是什么原因.</p>
+<p>这边是用户态的代码:</p>
+<p>/*	Windows 内核下StartIo例程试验 3环代码
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;</p>
+<p>#pragma comment( linker, &quot;/Entry:Jmain&quot; )
+#pragma comment( linker, &quot;/subsystem:console&quot; )</p>
+<p>#define DEVICE_NAME &quot;\\\\.\\SysLinkStartIo&quot;
+//===========================================================================
+//线程过程, 向设备发送15次, 写入请求
+//===========================================================================
+DWORD __stdcall ThreadProc( PVOID pContext ) {
+UCHAR ucBuf[10];
+ULONG i, j;
+DWORD dwByteWrite;
+BOOL bRet;
+OVERLAPPED StOverlapped[15] = {0};
+HANDLE hEvent[15] = {0};</p>
+<pre><code>\_\_try {
+	for( i = 0; i &amp;lt; sizeof( StOverlapped ) / sizeof( StOverlapped\[0\] ); i++ ) {
+
+		StOverlapped\[i\].hEvent = CreateEvent( NULL, FALSE, TRUE, NULL );
+		if ( !StOverlapped\[i\].hEvent ) {
+			printf( &amp;quot;创建同步事件失败!\\n&amp;quot; );
+			return -1;
+		}
+	}
+
+	for( i = 0; i &amp;lt; sizeof( StOverlapped ) / sizeof( StOverlapped\[0\] ); i++ ) {
+		hEvent\[i\] = StOverlapped\[i\].hEvent;
+	}
+
+	Sleep( 1000 );
+	for( i = 0; i &amp;lt; sizeof( StOverlapped ) / sizeof( StOverlapped\[0\] ); i++ ) {
+
+		RtlFillMemory( ucBuf, sizeof( ucBuf ), i + &amp;#39;a&amp;#39; );
+
+		bRet = WriteFile( \*( PHANDLE )pContext, ucBuf, sizeof( ucBuf ),
+				  &amp;amp;dwByteWrite, &amp;amp;StOverlapped\[i\]  );
+
+		if ( !bRet &amp;amp;&amp;amp; GetLastError() != ERROR\_IO\_PENDING ) {
+			printf( &amp;quot;写入设备失败!\\n&amp;quot; );
+			return -1;
+		} else {
+			for( j = 0; j &amp;lt; sizeof( ucBuf ); j++ ) {
+				printf( &amp;quot;%c\\t&amp;quot;, ucBuf\[j\] );
+			}
+
+			printf( &amp;quot;\\n&amp;quot; );
+		}
+	}
+
+	//这个复杂度加了一些中间有可能还会有取消IRP的出现
+	//CancelIo(\*(PHANDLE)pContext);
+	WaitForMultipleObjects( sizeof( StOverlapped ) / sizeof( StOverlapped\[0\] ),
+				&amp;amp;hEvent\[0\], TRUE, INFINITE );
+
+	printf( &amp;quot;设备处理完毕!\\n&amp;quot; );
+
+} \_\_finally {
+	for( i = 0; i &amp;lt; sizeof( hEvent ) / sizeof( hEvent\[0\] ); i++ ) {
+		if ( StOverlapped\[i\].hEvent ) {
+			CloseHandle( StOverlapped\[i\].hEvent );
+		}
+	}
+}
+
+return 0;
+</code></pre>
+<p>}
+//===========================================================================
+int Jmain( ) {
+HANDLE hDevice = NULL;
+HANDLE hThead[2] = {0};
+DWORD dwTemp;</p>
+<pre><code>do {
+	hDevice = CreateFile( DEVICE\_NAME, GENERIC\_READ | GENERIC\_WRITE, 0, NULL,
+		OPEN\_EXISTING, FILE\_ATTRIBUTE\_NORMAL | FILE\_FLAG\_OVERLAPPED, NULL );
+
+	if ( hDevice == INVALID\_HANDLE\_VALUE ) {
+		printf( &amp;quot;打开设备失败\\n&amp;quot; );
+		break;
+	}
+
+	hThead\[0\] = CreateThread( NULL, 0, &amp;amp;ThreadProc, &amp;amp;hDevice, 0, &amp;amp;dwTemp );
+
+	if ( !hThead\[0\] ) {
+		printf( &amp;quot;创建线程1失败!\\n&amp;quot; );
+		break;
+	} else {
+		printf( &amp;quot;创建线程1成功, 线程1已经开始运行!\\n&amp;quot; );
+	}
+
+	hThead\[1\] = CreateThread( NULL, 0, &amp;amp;ThreadProc, &amp;amp;hDevice, 0, &amp;amp;dwTemp );
+
+	if ( !hThead\[1\] ) {
+		printf( &amp;quot;创建线程2失败!\\n&amp;quot; );
+		break;
+	} else {
+		printf( &amp;quot;创建线程2成功, 线程2已经开始运行!\\n&amp;quot; );
+	}
+
+	printf( &amp;quot;主线程开始等待两个线程返回\\n&amp;quot; );
+
+	WaitForMultipleObjects( 2, hThead, TRUE, INFINITE );
+	printf( &amp;quot;两个线程都已经返回!\\n&amp;quot; );
+
+} while ( FALSE );
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+if ( hDevice ) {
+CloseHandle( hDevice );
+}
+if ( hThead[0] ) {
+CloseHandle( hThead[0] );
+}
+if ( hThead[1] ) {
+CloseHandle( hThead[1] );
+}</p>
+<pre><code>system( &amp;quot;pause&amp;quot; );
+
+return 0;
+</code></pre>
+<p>}</p>
+<p>这边是内核态的:<br>
+ </p>
+<p>/*	Windows 内核下StartIo例程试验 0环代码
+编译方法参见makefile. TAB = 8
+*/</p>
+<p>#include &lt;ntddk.h&gt;
+#define DEVICE_NAME	L&quot;\\Device\\StartIo&quot;
+#define SYS_LINK_NAME	L&quot;\\??\\SysLinkStartIo&quot;</p>
+<p>typedef struct tagDeviceExt {
+PDEVICE_OBJECT pDeviceObj;
+UNICODE_STRING USzDeviceName;
+UNICODE_STRING USzSysLinkName;
+} DEVICE_EXT, *PDEVICE_EXT;</p>
+<p>//===========================================================================
+//驱动卸载例程
+//===========================================================================
+#pragma code_seg( &ldquo;PAGE&rdquo; )
+VOID DriverUnLoad ( PDRIVER_OBJECT pDriverObj ) {
+PDEVICE_EXT pDeviceExt = NULL;
+PDEVICE_OBJECT pNextDeviceObj = NULL;</p>
+<pre><code>pNextDeviceObj = pDriverObj-&gt;DeviceObject;
+
+while ( pNextDeviceObj != NULL ) {
+	pDeviceExt = pNextDeviceObj-&gt;DeviceExtension;
+
+	IoDeleteDevice( pDeviceExt-&gt;pDeviceObj );
+	IoDeleteSymbolicLink( &amp;pDeviceExt-&gt;USzSysLinkName );
+
+	KdPrint( ( &quot;删除%wZ设备成功!\\n&quot;, &amp;pDeviceExt-&gt;USzDeviceName ) );
+
+	pNextDeviceObj = pNextDeviceObj-&gt;NextDevice;
+}
+</code></pre>
+<p>}
+//===========================================================================
+//所有不关心的IRP处理例程
+//===========================================================================
+NTSTATUS DispatchRoutine( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {</p>
+<pre><code>pIrp-&gt;IoStatus.Information = 0;
+pIrp-&gt;IoStatus.Status = STATUS\_SUCCESS;
+
+IoCompleteRequest( pIrp, IO\_NO\_INCREMENT );
+
+return STATUS\_SUCCESS;
+</code></pre>
+<p>}
+//===========================================================================
+//取消IRP例程(这里为什么要降低IRQL没有搞明白)
+//===========================================================================
+VOID OnCancelIrp( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+KIRQL OldIrql;</p>
+<p>//	_asm int 3;
+//当前IRP正在被StartIo处理,
+if ( pIrp == pDeviceObj-&gt;CurrentIrp ) {</p>
+<pre><code>	//这里为何要获取原来的IRQL呢?
+	OldIrql = pIrp-&gt;CancelIrql;
+
+	//释放自旋锁, 这个倒是明白的. 必须要释放
+	IoReleaseCancelSpinLock( pIrp-&gt;CancelIrql );
+
+	//继续下一个IRP(这里是TRUE表示可以取消该IRP )
+	IoStartNextPacket( pDeviceObj, TRUE );
+
+	//降低回原来的特权级
+	KeLowerIrql( OldIrql );
+
+	KdPrint(( &quot;当前IRP正在被取消!\\n&quot; ));
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+} else {
+//从设备队列中将该IRP抽取出来(放弃该IRP)
+KeRemoveEntryDeviceQueue( &amp;pDeviceObj-&gt;DeviceQueue,
+&amp;pIrp-&gt;Tail.Overlay.DeviceQueueEntry );</p>
+<pre><code>	//释放自旋锁, 这个倒是明白的. 必须要释放
+	IoReleaseCancelSpinLock( pIrp-&gt;CancelIrql );
+
+	KdPrint(( &quot;当前IRP没有被StartIo处理, 将被取消!\\n&quot; ));
+}
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+//将该IRP改为取消
+pIrp-&gt;IoStatus.Information = 0;
+pIrp-&gt;IoStatus.Status = STATUS_CANCELLED;
+IoCompleteRequest( pIrp, IO_NO_INCREMENT );
+}
+//===========================================================================
+//写入请求
+//===========================================================================
+NTSTATUS DispatchWrite( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {</p>
+<p>//	_asm int 3;
+PAGED_CODE();</p>
+<pre><code>//将IRP设置为挂起
+IoMarkIrpPending( pIrp );
+
+//将IRP插入系统的队列(这里要设置取消例程)
+IoStartPacket( pDeviceObj, pIrp, 0, OnCancelIrp );
+
+KdPrint( ( &quot;写入请求处理, 挂起, 串行化, 返回Pending状态!\\n&quot; ) );
+
+//返回pending状态
+return STATUS\_PENDING;
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//StartIo例程, 串行化 IRQL = DISPATCH_LEVEL
+//===========================================================================
+#pragma code_seg( )
+VOID StartIoRoutine( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+KIRQL OldIrql;
+KEVENT Event;
+LARGE_INTEGER liTimeOut;
+PIO_STACK_LOCATION Stack = NULL;
+ULONG ulWriteLen, i;</p>
+<p>//	_asm int 3;
+PAGED_CODE_LOCKED();</p>
+<pre><code>//获取自旋锁
+IoAcquireCancelSpinLock( &amp;OldIrql );
+
+//如果当前StartIo有正在处理的IRP. 或者正在被取消
+if ( pIrp != pDeviceObj-&gt;CurrentIrp || pIrp-&gt;Cancel ) {
+
+	IoReleaseCancelSpinLock( OldIrql );
+	KdPrint( ( &quot;离开StartIo例程, 有正在被处理的IRP&quot; ) );
+	return;
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+} else {
+//这里准备开始处理IRP里, 所以这里我们取消掉原来
+//设置的取消例程
+IoSetCancelRoutine( pIrp, NULL );</p>
+<pre><code>	IoReleaseCancelSpinLock( OldIrql );
+}
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+//这里真正开始处理IRP了
+//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+KeInitializeEvent( &amp;Event, NotificationEvent, FALSE );</p>
+<pre><code>Stack = IoGetCurrentIrpStackLocation(pIrp);
+ulWriteLen = Stack-&gt;Parameters.Write.Length;
+
+for( i = 0; i &lt; ulWriteLen; i++ ) {
+	KdPrint(( &quot;%c\\t&quot;, \*((UCHAR\*)pIrp-&gt;AssociatedIrp.SystemBuffer + i) ));
+}
+KdPrint(( &quot;\\n&quot; ));
+
+//3秒
+liTimeOut.QuadPart = -3 \* 1000 \* 1000 \* 10;
+//这里模拟这个IRP处理需要3秒钟
+KeWaitForSingleObject( &amp;Event, Executive, KernelMode, FALSE, &amp;liTimeOut );
+
+pIrp-&gt;IoStatus.Information = 0;
+pIrp-&gt;IoStatus.Status = STATUS\_SUCCESS;
+IoCompleteRequest( pIrp, IO\_NO\_INCREMENT );
+
+KdPrint( ( &quot;离开StartIoRoutine例程, 处理完毕!\\n&quot; ) );
+
+//在队列中获取下一个IRP, 再次进入StartIo
+IoStartNextPacket( pDeviceObj, TRUE );
+</code></pre>
+<p>}
+//===========================================================================
+//驱动入口
+//===========================================================================
+#pragma code_seg( &ldquo;INIT&rdquo; )
+NTSTATUS DriverEntry( PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pUSzRegPath ) {
+ULONG i;
+NTSTATUS Status;
+PDEVICE_EXT pDeviceExt = NULL;
+PDEVICE_OBJECT pDeviceObj = NULL;
+UNICODE_STRING USzDeviceName = RTL_CONSTANT_STRING( DEVICE_NAME );
+UNICODE_STRING USzSysLinkName = RTL_CONSTANT_STRING( SYS_LINK_NAME );</p>
+<pre><code>Status = IoCreateDevice( pDriverObj, sizeof( DEVICE\_EXT ), &amp;USzDeviceName,
+			 FILE\_DEVICE\_UNKNOWN, 0, TRUE, &amp;pDeviceObj );
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint( ( &quot;创建设备失败!\\n&quot; ) );
+}
+
+Status = IoCreateSymbolicLink( &amp;USzSysLinkName, &amp;USzDeviceName );
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint( ( &quot;创建符号链接失败!\\n&quot; ) );
+}
+
+//设置设备属性和设备扩展
+pDeviceObj-&gt;Flags |= DO\_BUFFERED\_IO;
+pDeviceExt = pDeviceObj-&gt;DeviceExtension;
+pDeviceExt-&gt;pDeviceObj = pDeviceObj;
+pDeviceExt-&gt;USzDeviceName = USzDeviceName;
+pDeviceExt-&gt;USzSysLinkName = USzSysLinkName;
+
+//设置分发函数例程, 特别设置IRP\_MJ\_WRITE, 和StartIo例程
+for( i = 0; i &lt; IRP\_MJ\_MAXIMUM\_FUNCTION; i++ ) {
+	pDriverObj-&gt;MajorFunction\[i\] = &amp;DispatchRoutine;
+}
+pDriverObj-&gt;MajorFunction\[IRP\_MJ\_WRITE\] = &amp;DispatchWrite;
+pDriverObj-&gt;DriverStartIo = &amp;StartIoRoutine;
+pDriverObj-&gt;DriverUnload = &amp;DriverUnLoad;
+
+return Status;
+</code></pre>
+<p>}</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-11-10
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E5%86%85%E6%A0%B8%E5%AE%9A%E6%97%B6%E5%99%A8/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">内核定时器</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E8%87%AA%E5%AE%9A%E4%B9%89startio/">
+            <span class="next-text nav-default">自定义StartIo</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

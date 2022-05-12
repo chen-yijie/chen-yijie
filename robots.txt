@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://xchen.com/sitemap.xml

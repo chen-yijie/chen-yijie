@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Windows的分页机制 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="对于Windows的分页机制, 我一直还是比较自信的, 但是今天我发现在重写NewBluePill的X64分页机制到Win32上面的时候, 居然感" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/windows%E7%9A%84%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Windows的分页机制" />
+<meta property="og:description" content="对于Windows的分页机制, 我一直还是比较自信的, 但是今天我发现在重写NewBluePill的X64分页机制到Win32上面的时候, 居然感" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/windows%E7%9A%84%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2012-09-26T00:00:00+00:00" />
+<meta property="article:modified_time" content="2012-09-26T00:00:00+00:00" />
+
+<meta itemprop="name" content="Windows的分页机制">
+<meta itemprop="description" content="对于Windows的分页机制, 我一直还是比较自信的, 但是今天我发现在重写NewBluePill的X64分页机制到Win32上面的时候, 居然感"><meta itemprop="datePublished" content="2012-09-26T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2012-09-26T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1486">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Windows的分页机制"/>
+<meta name="twitter:description" content="对于Windows的分页机制, 我一直还是比较自信的, 但是今天我发现在重写NewBluePill的X64分页机制到Win32上面的时候, 居然感"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Windows的分页机制</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2012-09-26 </span>
+        <div class="post-category">
+            <a href="/categories/prote/"> prote </a>
+            </div>
+          <span class="more-meta"> 约 1486 字 </span>
+          <span class="more-meta"> 预计阅读 3 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#87002e0-0000000012a59001-0000000012a1a001">87002e0 00000000`12a59001 00000000`12a1a001</a></li>
+    <li><a href="#87002f0-0000000012b9b001-0000000012ad8001">87002f0 00000000`12b9b001 00000000`12ad8001</a></li>
+    <li><a href="#8700300-00000000f8dcc320-0000000000000000">8700300 00000000`f8dcc320 00000000`00000000</a></li>
+    <li><a href="#8700310-0000000000000000-0000000000000000">8700310 00000000`00000000 00000000`00000000</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>对于Windows的分页机制, 我一直还是比较自信的, 但是今天我发现在重写NewBluePill的X64分页机制到Win32上面的时候, 居然感觉有些棘手, 看来啊, 很多东西还是不是看上去那样简单, 难点主要集中在原来倒腾没有分页的时候, 没有很好的和Windows结合起来, 现在面对着Windows, 感觉有些手生. 而且现在分页机制比原来多了. 原来只倒腾过一种, 最简单的, 现在有PAE, 还有X64的各种.. 搅在一起. 有些恶心.</p>
+<p>//=========================================================================== 内核调试的时候, 切换到某个用户态进程空间,</p>
+<p>1:使用!process 0 0 获取用户空间的所有的进程的信息</p>
+<p>!process 0 0</p>
+<p>2: 使用.process /p + 你需要断的应用程序的EProcess地址,切换到应用程序的地址空间</p>
+<p>.process /p 0x80a02a60</p>
+<p>3: 重新加载user PDB文件</p>
+<p>.reload /f /user</p>
+<p>4: 使用非侵入式的切换进程空间</p>
+<p>.process /i /p 0x80a02a60</p>
+<p>//=========================================================================== 线性地址到物理地址的转换没有开启PAE..CR3低12位无效</p>
+<p>kd&gt; r cr4
+cr4=000006d9
+kd&gt; .formats 06d9
+Evaluate expression:
+Hex: 000006d9
+Decimal: 1753
+Octal: 00000003331
+Binary: 00000000 00000000 00000110 11011001</p>
+<p>可以看到CR4的第5位为0, 所以是没有开启PAE物理地址扩展的..</p>
+<p>kd&gt; du 000acfe0 000acfe0 &ldquo;123654789.&rdquo;</p>
+<p>000acfe0里面存放的就是我们要转换的数据, 那么 000acfe0 = 00000000 00001010 11001111 11100000</p>
+<p>页目录索引0 页表索引AC 偏移FE0 0000000000 0010101100 111111100000</p>
+<p>CR3 = 193bd000 + 页目录索引0</p>
+<p>kd&gt; !dd 193bd000 == PDE C0300000
+#193bd000 19500067 19679067 194d3067 00000000
+#193bd010 192bb067 00000000 00000000 00000000
+#193bd020 00000000 00000000 00000000 00000000
+#193bd030 00000000 00000000 00000000 00000000</p>
+<p>19500067 = 00011001 01010000 00000000 01100111</p>
+<p>页表基址 G(全局页) 页大小(0=4K) D(页被写过) A(被访问过) PageCache WriteBack U/S(1表示是用户页) R/W(可读可写 ) 是否在物理内存(P) 00011001010100000000 000 0 0 1 1 0 0 1 1 1</p>
+<p>页表基址是19500000 加上页表索引 * 4</p>
+<p>kd&gt; !dd 19500000+AC*4 PTE C0000000 + AC*4</p>
+<p>#195002b0 19382067 194d5067 193d6067 195d8067
+#195002c0 19599067 1975a067 1975b067 1961c067
+#195002d0 1989d067 00000080 00000000 00000000
+#195002e0 00000000 00000000 00000000 00000000</p>
+<p>页目录内存为19382067, 高20位也就是19382000, 属性和上面一样.</p>
+<p>kd&gt; !dd 19382000+FE0
+#19382fe0 00320031 00360033 00340035 00380037
+#19382ff0 002e0039 00000000 00000000 00000000
+#19383000 00000000 00000000 00000000 00000000
+#19383010 00000000 00000000 00000000 00000000
+#19383020 016a0169 016c016b 016e016d 0170016f
+#19383030 01720171 01740173 01760175 01780177
+#19383040 017a0179 017c017b 017e017d 0180017f
+#19383050 01820181 01840183 01860185 01880187</p>
+<p>kd&gt; !du 19382000+FE0
+#19382fe0 &ldquo;123654789.&rdquo;</p>
+<p>OK这里就得到物理地址了.. 也就是说000acfe0虚拟地址对应的物理地址是19382fe0, 也可以使用!vtop来转换</p>
+<p>kd&gt; !vtop 193bd 000acfe0</p>
+<p>Pdi 0 Pti ac
+000acfe0 19382000 pfn(19382)</p>
+<p>//=========================================================================== 线性地址到物理地址的转换开启PAE..在启动参数加/PAE 在开启了PAE的时候, Windows规定了虚拟地址的c0600000存放PDE. c0000000存放PTE. 注意这里的CR3只有低5位无效</p>
+<p>r cr4 = 6f9 00000000 00000000 00000110 11111001开启了PAE物理地址扩展</p>
+<p>kd&gt; du 000ace70 000ace70 &ldquo;65884265896.&rdquo;</p>
+<p>000ace70 里面存放的就是我们要转换的数据, 那么 000ace70 = 00000000 00001010 11001110 01110000</p>
+<p>页目录指针表 页目录表索引0 页表索引AC 偏移E70 00 000000000 010101100 111001110000</p>
+<p>CR3 = 087002e0 + 页目录索引0</p>
+<p>kd&gt; !dq 087002e0</p>
+<h1 id="87002e0-0000000012a59001-0000000012a1a001">87002e0 00000000`12a59001 00000000`12a1a001</h1>
+<h1 id="87002f0-0000000012b9b001-0000000012ad8001">87002f0 00000000`12b9b001 00000000`12ad8001</h1>
+<h1 id="8700300-00000000f8dcc320-0000000000000000">8700300 00000000`f8dcc320 00000000`00000000</h1>
+<h1 id="8700310-0000000000000000-0000000000000000">8700310 00000000`00000000 00000000`00000000</h1>
+<p>12a59001 = 00010010 10100101 10010000 00000001</p>
+<p>页目录表基址是12a59000 加上页表索引 * 8 PDE</p>
+<p>kd&gt; !dq 12a59000+0*8 = C0600000 + 0 * 8</p>
+<p>#12a59000 00000000`129df067 00000000`129b5067
+#12a59010 00000000`12c1b067 00000000`00000000
+#12a59020 00000000`12979067 00000000`12a7a067
+#12a59030 00000000`00000000 00000000`00000000</p>
+<p>页表索引内存为00000000`129df067, 高20位也就是129df000, 属性和上面一样. PTE</p>
+<p>kd&gt; !dq 129df000+AC*8 = C0000000+AC*8</p>
+<p>#129df560 00000000`12929067 00000000`1297d067
+#129df570 00000000`1297e067 00000000`12e80067
+#129df580 00000000`12b41067 00000000`12a82067
+#129df590 00000000`12b03067 00000000`12ac4067</p>
+<p>kd&gt; !du 12929000+E70
+#12929e70 &ldquo;65884265896.&rdquo;</p>
+<p>OK这里就得到物理地址了.. 也就是说000ace70虚拟地址对应的物理地址是12929e70, 也可以使用!vtop来转换, 不过这个有PAE的时候 要注意了 kd&gt; !vtop 12a59000 000ace70</p>
+<p>这样才能够转换成功. 得CR3取一次.</p>
+<p>//===========================================================================</p>
+<p>差不多就这些了. 写代码的时候, 我们就要将整个Windows的页面映射情况, Copy一份出来, 完了之后再将Windows对自己的映射这份删除掉, 这样就可以实现, 我可以打你的脸, 你不能打我的脸. 暴力. 太暴力了.</p>
+<p>当然说到CopyWindows的页表的话, 我还想多说两句, 首先, 要根据PAE开启和位开启的情况做不同处理, 还有页面是大页面, 小页面也要考虑到. 其实只需要映射操作系统这边的内存就可以了. 用户态的基本没有什么用吧. 我们只需要能够实现调用到系统的一些函数就可以.. 恩, 思路就是这样!!!</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2012-09-26
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/bochs%E8%B0%83%E8%AF%95vt%E4%BB%A3%E7%A0%81/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">bochs调试VT代码</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/newbluepill%E6%89%93%E5%8D%B0%E7%B3%BB%E7%BB%9F/">
+            <span class="next-text nav-default">NewBluePill打印系统</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

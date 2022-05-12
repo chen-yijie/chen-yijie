@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Win32与内核同步 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="关于这个线程同步这块, 就比较恶心了, Windows驱动开发技术详解里面 这章的源码都没有. 难道是当时忘记了? 不应该啊! 我倒. 虽然说起来和Win" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/win32%E4%B8%8E%E5%86%85%E6%A0%B8%E5%90%8C%E6%AD%A5/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Win32与内核同步" />
+<meta property="og:description" content="关于这个线程同步这块, 就比较恶心了, Windows驱动开发技术详解里面 这章的源码都没有. 难道是当时忘记了? 不应该啊! 我倒. 虽然说起来和Win" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/win32%E4%B8%8E%E5%86%85%E6%A0%B8%E5%90%8C%E6%AD%A5/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-11-05T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-11-05T00:00:00+00:00" />
+
+<meta itemprop="name" content="Win32与内核同步">
+<meta itemprop="description" content="关于这个线程同步这块, 就比较恶心了, Windows驱动开发技术详解里面 这章的源码都没有. 难道是当时忘记了? 不应该啊! 我倒. 虽然说起来和Win"><meta itemprop="datePublished" content="2011-11-05T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-11-05T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2988">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Win32与内核同步"/>
+<meta name="twitter:description" content="关于这个线程同步这块, 就比较恶心了, Windows驱动开发技术详解里面 这章的源码都没有. 难道是当时忘记了? 不应该啊! 我倒. 虽然说起来和Win"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Win32与内核同步</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-11-05 </span>
+        <div class="post-category">
+            <a href="/categories/kernel/"> kernel </a>
+            </div>
+          <span class="more-meta"> 约 2988 字 </span>
+          <span class="more-meta"> 预计阅读 6 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>关于这个线程同步这块, 就比较恶心了, Windows驱动开发技术详解里面 这章的源码都没有. 难道是当时忘记了? 不应该啊! 我倒. 虽然说起来和Win32上面差不多, 但是也不能这样. 连个源码都看不到. 也许是觉得这章并没有什么实际的例子好讲,我看到了第九章的时候, 关于IRP的同步问题, 大部分都用了这个知识, 所以我觉得第8章的话, 先混个眼熟就可以. 回头下面几章的时候再倒腾.</p>
+<p>但是第8章, 还是有不少比较有营养的内容的, 首先就是创建线程部分了. 这个必须于要试验下, 还有就是用户层传递一个同步事件对象给内核.内核等待这个对象, 或者是设置这个对象. 真是暴力. 在Win32上面我们拿到的都是句柄, 但是在内核里面就都可以转成指针了.一般是调用ObReferenceObjectByHandle, 这号函数非常好使. 不但可以转这个同步对象, 其他的很多东西都可以转, 只要有句柄就可以. 另外还有个将名称转换成指针, 到时候用到再写!</p>
+<p>要说这个同步的话, Win32和内核里面用起来都差不多, 无非是多了几个参数而已. 只是内核里面比Win32多了一个自旋锁. 还有一系列的原子操作函数. 其他的操作起来都差不多, 事件, 信号灯,  互斥量, 还多了一种快速互斥量, 互斥量和快速互斥量之间的区别只是互斥量可以递归的获取, 而快速互斥量不能够递归的获取, 快速互斥量因为不能递归获取, 所以速度上要快一段. 但是就我刚才在虚拟机上面做的实验来看的话, 这个差别太小了. 几乎都是差不多的用. 也许是我实验的比较片面.</p>
+<p>但是Win32下面的临界区好像在内核里面没有了. 临界区的话我感觉和自旋锁差不多.当然是用起来. 其他的也没有什么好说的. 我还是说说下面这个代码的逻辑, 首先就是在用户态发送一个IOCTL_CONTROL_CREATETHREAD控制码, 然后内核就是创建两个线程, 在这两个线程中, 我们模拟做一些事情, 然后在主线程中我们等待两个线程的返回, 我死活没有实验出来为什么我调用KeWaitForMultipleObjects会失败. 查了不少资料也没有找到办法, 老是蓝屏.  那我只能分两次来等待对象了. 我倒&hellip;</p>
+<p>然后在用户态这边又创建了一个时间对象, 就是用来实验用户态的对象可以传递给内核使用的, 在DeviceIoControl函数中, 发送IOCTL_CONTROL_SHOREEVENT控制码, 在此并且将句柄传递给内核. 然后在内核里面将句柄转换成指针, 然后设置事件, 并返回, 如果一切正常那么这时候用户态这边调用WaitForSingleObject去等待这个对象那么就会马上返回了.. 差不多就是这些了!</p>
+<p>直接上代码. 这边是用户态的:</p>
+<p>/*
+Windows内核与Win32进行同步操作 3环代码
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;winioctl.h&gt;</p>
+<p>#define  SYS_LINK_NAME	&ldquo;\\\\.\\SysLinkWaitForEvent&rdquo;</p>
+<p>//		             设备类型             功能号 I/O访问内存使用方式 权限
+#define IOCTL_CONTROL_CREATETHREAD CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800, METHOD_BUFFERED, FILE_ANY_ACCESS )
+#define IOCTL_CONTROL_SHOREEVENT CTL_CODE(FILE_DEVICE_UNKNOWN, 0x801, METHOD_BUFFERED, FILE_ANY_ACCESS )</p>
+<p>#pragma comment(linker, &ldquo;/Entry:Jmain&rdquo;)
+#pragma comment(linker, &ldquo;/subsystem:console&rdquo;)
+//===========================================================================
+//线程函数.
+//===========================================================================
+DWORD WINAPI Thread1( PVOID pContext ) {
+HANDLE hEvent;
+DWORD  dwCount;</p>
+<pre><code>hEvent = \*(HANDLE\*)pContext;
+dwCount = GetTickCount();
+
+printf( &quot;进入线程函数, 进行等待!\\n&quot; );
+
+//很明显, 如果这里内核不将该事件置位, 那么是不会返回的.
+WaitForSingleObject( hEvent, INFINITE );
+
+printf( &quot;等待成功, 等待了 %u !\\n&quot;, GetTickCount() - dwCount );
+ExitThread(0);
+</code></pre>
+<p>}
+//===========================================================================
+int Jmain() {
+HANDLE	hFile = 0;
+HANDLE	hEvent = 0;
+HANDLE	hThread = 0;
+BOOL	bRet;
+DWORD	dwByteRead;
+DWORD	dwThreadId;
+//打开设备
+do {
+//创建用户层同步对象, 传递进内核进行修改
+hEvent = CreateEvent( NULL, FALSE, FALSE, NULL );
+if ( hEvent == NULL ) {
+printf( &ldquo;创建同步事件失败!\n&rdquo; );
+break;
+}</p>
+<pre><code>	hFile = CreateFile( SYS\_LINK\_NAME, GENERIC\_READ | GENERIC\_WRITE, 0, 0,
+	                    OPEN\_EXISTING, FILE\_ATTRIBUTE\_NORMAL, 0  );
+	if ( hFile == INVALID\_HANDLE\_VALUE ) {
+		printf( &quot;打开设备错误了!\\n&quot; );
+		break;
+	}
+
+	bRet = DeviceIoControl( hFile, IOCTL\_CONTROL\_CREATETHREAD, NULL, 0,
+	                        NULL, 0, &amp;dwByteRead, NULL );
+	if ( !bRet ) {
+		printf( &quot;发送IOCTL\_CONTROL\_CREATETHREAD控制码失败!\\n&quot; );
+		break;
+	}
+
+	//创建一个线程等待. 不然看不出效果
+	hThread = CreateThread( NULL, 0, &amp;Thread1, &amp;hEvent, 0, &amp;dwThreadId );
+	if (hThread == NULL ) {
+		printf( &quot;创建线程失败!\\n&quot; );
+		break;
+	}
+
+	Sleep( 1000 );
+	bRet = DeviceIoControl( hFile, IOCTL\_CONTROL\_SHOREEVENT, &amp;hEvent, sizeof( hEvent ),
+	                        NULL, 0, &amp;dwByteRead, NULL );
+	if ( !bRet ) {
+		printf( &quot;发送IOCTL\_CONTROL\_SHOREEVENT控制码失败!\\n&quot; );
+		break;
+	}
+
+	//等待线程返回
+	WaitForSingleObject( hThread, INFINITE );
+
+	printf( &quot;事件被成功置位, 并返回, 程序退出!\\n&quot; );
+} while ( FALSE );
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+if ( hFile ) {
+CloseHandle( hFile );
+}</p>
+<pre><code>if ( hEvent ) {
+	CloseHandle( hEvent );
+}
+
+if ( hThread ) {
+	CloseHandle( hThread );
+}
+system( &quot;pause&quot; );
+
+ExitProcess( 0 );
+return 0;
+</code></pre>
+<p>}</p>
+<p>这边是内核态的代码:</p>
+<p> </p>
+<p>/*
+Windows内核与Win32进行同步操作 0环代码
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;ntddk.h&gt;</p>
+<p>typedef struct tagDeviceExt {
+PDEVICE_OBJECT pDeviceObj;
+UNICODE_STRING uSzDeviceName;
+UNICODE_STRING uSzSysLinkName;
+} DEVICE_EXT, *PDEVICE_EXT;</p>
+<p>#define IOCTL_CONTROL_CREATETHREAD CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800, METHOD_BUFFERED, FILE_ANY_ACCESS )
+#define IOCTL_CONTROL_SHOREEVENT CTL_CODE(FILE_DEVICE_UNKNOWN, 0x801, METHOD_BUFFERED, FILE_ANY_ACCESS )</p>
+<p>#define DEVICE_NAME	L&quot;\\Device\\DevWaitForEvent&quot;
+#define SYS_LINK_NAME	L&quot;\\??\\SysLinkWaitForEvent&quot;</p>
+<p>#pragma code_seg(&ldquo;PAGE&rdquo;)
+//===========================================================================
+//	用户线程Routine
+VOID SysRoutine( PVOID pContext ) {
+PEPROCESS pEprocess;
+PTSTR pStrProcessName;
+PKEVENT phEvent;</p>
+<pre><code>PAGED\_CODE();
+
+phEvent = ( PKEVENT )pContext;
+
+//获取进程名称
+pEprocess = IoGetCurrentProcess();
+pStrProcessName = ( PTSTR )( ( ULONG )pEprocess + 0x174 );
+KdPrint( ( &quot;进程名称:%s\\n&quot;,  pStrProcessName ) );
+
+//停止50毫秒
+KeStallExecutionProcessor( 50 );
+//置位事件
+KeSetEvent( phEvent, IO\_NO\_INCREMENT, FALSE );
+//结束本进程
+PsTerminateSystemThread( STATUS\_SUCCESS );
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//	系统线程
+VOID UserRoutine( PVOID pContext ) {
+PKEVENT	phEvent;
+PEPROCESS pEprocess;
+PTSTR pStrProcessName;</p>
+<pre><code>PAGED\_CODE();
+phEvent = ( PKEVENT )pContext;
+
+//获取进程名称
+pEprocess = IoGetCurrentProcess();
+pStrProcessName = ( PTSTR )( ( ULONG )pEprocess + 0x174 );
+KdPrint( ( &quot;进程名称:%s\\n&quot;,  pStrProcessName ) );
+
+//停止50毫秒
+KeStallExecutionProcessor( 50 );
+//置位事件
+KeSetEvent( phEvent, IO\_NO\_INCREMENT, FALSE );
+//结束本进程
+PsTerminateSystemThread( STATUS\_SUCCESS );
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//驱动卸载例程
+VOID DriverUnload( PDRIVER_OBJECT pDriverObj ) {
+PDEVICE_OBJECT pNextDeviceObj;
+PDEVICE_EXT pDeviceExt;</p>
+<pre><code>PAGED\_CODE();
+pNextDeviceObj = pDriverObj-&gt;DeviceObject;
+
+while( pNextDeviceObj != NULL ) {
+	pDeviceExt = ( PDEVICE\_EXT )pNextDeviceObj-&gt;DeviceExtension;
+
+	IoDeleteDevice( pDeviceExt-&gt;pDeviceObj );
+	IoDeleteSymbolicLink( &amp;pDeviceExt-&gt;uSzSysLinkName );
+
+	KdPrint( ( &quot;删除设备%wZ成功!\\n&quot;, &amp;pDeviceExt-&gt;uSzDeviceName ) );
+
+	pNextDeviceObj = pNextDeviceObj-&gt;NextDevice;
+}
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//	所有不关心的例程处理
+NTSTATUS DispatchRoutine( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+pIrp-&gt;IoStatus.Information = 0;
+pIrp-&gt;IoStatus.Status = STATUS_SUCCESS;
+IoCompleteRequest( pIrp, IO_NO_INCREMENT );
+return STATUS_SUCCESS;
+}</p>
+<p>//===========================================================================
+#pragma code_seg()
+//	DeviceIoControl函数IRP处理
+NTSTATUS DispatchControl( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+ULONG Code;
+KIRQL OldIrp;
+HANDLE hThread[2];
+KEVENT hEvent[2];
+HANDLE hUserEvent;
+PKEVENT phEvent;
+NTSTATUS Status;
+PIO_STACK_LOCATION Stack;
+//KWAIT_BLOCK Arrblock[5];</p>
+<pre><code>Stack = IoGetCurrentIrpStackLocation( pIrp );
+//获取IO控制码
+Code = Stack-&gt;Parameters.DeviceIoControl.IoControlCode;
+Status = STATUS\_UNSUCCESSFUL;
+</code></pre>
+<p>//===========================================================================
+//创建多个线程试验
+//===========================================================================
+if ( Code == IOCTL_CONTROL_CREATETHREAD ) {</p>
+<pre><code>	//初始化事件对象(初始化为未激发状态)
+	KeInitializeEvent( &amp;hEvent\[0\], NotificationEvent, FALSE );
+	KeInitializeEvent( &amp;hEvent\[1\], NotificationEvent, FALSE );
+
+	//保证这个代码必须在Dispatch级别运行
+	ASSERT( KeGetCurrentIrql() &lt;= DISPATCH\_LEVEL );
+
+	//提升IRP
+	KeRaiseIrql( DISPATCH\_LEVEL, &amp;OldIrp );
+
+	//恢复先前的IRP
+	KeLowerIrql( OldIrp );
+
+	//创建线程(参数4指定是用户线程函数系统线程, 很明显这里是系统线程)
+	Status = PsCreateSystemThread( &amp;hThread\[0\], 0, NULL, NULL, NULL, &amp;SysRoutine, &amp;hEvent\[0\] );
+
+	if ( !NT\_SUCCESS( Status ) ) {
+		KdPrint( ( &quot;创建系统线程失败!\\n&quot; ) );
+		return Status;
+	}
+
+	//创建线程(这里指定的是用户线程)
+	Status = PsCreateSystemThread( &amp;hThread\[1\], 0, NULL,
+	                               NtCurrentProcess(), NULL, &amp;UserRoutine, &amp;hEvent\[1\] );
+
+	if ( !NT\_SUCCESS( Status ) ) {
+		KdPrint( ( &quot;创建系统线程失败!\\n&quot; ) );
+		return Status;
+	}
+
+	//等待事件对象置位(不等待, ThreadRoutine用了栈上的变量, 要崩溃
+	KeWaitForSingleObject( &amp;hEvent\[0\], Executive, KernelMode, FALSE, NULL );
+	KeWaitForSingleObject( &amp;hEvent\[1\], Executive, KernelMode, FALSE, NULL );
+	//等待所有对象位置位才返回
+	//KeWaitForMultipleObjects(2, (PVOID)hEvent, WaitAll, Executive, \\
+	//	KernelMode, FALSE, 0, &amp;Arrblock\[0\] );
+
+	//清除同步对象
+	KeClearEvent( &amp;hEvent\[0\] );
+	KeClearEvent( &amp;hEvent\[1\] );
+	Status = STATUS\_SUCCESS;
+
+	KdPrint( ( &quot;IOCTL\_CONTROL\_CREATETHREAD 控制码成功执行!\\n&quot; ) );
+</code></pre>
+<p>//===========================================================================
+//		利用用户层创建的同步对象进行同步
+//===========================================================================
+} else if ( Code == IOCTL_CONTROL_SHOREEVENT ) {</p>
+<pre><code>	hUserEvent = \*( HANDLE\* )pIrp-&gt;AssociatedIrp.SystemBuffer;
+
+	if ( hUserEvent ) {
+		//将用户层传入的句柄转换成指针
+		Status  = ObReferenceObjectByHandle( hUserEvent, EVENT\_MODIFY\_STATE,
+			\*ExEventObjectType, KernelMode,	( PVOID\* )&amp;phEvent, NULL );
+
+		if ( !NT\_SUCCESS( Status ) ) {
+			KdPrint( ( &quot;转换用户层句柄失败!\\n&quot; ) );
+		} else {
+
+			KeSetEvent( phEvent, IO\_NO\_INCREMENT, FALSE );
+			KdPrint( ( &quot;成功将用户层传入的句柄转换为指针, 并置位&quot; ) );
+		}
+		Status = STATUS\_SUCCESS;
+	} else {
+		Status = STATUS\_UNSUCCESSFUL;
+	}
+
+	KdPrint( ( &quot;IOCTL\_CONTROL\_SHOREEVENT 控制码成功执行!\\n&quot; ) );
+
+}
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+pIrp-&gt;IoStatus.Information = 0;
+pIrp-&gt;IoStatus.Status = Status;
+IoCompleteRequest( pIrp, IO_NO_INCREMENT );
+return Status;
+}
+//===========================================================================
+//	驱动程序的入口
+#pragma code_seg( &ldquo;INIT&rdquo; )
+NTSTATUS DriverEntry( PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pUSzRegPath ) {
+ULONG i;
+NTSTATUS Status;
+PDEVICE_OBJECT pDeviceObj;
+PDEVICE_EXT pDeviceExt;
+UNICODE_STRING uSzDeviceName = RTL_CONSTANT_STRING( DEVICE_NAME );
+UNICODE_STRING uSzSysLinkName = RTL_CONSTANT_STRING( SYS_LINK_NAME );</p>
+<pre><code>//创建设备
+Status = IoCreateDevice( pDriverObj, sizeof( DEVICE\_EXT ), &amp;uSzDeviceName,
+                         FILE\_DEVICE\_UNKNOWN, 0, TRUE, &amp;pDeviceObj );
+
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint( ( &quot;创建设备失败!\\n&quot; ) );
+	return Status;
+}
+
+//创建符号链接
+Status = IoCreateSymbolicLink( &amp;uSzSysLinkName, &amp;uSzDeviceName );
+
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint( ( &quot;创建符号链接失败!\\n&quot; ) );
+	return Status;
+}
+
+//设置设备属性, 和设备扩展内容
+pDeviceExt = ( PDEVICE\_EXT )pDeviceObj-&gt;DeviceExtension;
+pDeviceExt-&gt;pDeviceObj = pDeviceObj;
+pDeviceExt-&gt;uSzDeviceName = uSzDeviceName;
+pDeviceExt-&gt;uSzSysLinkName = uSzSysLinkName;
+pDeviceObj-&gt;Flags |= DO\_BUFFERED\_IO;
+
+for( i = 0; i &lt; IRP\_MJ\_MAXIMUM\_FUNCTION; i++ ) {
+	pDriverObj-&gt;MajorFunction\[i\] = &amp;DispatchRoutine;
+}
+
+pDriverObj-&gt;DriverUnload = &amp;DriverUnload;
+pDriverObj-&gt;MajorFunction\[IRP\_MJ\_DEVICE\_CONTROL\] = &amp;DispatchControl;
+return Status;
+</code></pre>
+<p>}</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-11-05
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E5%8F%96%E6%B6%88irp/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">取消IRP</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E6%8C%87%E9%92%88%E7%9A%84%E5%87%A0%E4%B8%AA%E5%B0%8F%E9%97%AE%E9%A2%98/">
+            <span class="next-text nav-default">指针的几个小问题</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

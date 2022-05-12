@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>KiFastCallEntry KiServiceExit - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="从R3进入R0的代码很多人也有做过分析了. 这几天我也仔细看了下, 算是弄明白了. Windows不但有从R3进入R0的框架代码, 其实R0反调用R" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/kifastcallentry-kiserviceexit/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="KiFastCallEntry KiServiceExit" />
+<meta property="og:description" content="从R3进入R0的代码很多人也有做过分析了. 这几天我也仔细看了下, 算是弄明白了. Windows不但有从R3进入R0的框架代码, 其实R0反调用R" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/kifastcallentry-kiserviceexit/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2012-12-10T00:00:00+00:00" />
+<meta property="article:modified_time" content="2012-12-10T00:00:00+00:00" />
+
+<meta itemprop="name" content="KiFastCallEntry KiServiceExit">
+<meta itemprop="description" content="从R3进入R0的代码很多人也有做过分析了. 这几天我也仔细看了下, 算是弄明白了. Windows不但有从R3进入R0的框架代码, 其实R0反调用R"><meta itemprop="datePublished" content="2012-12-10T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2012-12-10T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2796">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="KiFastCallEntry KiServiceExit"/>
+<meta name="twitter:description" content="从R3进入R0的代码很多人也有做过分析了. 这几天我也仔细看了下, 算是弄明白了. Windows不但有从R3进入R0的框架代码, 其实R0反调用R"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">KiFastCallEntry KiServiceExit</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2012-12-10 </span>
+        <div class="post-category">
+            <a href="/categories/%E6%AF%94%E8%BE%83%E7%BB%99%E5%8A%9B%E7%9A%84%E5%86%85%E6%A0%B8%E7%A8%8B%E5%BA%8F/"> 比较给力的内核程序 </a>
+            </div>
+          <span class="more-meta"> 约 2796 字 </span>
+          <span class="more-meta"> 预计阅读 6 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>从R3进入R0的代码很多人也有做过分析了. 这几天我也仔细看了下, 算是弄明白了. Windows不但有从R3进入R0的框架代码, 其实R0反调用R3的框架也是有的, 回头仔细分析下. 公司的电脑没有批下来, 有点蛋疼. 有很多好的想法想整一下都苦于没有电脑. 只能作罢.</p>
+<p>本来吧, 公司不说配电脑, 那我就整个外星人. 一样很悠哉. 公司又说配电脑, 但是一直又批不下来, 卡在这里. 纠结.</p>
+<p>Windows内核情景分析上面使用的是ReadFile这个函数来表述如何进入内核的, 讲得不错, 但是有些地方没有讲清楚. 看来书还是太薄了. 从ReadFile会调用到NtReadFile例程上面, 这是NtReadFile的代码.</p>
+<p>kd&gt; u ntdll!NtReadFile
+ntdll!NtReadFile:
+7c92d9ce b8b7000000      mov     eax,0B7h
+7c92d9d3 ba0003fe7f      mov     edx,offset SharedUserData!SystemCallStub (7ffe0300)
+7c92d9d8 ff12            call    dword ptr [edx]
+7c92d9da c22400          ret     24h</p>
+<p>SystemCallStub里面存放了KiFastSystemCall的地址.</p>
+<p>ntdll!KiFastSystemCall:
+7c92e510 8bd4            mov     edx,esp
+7c92e512 0f34            sysenter</p>
+<p>sysenter进入的地址可以观察MSR176, 然后进入nt!KiFastCallEntry:</p>
+<p>KiFastCallEntry的主要功能有: 初始化系统堆栈 将上下文压入系统堆栈,压栈顺序见KTrap_Frame内核堆栈框架 将参数从用户模式堆栈复制到内核堆栈,以上步骤在关中断下进行的, 因为要用到 KUser_Shared_Data 确定服务例程的入口地址，包括使用那个服务表，是Shadow SSDT还是SSDT 转入服务例程入口</p>
+<p>8053e600 b923000000      mov     ecx,23h                           	; KGDT_R3_DATA OR RPL_MASK</p>
+<p>8053e605 6a30            push    30h
+8053e607 0fa1            pop     fs                                	; 只要进入内核..fs-&gt;KPCR(Kernel&rsquo;s Processor Control Region,内核进程控制区域)</p>
+<p>8053e609 8ed9            mov     ds,cx                             	; 使用23h选择子
+8053e60b 8ec1            mov     es,cx</p>
+<p>8053e60d 8b0d40f0dfff    mov     ecx,dword ptr ds:[0FFDFF040h]     	; _KPCR-&gt;_KTSS
+8053e613 8b6104          mov     esp,dword ptr [ecx+4]			; 取出_KTSS-&gt;esp0</p>
+<p>; 这里是模拟自陷框架,以形成和中断, 异常统一的框架 _KTRAP_FRAME
+; _KTRAP_FRAME.HardwareSegSs
+8053e616 6a23            push    23h					; KGDT_R3_DATA OR RPL_MASK
+;  _KTRAP_FRAME.HardwareEsp
+8053e618 52              push    edx					; R3 ss:esp
+; _KTRAP_FRAME.EFags
+8053e619 9c              pushfd						; R3 Eflags
+8053e61a 6a02            push    2					;
+8053e61c 83c208          add     edx,8					; edx -&gt; args 用户态参数
+8053e61f 9d              popfd						; Eflags = 2 中断已关闭
+8053e620 804c240102      or      byte ptr [esp+1],2			; 开启R3 Eflags的中断标记
+; _KTRAP_FRAME.SegCs
+8053e625 6a1b            push    1Bh					; R3 cs:eip
+; _KTRAP_FRAME.Eip 0FFDF0304h-&gt;_KUser_Shared_Data
+8053e627 ff350403dfff    push    dword ptr ds:[0FFDF0304h]		; ntdll!KiFastSystemCallRet
+; _KTRAP_FRAME.ErrorCode
+8053e62d 6a00            push    0					; 为了和中断保持一致, 中断会有错误码, 同时用于返回值
+; _KTRAP_FRAME.Ebp
+8053e62f 55              push    ebp
+; _KTRAP_FRAME.Ebx
+8053e630 53              push    ebx
+; _KTRAP_FRAME.esi
+8053e631 56              push    esi
+; _KTRAP_FRAME.edi
+8053e632 57              push    edi
+8053e633 8b1d1cf0dfff    mov     ebx,dword ptr ds:[0FFDFF01Ch]		; ebx&lt;-_KPCR.SelfPcr 这是pcr的指针
+; _KTRAP_FRAME.SegFs
+8053e639 6a3b            push    3Bh
+8053e63b 8bb324010000    mov     esi,dword ptr [ebx+124h]		; esi=_KPCR.PrcbData.CurrentThread _KTHREAD</p>
+<p>;_KTRAP_FRAME.ExceptionList
+8053e641 ff33            push    dword ptr [ebx]			; 异常链表</p>
+<p>8053e643 c703ffffffff    mov     dword ptr [ebx],0FFFFFFFFh		; 初始化链表
+; _KTHREAD.InitialStack
+8053e649 8b6e18          mov     ebp,dword ptr [esi+18h]		; 获取线程堆栈
+8053e64c 6a01            push    1					; MODE_MASK = User Mode
+; esp-&gt;_KTRAP_FRAME
+8053e64e 83ec48          sub     esp,48h				; 分配剩余 _KTRAP_FRAME 框架
+; ebp -&gt;_KTRAP_FRAME
+8053e651 81ed9c020000    sub     ebp,29Ch				; (_FX_SAVE_AREA)NPX_FRAME_LENGTH=210h, (_KTRAP_FRAME)KTRAP_FRAME_LENGTH=8C
+; _KTHREAD.PreviousMode
+8053e657 c6864001000001  mov     byte ptr [esi+140h],1			; MODE_MASK = 1 设置线程模式</p>
+<p>; 现在_KTRAP_FRAME已经建立完成
+; 计算初始堆栈线程的初始堆栈指针,包含NPX和_KTRAP_FRAME
+; 如果 ebp 和 esp 不相等, 那么这是一个V86模式的线程. 拒绝调用.
+8053e65e 3bec            cmp     ebp,esp
+8053e660 759a            jne     nt!KiFastCallEntry2+0x47 (8053e5fc)	; 处理V86模式的代码不看了.
+; _KTRAP_FRAME.Dr7
+8053e662 83652c00        and     dword ptr [ebp+2Ch],0			; 清空 Dr7 调试寄存器
+; _KTHREAD.DebugActive
+8053e666 f6462cff        test    byte ptr [esi+2Ch],0FFh		; 线程是否被调试状态
+; _KTHREAD.TrapFrame
+8053e66a 89ae34010000    mov     dword ptr [esi+134h],ebp		; ebp = _KTRAP_FRAME 保存新的 TrapFrame</p>
+<p>8053e670 0f854afeffff    jne     nt!Dr_FastCallDrSave (8053e4c0)	; 如果线程被调试, 那么还要做些处理, 这里先不管.</p>
+<p>8053e676 8b5d60          mov     ebx,dword ptr [ebp+60h]		; ebx = _KTRAP_FRAME-&gt;Ebp
+8053e679 8b7d68          mov     edi,dword ptr [ebp+68h]		; edi = _KTRAP_FRAME-&gt;Eip
+; _KTRAP_FRAME.DbgArgPointer
+8053e67c 89550c          mov     dword ptr [ebp+0Ch],edx		; edx = 参数指针
+; _KTRAP_FRAME.DbgArgMark
+8053e67f c74508000ddbba  mov     dword ptr [ebp+8],0BADB0D00h		; 0BADB0D00h 是什么?
+; _KTRAP_FRAME.DbgEbp
+8053e686 895d00          mov     dword ptr [ebp],ebx			; _KTRAP_FRAME.DbgEbp = _KTRAP_FRAME-&gt;Ebp
+8053e689 897d04          mov     dword ptr [ebp+4],edi			; _KTRAP_FRAME.DbgEip = _KTRAP_FRAME-&gt;Eip
+8053e68c fb              sti						; 开中断</p>
+<p>8053e68d 8bf8            mov     edi,eax				; eax = 标号
+8053e68f c1ef08          shr     edi,8					; Shadow ssdt的index 都在1000h以上
+8053e692 83e730          and     edi,30h			
+8053e695 8bcf            mov     ecx,edi				; 如果是shadow ecx = 10h，否则ecx =0h (bit11 bit12)
+; _KTHREAD.ServiceTable
+8053e697 03bee0000000    add     edi,dword ptr [esi+0E0h]		; 确定是哪个表
+8053e69d 8bd8            mov     ebx,eax
+8053e69f 25ff0f0000      and     eax,0FFFh
+; _SYSTEM_SERVICE_TABLE.NumberOfService
+8053e6a4 3b4708          cmp     eax,dword ptr [edi+8]			; 和 ssdt总项数比较,超出则跳
+8053e6a7 0f8345fdffff    jae     nt!KiBBTUnexpectedRange (8053e3f2)	; 如果jae, 试图将其转换到GUI线程, 这个不分析了</p>
+<p>8053e6ad 83f910          cmp     ecx,10h				; 测试是否调用 Shadow Ssdt
+8053e6b0 751a            jne     nt!KiFastCallEntry+0xcc (8053e6cc)	; 不跳则是shadow</p>
+<p>8053e6b2 8b0d18f0dfff    mov     ecx,dword ptr ds:[0FFDFF018h]		; ecx = _KPCR-&gt;_NT_TIB-&gt;Self 指向 _TEB
+8053e6b8 33db            xor     ebx,ebx
+8053e6ba 0b99700f0000    or      ebx,dword ptr [ecx+0F70h]		; _TEB.GdiBatchCount
+8053e6c0 740a            je      nt!KiFastCallEntry+0xcc (8053e6cc)
+8053e6c2 52              push    edx					; edx = argc
+8053e6c3 50              push    eax					; eax = Index
+8053e6c4 ff15e4405580    call    dword ptr [nt!KeGdiFlushUserBatch (805540e4)]
+8053e6ca 58              pop     eax					; eax = Index
+8053e6cb 5a              pop     edx					; edx  = argc</p>
+<p>8053e6cc ff0538f6dfff    inc     dword ptr ds:[0FFDFF638h]		; _KPRCB-&gt;KeSystemCalls++, 记录系统调用次数
+8053e6d2 8bf2            mov     esi,edx				; esi指向用户栈参数
+8053e6d4 8b5f0c          mov     ebx,dword ptr [edi+0Ch]		; ebx = ssdt-&gt;ParamTableBase
+8053e6d7 33c9            xor     ecx,ecx
+8053e6d9 8a0c18          mov     cl,byte ptr [eax+ebx]			; cl = 参数总共占得字节大小
+8053e6dc 8b3f            mov     edi,dword ptr [edi]			; edi=ssdt-&gt;ServiceTableBas
+8053e6de 8b1c87          mov     ebx,dword ptr [edi+eax*4]		; 找到对应函数地址
+8053e6e1 2be1            sub     esp,ecx				; 内核栈中为参数分配空间
+8053e6e3 c1e902          shr     ecx,2					; 除4,参数个数
+8053e6e6 8bfc            mov     edi,esp				; edi = 内核栈的参数位置</p>
+<p>; 检测参数是否在用户空间
+8053e6e8 3b35d49a5580    cmp     esi,dword ptr [nt!MmUserProbeAddress (80559ad4)]
+8053e6ee 0f83a8010000    jae     nt!KiSystemCallExit2+0x9f (8053e89c)</p>
+<p>; ecx是参数个数,从用户栈复制参数到内核栈,原来SSDT所有参数都是4个字节为单位的.
+8053e6f4 f3a5            rep movs dword ptr es:[edi],dword ptr [esi]
+; 终于高潮了. 这里调用例程地址
+8053e6f6 ffd3            call    ebx</p>
+<p>8053e6f8 8be5            mov     esp,ebp				; 恢复栈顶,此时栈顶是KTRAP_FRAME
+8053e6fa 8b0d24f1dfff    mov     ecx,dword ptr ds:[0FFDFF124h]		; ecx = _KTHREAD
+8053e700 8b553c          mov     edx,dword ptr [ebp+3Ch]		; edx = KTRAP_FRAME-&gt;Edx
+8053e703 899134010000    mov     dword ptr [ecx+134h],edx		; KThread-&gt;TrapFrame = KTRAP_FRAME-&gt;Edx 恢复ring3 陷阱帧.</p>
+<p>;==========================================================================
+;	这是返回过程
+;==========================================================================
+nt!KiServiceExit:
+8053e709 fa              cli						; 关中断
+8053e70a f7457000000200  test    dword ptr [ebp+70h],20000h		; _KTRAP_FRAME-&gt;EFlags is this a V86 frame
+8053e711 7506            jne     nt!KiServiceExit+0x10 (8053e719)	; 跳则不是V86
+8053e713 f6456c01        test    byte ptr [ebp+6Ch],1			; KTRAP_FRAME-&gt;SegCs 测试CS是否是R3选择子
+8053e717 7457            je      nt!KiServiceExit+0x67 (8053e770)	;如果CPL非0则跳.</p>
+<p>;==========================================================================
+; 处理APC
+;==========================================================================
+8053e719 8b1d24f1dfff    mov     ebx,dword ptr ds:[0FFDFF124h]		; ebx-&gt;_KTHREAD
+; _KTHREAD.Alerted
+8053e71f c6432e00        mov     byte ptr [ebx+2Eh],0			; 清除线程警觉位. APC有关.
+; _KTHREAD._KAPC_STATE.UserApcPending
+8053e723 807b4a00        cmp     byte ptr [ebx+4Ah],0			; 这里判断是否有APC挂起
+8053e727 7447            je      nt!KiServiceExit+0x67 (8053e770)	; 没有APC挂起</p>
+<p>8053e729 8bdd            mov     ebx,ebp
+; _KTRAP_FRAME.Eax
+8053e72b 894344          mov     dword ptr [ebx+44h],eax		; 保存调用例程的返回值
+; _KTRAP_FRAME.SegFs
+8053e72e c743503b000000  mov     dword ptr [ebx+50h],3Bh
+; _KTRAP_FRAME.SegDs
+8053e735 c7433823000000  mov     dword ptr [ebx+38h],23h
+; _KTRAP_FRAME.SegEs
+8053e73c c7433423000000  mov     dword ptr [ebx+34h],23h
+; _KTRAP_FRAME.SegGs
+8053e743 c7433000000000  mov     dword ptr [ebx+30h],0
+8053e74a b901000000      mov     ecx,1					; APC_LEVEL 将当前线程IRQL调整到APC_LEVEL
+8053e74f ff15f4864d80    call    dword ptr [nt!_imp_KfRaiseIrql (804d86f4)]
+8053e755 50              push    eax					; 保存旧的IRQL.
+8053e756 fb              sti						; 开中断以后, 有可能带来线程切换</p>
+<p>8053e757 53              push    ebx					; _KTRAP_FRAME
+8053e758 6a00            push    0					; Null exception frame
+8053e75a 6a01            push    1					; Previous mode = User Mode
+8053e75c e8b702fcff      call    nt!KiDeliverApc (804fea18)		; 投递APC消息</p>
+<p>8053e761 59              pop     ecx
+8053e762 ff151c874d80    call    dword ptr [nt!_imp_KfLowerIrql (804d871c)]; 恢复中断级
+; _KTRAP_FRAME.Eax
+8053e768 8b4344          mov     eax,dword ptr [ebx+44h]		; 重新读出Eax
+8053e76b fa              cli
+8053e76c ebab            jmp     nt!KiServiceExit+0x10 (8053e719)	; 这是一个循环, 循环的处理APC
+8053e76e 8bff            mov     edi,edi
+;==========================================================================
+; _KTRAP_FRAME._EXCEPTION_REGISTRATION_RECORD
+8053e770 8b54244c        mov     edx,dword ptr [esp+4Ch]		; ExceptionList
+; _KPCR.DebugActive
+8053e774 648b1d50000000  mov     ebx,dword ptr fs:[50h]
+; _KPCR._NT_TIB.ExceptionList
+8053e77b 64891500000000  mov     dword ptr fs:[0],edx			; 还原线程seh
+; _KTRAP_FRAME.PreviousPreviousMode
+8053e782 8b4c2448        mov     ecx,dword ptr [esp+48h]
+8053e786 648b3524010000  mov     esi,dword ptr fs:[124h]		; esi&ndash;&gt;_KTHREAD
+8053e78d 888e40010000    mov     byte ptr [esi+140h],cl			; _KTHREAD.PreviousMode = _KTRAP_FRAME.PreviousPreviousMode</p>
+<p>8053e793 f7c3ff000000    test    ebx,0FFh				; 当前线程是否在调试
+8053e799 7579            jne     nt!KiSystemCallExit2+0x17 (8053e814)	; 是被调试, 则跳走</p>
+<p>; _KTRAP_FRAME.EFlags = EFLAGS_V86_MASK
+8053e79b f744247000000200 test    dword ptr [esp+70h],20000h		; 判断当前是否是V86模式.
+8053e7a3 0f85eb080000    jne     nt!Kei386EoiHelper+0x12c (8053f094)	; 是, 则跳走
+; _KTRAP_FRAME.SegCs
+8053e7a9 66f744246cf9ff  test    word ptr [esp+6Ch],0FFF9h		; FRAME_EDITED
+8053e7b0 0f84b4000000    je      nt!KiSystemCallExit2+0x6d (8053e86a)</p>
+<p>8053e7b6 66837c246c1b    cmp     word ptr [esp+6Ch],1Bh			; set/clear ZF
+8053e7bc 660fba64246c00  bt      word ptr [esp+6Ch],0			; test MODE_MASK      set/clear CF
+8053e7c3 f5              cmc						; (CF=1 and ZF=0)
+8053e7c4 0f878e000000    ja      nt!KiSystemCallExit2+0x5b (8053e858)	; jmp if CF=0 and ZF=0</p>
+<p>; KGDT_R0_CODE
+8053e7ca 66837d6c08      cmp     word ptr [ebp+6Ch],8			;  _KTRAP_FRAME.Cs 选择子的合法性
+8053e7cf 7405            je      nt!KiServiceExit+0xcd (8053e7d6)	; 如果CS是内核模式, 那么我们直接就可以跳到恢复通用寄存器的地方
+; _KTRAP_FRAME.TsSegFs
+8053e7d1 8d6550          lea     esp,[ebp+50h]				; 恢复FS
+8053e7d4 0fa1            pop     fs
+; _KTRAP_FRAME.TsEdi
+8053e7d6 8d6554          lea     esp,[ebp+54h]				; 获取edi的值</p>
+<p>8053e7d9 5f              pop     edi					;
+8053e7da 5e              pop     esi
+8053e7db 5b              pop     ebx
+8053e7dc 5d              pop     ebp</p>
+<p>; _KTRAP_FRAME.DbgArgMark
+8053e7dd 66817c24088000  cmp     word ptr [esp+8],80h			;
+8053e7e4 0f87c6080000    ja      nt!Kei386EoiHelper+0x148 (8053f0b0)
+8053e7ea 83c404          add     esp,4
+8053e7ed f744240401000000 test    dword ptr [esp+4],1			; 是从用户空间发起的调用</p>
+<p>nt!KiSystemCallExitBranch:
+8053e7f5 7506            jne     nt!KiSystemCallExit2 (8053e7fd)	; 测试是否是从内核种发起的调用
+8053e7f7 5a              pop     edx
+8053e7f8 59              pop     ecx
+8053e7f9 9d              popfd
+8053e7fa ffe2            jmp     edx					; 从内核中发起的调用, 在这里返回</p>
+<p>nt!KiSystemCallExit:
+8053e7fc cf              iretd</p>
+<p>nt!KiSystemCallExit2:
+8053e7fd f644240901      test    byte ptr [esp+9],1			;
+8053e802 75f8            jne     nt!KiSystemCallExit (8053e7fc)		; 不为0是则是通过自陷指令进入内核的</p>
+<p>8053e804 5a              pop     edx					; New R3 EIP
+8053e805 83c404          add     esp,4					; Skip R3 DS
+8053e808 80642401fd      and     byte ptr [esp+1],0FDh			; NOT EFLAGS_INTERRUPT_MASK	; 关闭中断标记位
+8053e80d 9d              popfd						; 还原eflag
+8053e80e 59              pop     ecx					; ecx = _KTRAP_FRAME.esp  r3 的栈顶
+8053e80f fb              sti						; 开中断
+8053e810 0f35            sysexit					; 退出内核模式.
+;==========================================================================
+;	调试有关的处理
+;==========================================================================
+nt!Dr_FastCallDrSave:
+8053e4c0 f7457000000200  test    dword ptr [ebp+70h],20000h
+8053e4c7 750d            jne     nt!Dr_FastCallDrSave+0x16 (8053e4d6)
+8053e4c9 f7456c01000000  test    dword ptr [ebp+6Ch],1
+8053e4d0 0f84a0010000    je      nt!KiFastCallEntry+0x76 (8053e676)
+8053e4d6 0f21c3          mov     ebx,dr0
+8053e4d9 0f21c9          mov     ecx,dr1
+8053e4dc 0f21d7          mov     edi,dr2
+8053e4df 895d18          mov     dword ptr [ebp+18h],ebx
+8053e4e2 894d1c          mov     dword ptr [ebp+1Ch],ecx
+8053e4e5 897d20          mov     dword ptr [ebp+20h],edi
+8053e4e8 0f21db          mov     ebx,dr3
+8053e4eb 0f21f1          mov     ecx,dr6
+8053e4ee 0f21ff          mov     edi,dr7
+8053e4f1 895d24          mov     dword ptr [ebp+24h],ebx
+8053e4f4 894d28          mov     dword ptr [ebp+28h],ecx
+8053e4f7 33db            xor     ebx,ebx
+8053e4f9 897d2c          mov     dword ptr [ebp+2Ch],edi
+8053e4fc 0f23fb          mov     dr7,ebx
+8053e4ff 648b3d20000000  mov     edi,dword ptr fs:[20h]
+8053e506 8b9ff8020000    mov     ebx,dword ptr [edi+2F8h]
+8053e50c 8b8ffc020000    mov     ecx,dword ptr [edi+2FCh]
+8053e512 0f23c3          mov     dr0,ebx
+8053e515 0f23c9          mov     dr1,ecx
+8053e518 8b9f00030000    mov     ebx,dword ptr [edi+300h]
+8053e51e 8b8f04030000    mov     ecx,dword ptr [edi+304h]
+8053e524 0f23d3          mov     dr2,ebx
+8053e527 0f23d9          mov     dr3,ecx
+8053e52a 8b9f08030000    mov     ebx,dword ptr [edi+308h]
+8053e530 8b8f0c030000    mov     ecx,dword ptr [edi+30Ch]
+8053e536 0f23f3          mov     dr6,ebx
+8053e539 0f23f9          mov     dr7,ecx
+8053e53c e935010000      jmp     nt!KiFastCallEntry+0x76 (8053e676)</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2012-12-10
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/easy-rm-to-mp3-converterversion-2-7-3-700%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%E5%88%A9%E7%94%A8-txt/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Easy RM to MP3 Converter(version 2.7.3.700)缓冲区溢出利用</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/dbgkcreatethread/">
+            <span class="next-text nav-default">DbgkCreateThread</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Windbg Version - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="windbg 的版本现在让人越来越糊涂了. 我原来一直以为6.12 比6.3版本高.. 按说, 这是当然的事情. 最近仔细看老外总结的一篇文章, 发现我错了. 微软真" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/windbg-version/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Windbg Version" />
+<meta property="og:description" content="windbg 的版本现在让人越来越糊涂了. 我原来一直以为6.12 比6.3版本高.. 按说, 这是当然的事情. 最近仔细看老外总结的一篇文章, 发现我错了. 微软真" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/windbg-version/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2014-03-04T00:00:00+00:00" />
+<meta property="article:modified_time" content="2014-03-04T00:00:00+00:00" />
+
+<meta itemprop="name" content="Windbg Version">
+<meta itemprop="description" content="windbg 的版本现在让人越来越糊涂了. 我原来一直以为6.12 比6.3版本高.. 按说, 这是当然的事情. 最近仔细看老外总结的一篇文章, 发现我错了. 微软真"><meta itemprop="datePublished" content="2014-03-04T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2014-03-04T00:00:00+00:00" />
+<meta itemprop="wordCount" content="564">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Windbg Version"/>
+<meta name="twitter:description" content="windbg 的版本现在让人越来越糊涂了. 我原来一直以为6.12 比6.3版本高.. 按说, 这是当然的事情. 最近仔细看老外总结的一篇文章, 发现我错了. 微软真"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Windbg Version</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2014-03-04 </span>
+        <div class="post-category">
+            <a href="/categories/nothing/"> nothing </a>
+            </div>
+          <span class="more-meta"> 约 564 字 </span>
+          <span class="more-meta"> 预计阅读 2 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#windbg-versions">WinDbg Versions</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>windbg 的版本现在让人越来越糊涂了. 我原来一直以为6.12 比6.3版本高.. 按说, 这是当然的事情. 最近仔细看老外总结的一篇文章, 发现我错了. 微软真实恶心, 官方也没有看到一个windbg的发布纪事. 都不知道发布了多少windbg版本.. 这边转一下老外的文章.</p>
+<p><a href="http://debugging.wellisolutions.de/windbg-versions/" title="http://debugging.wellisolutions.de/windbg-versions/">http://debugging.wellisolutions.de/windbg-versions/</a></p>
+<h1 id="windbg-versions">WinDbg Versions</h1>
+<p><a href="http://debugging.wellisolutions.de/windbg-versions/#respond" title="Comment on WinDbg Versions">Leave a reply</a></p>
+<p> </p>
+<p>WinDbg, the probably most powerful debugger for Windows is part of the Microsoft Platform SDK or Microsoft Windows SDK. Recently, the version numbering changed and maybe confused some developers.</p>
+<p>When searching the Internet, I could not find a complete list of WinDbg versions including download links and release dates. The probably most official website listing version numbers is <a href="http://msdn.microsoft.com/en-us/windows/hardware/gg463041.aspx" title="Microsoft version information for WinDbg">available in MSDN</a>.  As WinDbg is part of Microsoft Windows SDKs, some <a href="http://www.microsoft.com/en-us/download/search.aspx?q=platform%20sdk&amp;fs=producttype~SDK%3boperatingsystems~%2522Windows%2520XP%2522&amp;p=1&amp;r=50&amp;t=74&amp;s=Relevancy~Descending" title="Microsoft Download Center with Filters">filter on the Microsoft download center</a> provide links to SDKs for download. Of course, <a href="http://en.wikipedia.org/wiki/Microsoft_Windows_SDK#Versions" title="Wikipedia on Windows SDK versions">Wikipedia</a> was also helpful. So I assembled my own table and I want to share it with you:</p>
+<table>
+<thead>
+<tr>
+<th>VERSION</th>
+<th>PART OF THIS SDK</th>
+<th>RELEASE DATE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WinDbg 6.1.0017.2</td>
+<td>Microsoft Platform SDK February 2003 (<a href="http://social.msdn.microsoft.com/Forums/en/windowssdk/thread/e1147034-9b0b-4494-a5bc-6dfebb6b7eb1" title="Download information">Download information</a>)</td>
+<td>2003-03-26</td>
+</tr>
+<tr>
+<td>WinDbg 6.2.0013.1</td>
+<td>?</td>
+<td>?</td>
+</tr>
+<tr>
+<td>WinDbg 6.3.0005.? Beta</td>
+<td>?</td>
+<td>?</td>
+</tr>
+<tr>
+<td>WinDbg 6.3.0017.0</td>
+<td>Microsoft Platform SDK August 2004 (<a href="http://social.msdn.microsoft.com/Forums/en/windowssdk/thread/9c3aa90a-b06c-44e5-bf03-4ffb930dbbd8" title="WinDbg download information">Download information</a>)</td>
+<td>2004-08-21</td>
+</tr>
+<tr>
+<td>WinDbg 6.4.0004.4</td>
+<td>?</td>
+<td>?</td>
+</tr>
+<tr>
+<td>WinDbg 6.4.0007.0 (Setup says 6.4.0007.2)</td>
+<td>Windows Server 2003 SP1 Platform SDK (<a href="http://www.microsoft.com/downloads/details.aspx?familyid=D8EECD75-1FC4-49E5-BC66-9DA2B03D9B92&amp;displaylang=en" title="Download Website">Download</a>) and also Windows Server 2003 R2 Platform SDK (<a href="http://download.cnet.com/Windows-Server-2003-R2-Platform-SDK-ISO-Download/3000-10248_4-10731094.html" title="Download website">Download</a>)</td>
+<td>2005-05-02 and 2006-03-14</td>
+</tr>
+<tr>
+<td>WinDbg 6.5.0003.8</td>
+<td>?</td>
+<td>2005-04-24</td>
+</tr>
+<tr>
+<td>WinDbg 6.6.0003.5</td>
+<td>?</td>
+<td>2006-01-18</td>
+</tr>
+<tr>
+<td>WinDbg 6.6.0007.5</td>
+<td>Microsoft Windows SDK for Windows Vista and .NET Framework 3.0 (<a href="http://download.microsoft.com/download/a/7/7/a7767f09-0136-4a96-a1f8-276bf0ee31fa/Setup.exe" title="Download web installer">Web installer</a>)</td>
+<td>2006-10-30</td>
+</tr>
+<tr>
+<td>WinDbg 6.7.0005.1</td>
+<td>?</td>
+<td>2007-06-20</td>
+</tr>
+<tr>
+<td>WinDbg 6.8.0004.0</td>
+<td>?</td>
+<td>2007-09-27</td>
+</tr>
+<tr>
+<td>WinDbg 6.9.0003.113</td>
+<td>?</td>
+<td>2008-03-20</td>
+</tr>
+<tr>
+<td>WinDbg 6.10.0003.233</td>
+<td>?</td>
+<td>2008-09-08</td>
+</tr>
+<tr>
+<td>WinDbg 6.11.0001.402</td>
+<td>?</td>
+<td>2009-01-30</td>
+</tr>
+<tr>
+<td>WinDbg 6.11.0001.404</td>
+<td>?</td>
+<td>2009-02-25</td>
+</tr>
+<tr>
+<td>WinDbg 6.12.0002.633</td>
+<td>Microsoft Windows SDK for Windows 7 and .NET Framework 4 (<a href="http://www.microsoft.com/downloads/en/details.aspx?FamilyID=6b6c21d2-2006-4afa-9702-529fa782d63b" title="Download website">Download</a>)</td>
+<td>2010-05-21</td>
+</tr>
+<tr>
+<td>WinDbg 6.0.?.?</td>
+<td>?</td>
+<td>?</td>
+</tr>
+<tr>
+<td>WinDbg 6.1.7600.16385 (?)</td>
+<td>Microsoft Windows SDK for Windows 7 and .NET Framework 3.5 SP 1 () (?)</td>
+<td>2009-07-24</td>
+</tr>
+<tr>
+<td>WinDbg 6.2.9200.16384</td>
+<td>Microsoft Windows SDK for Windows 8 and .NET Framework 4.5 (<a href="http://msdn.microsoft.com/en-US/windows/desktop/hh852363.aspx" title="SDK Download website">Download</a>)</td>
+<td>2012-11-15</td>
+</tr>
+<tr>
+<td>WinDbg 6.3.9600.16384</td>
+<td>Microsoft Windows SDK for Windows 8.1 (<a href="http://msdn.microsoft.com/en-us/windows/hardware/bg162891.aspx" title="SDK Download website">Download</a>)</td>
+<td>2013-10-17</td>
+</tr>
+</tbody>
+</table>
+<p>To keep updates simple, any corrections can be sent to <a href="mailto:windbg.yyyy-mm-dd@lockerflockig.de">windbg.yyyy-mm-dd@lockerflockig.de</a>, where yyyy-mm-dd is the current date (to bypass my email spam filter).</p>
+<p>Most times, the installer will detect the bitness of the operating system and then install the files for that bitness. So if you like both versions of WinDbg (32 bit and 64 bit), you have to install twice on different operating systems. Interestingly, the 2003 version still installs on newer PCs (Intel Core i5) but the 2004 version doesn’t.</p>
+<p>Note that the installer will often not install WinDbg directly but instead place another MSI installer into the Setup folder of the target directory. If you can’t find WinDbg.exe, you probably need to run another installer.</p>
+<p>Once you went through all the installation processes, you can make WinDbg portable by simply copying the whole directory to your USB stick (or wherever you want to have it available).</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2014-03-04
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/arm%E6%B1%87%E7%BC%96helloworld/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">ARM汇编HelloWorld</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/windbg-%E5%91%BD%E4%BB%A4%E6%94%B6%E9%9B%86/">
+            <span class="next-text nav-default">windbg 命令收集</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

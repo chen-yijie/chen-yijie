@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Irp超时处理 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="很多时候Irp被送到底层驱动程序后, 由于硬件设备的问题, Irp不能够得到及时的处理, 甚至有可能永远都不会被处理.这时候需要对Irp超时情况作" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/irp%E8%B6%85%E6%97%B6%E5%A4%84%E7%90%86/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Irp超时处理" />
+<meta property="og:description" content="很多时候Irp被送到底层驱动程序后, 由于硬件设备的问题, Irp不能够得到及时的处理, 甚至有可能永远都不会被处理.这时候需要对Irp超时情况作" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/irp%E8%B6%85%E6%97%B6%E5%A4%84%E7%90%86/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-11-11T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-11-11T00:00:00+00:00" />
+
+<meta itemprop="name" content="Irp超时处理">
+<meta itemprop="description" content="很多时候Irp被送到底层驱动程序后, 由于硬件设备的问题, Irp不能够得到及时的处理, 甚至有可能永远都不会被处理.这时候需要对Irp超时情况作"><meta itemprop="datePublished" content="2011-11-11T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-11-11T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1452">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Irp超时处理"/>
+<meta name="twitter:description" content="很多时候Irp被送到底层驱动程序后, 由于硬件设备的问题, Irp不能够得到及时的处理, 甚至有可能永远都不会被处理.这时候需要对Irp超时情况作"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Irp超时处理</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-11-11 </span>
+        <div class="post-category">
+            <a href="/categories/kernel/"> kernel </a>
+            </div>
+          <span class="more-meta"> 约 1452 字 </span>
+          <span class="more-meta"> 预计阅读 3 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>很多时候Irp被送到底层驱动程序后, 由于硬件设备的问题, Irp不能够得到及时的处理, 甚至有可能永远都不会被处理.这时候需要对Irp超时情况作出处理, 一旦在规定时间内Irp没有被处理, 操作系统就会进入到Irp的超时处理函数中.</p>
+<p>在驱动程序编程中, 经常遇到一种情况, 对某一设备的操作很久没有反应, 如果在规定时间内没有完成操作, 则要取消该操作, 取消例程需要程序员发出取消命令. 如在应用程序中执行CancelIo Win32 api函数, 或者在驱动程序中执行IoCanceIrp内核函数.当然也可以设置Irp超时, 当Irp超时后, 操作系统页会取消Irp. 从而进入Irp的取消例程.</p>
+<p>动作是这样的, 首先初始化一个定时器对象和一个Dpc对象, 并将Dpc例程和定时器对象进行关联, 在每次对Irp操作前.开启定时器, 并设置好一定时间的超时. 如果在指定时间内对irp的处理没有结束. 那么操作系统就会进入Dpc例程.还有如果驱动程序能在超时前结束Irp的操作. 则应该取消定时器. 从而保证不会再次取消Irp.</p>
+<p>下面这个代码对写入超时处理, 为了演示超时的效果. 在Irp_Mj_Write中直接在派遣函数中直接返回Pending.这样Irp就永远不会被结束了. 在超时到了, 就会进入超时处理函数. 在超时处理函数中Irp被超时结束. 当然也打印了一下.<br>
+ <br>
+ </p>
+<p>/*	Windows 内核下Irp超时处理 3环代码
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;</p>
+<p>#pragma comment( linker, &quot;/Entry:Jmain&quot; )
+#pragma comment( linker, &quot;/subsystem:console&quot; )</p>
+<p>#define DEVICE_NAME	&quot;\\\\.\\SysLinkTimeOut&quot;
+//===========================================================================
+//用户层入口
+//===========================================================================
+int Jmain() {
+CHAR cBuf[10];
+BOOL bRet;
+DWORD dwByteWrite;
+HANDLE hDevice = INVALID_HANDLE_VALUE;
+OVERLAPPED StOverLapped = {0};</p>
+<pre><code>do {
+	//异步打开设备
+	hDevice = CreateFile( DEVICE\_NAME, GENERIC\_READ | GENERIC\_WRITE,
+			      0, NULL, OPEN\_EXISTING,
+			      FILE\_ATTRIBUTE\_NORMAL | FILE\_FLAG\_OVERLAPPED, NULL );
+	if ( hDevice == INVALID\_HANDLE\_VALUE ) {
+		printf( &amp;quot;打开设备驱动失败!\\n&amp;quot; );
+		break;
+	}
+
+	RtlFillMemory(cBuf, sizeof( cBuf ), &amp;#39;a&amp;#39; );
+	bRet = WriteFile( hDevice, cBuf, sizeof( cBuf ), &amp;amp;dwByteWrite, &amp;amp;StOverLapped );
+	if ( !bRet ) {
+		printf ( &amp;quot;写入设备失败!\\n&amp;quot; ) ;
+		break;
+	}
+} while ( FALSE );
+
+if ( hDevice != INVALID\_HANDLE\_VALUE ) {
+	CloseHandle( hDevice );
+}
+system( &amp;quot;pause&amp;quot; );
+return 0;
+</code></pre>
+<p>}</p>
+<p>这边是内核的代码:<br>
+ </p>
+<p>/*	Windows 内核下Irp超时处理 0环代码
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;ntddk.h&gt;</p>
+<p>#define DEVICE_NAME		L&quot;\\Device\\DevTimeOut&quot;
+#define SYSLINK_NAME		L&quot;\\??\\SysLinkTimeOut&quot;</p>
+<p>typedef struct tagDevice_Ext {
+PIRP pIrp;
+KDPC StDpc;		//Dpc对象
+KTIMER StTimer;		//计时器对象
+PDEVICE_OBJECT pDevice;
+UNICODE_STRING USzDeviceName;
+UNICODE_STRING USzSysLinkName;
+} DEVICE_EXT, *PDEVICE_EXT;</p>
+<p>//===========================================================================
+//驱动卸载例程
+//===========================================================================
+VOID DriverUnload( PDRIVER_OBJECT pDriverObj ) {
+PDEVICE_EXT pDeviceExt = NULL;
+PDEVICE_OBJECT pNextDeviceObj = NULL;</p>
+<pre><code>pNextDeviceObj = pDriverObj-&gt;DeviceObject;
+
+while ( pNextDeviceObj != NULL ) {
+
+	pDeviceExt = pNextDeviceObj-&gt;DeviceExtension;
+
+	IoDeleteDevice( pDeviceExt-&gt;pDevice );
+	IoDeleteSymbolicLink( &amp;pDeviceExt-&gt;USzSysLinkName );
+
+	KdPrint( ( &quot;删除%wZ成功!\\n&quot;, &amp;pDeviceExt-&gt;USzDeviceName ) );
+	pNextDeviceObj = pNextDeviceObj-&gt;NextDevice;
+}
+</code></pre>
+<p>}
+//===========================================================================
+//所有不关心的Irp
+//===========================================================================
+NTSTATUS DispatchRoutine( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {</p>
+<pre><code>pIrp-&gt;IoStatus.Information = 0;
+pIrp-&gt;IoStatus.Status = STATUS\_SUCCESS;
+IoCompleteRequest( pIrp, IO\_NO\_INCREMENT );
+
+return STATUS\_SUCCESS;
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//写入请求处理
+//===========================================================================
+NTSTATUS DispatchWrite( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+LARGE_INTEGER liTimeOut;
+PDEVICE_EXT pDeviceExt = NULL;</p>
+<pre><code>pDeviceExt = pDeviceObj-&gt;DeviceExtension;
+ASSERT( pDeviceExt != NULL );
+
+//将当前Irp挂起
+IoMarkIrpPending( pIrp );
+
+pDeviceExt-&gt;pIrp = pIrp;
+
+//定义3S超时
+liTimeOut = RtlConvertLongToLargeInteger( -10 \* 3000 \* 10 );
+
+//开启定时器, 3秒后Irp返回失败, 这里肯定是返回失败了!
+//如果驱动程序能够超时前结束Irp的操作, 则应该取消定时器从而保证
+//不会被操作系统再次取消Irp
+KeSetTimer( &amp;pDeviceExt-&gt;StTimer, liTimeOut, &amp;pDeviceExt-&gt;StDpc );
+
+return STATUS\_PENDING;
+</code></pre>
+<p>}
+//===========================================================================
+//3秒DPC 取消例程
+//===========================================================================
+#pragma code_seg( )
+VOID OnTimerDpc( PKDPC pDpc, PVOID pContext, PVOID SysArg1, PVOID SysArg2 ) {
+PIRP pIrp = NULL;
+ULONG ulWriteLen, i;
+PUCHAR pBuf = NULL;
+PDEVICE_EXT pDeviceExt = NULL;
+PDEVICE_OBJECT pDeviceObj = NULL;
+PIO_STACK_LOCATION Stack = NULL;</p>
+<pre><code>PAGED\_CODE\_LOCKED();
+
+pDeviceExt = ( ( PDEVICE\_OBJECT )pContext )-&gt;DeviceExtension;
+pIrp = pDeviceExt-&gt;pIrp;
+
+Stack = IoGetCurrentIrpStackLocation( pIrp );
+ulWriteLen = Stack-&gt;Parameters.Write.Length;
+pBuf = pIrp-&gt;AssociatedIrp.SystemBuffer;
+
+for( i = 0; i &lt; 10; i++ ) {
+	KdPrint( ( &quot;%c\\t&quot;, \*( pBuf + i ) ) );
+}
+KdPrint( ( &quot;\\n&quot; ) );
+
+//取消IRP, Win32那边会返回失败!
+pIrp-&gt;IoStatus.Information = 0;
+pIrp-&gt;IoStatus.Status = STATUS\_CANCELLED;
+IoCompleteRequest( pIrp, IO\_NO\_INCREMENT );
+</code></pre>
+<p>}
+//===========================================================================
+//驱动入口
+//===========================================================================
+NTSTATUS DriverEntry( PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pUSzRegPath ) {
+NTSTATUS Status;
+ULONG i;
+PDEVICE_EXT pDeviceExt = NULL;
+PDEVICE_OBJECT pDevice = NULL;
+UNICODE_STRING USzDeviceName = RTL_CONSTANT_STRING( DEVICE_NAME );
+UNICODE_STRING USzSysLinkName = RTL_CONSTANT_STRING( SYSLINK_NAME );</p>
+<pre><code>Status = IoCreateDevice( pDriverObj, sizeof( DEVICE\_EXT ), &amp;USzDeviceName,
+			 FILE\_DEVICE\_UNKNOWN, 0, TRUE, &amp;pDevice );
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint( ( &quot;设备创建失败!\\n&quot; ) );
+	return Status;
+}
+
+Status = IoCreateSymbolicLink( &amp;USzSysLinkName, &amp;USzDeviceName );
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint( ( &quot;设备链接创建失败!\\n&quot; ) );
+	return Status;
+}
+
+pDevice-&gt;Flags |= DO\_BUFFERED\_IO;
+pDeviceExt = pDevice-&gt;DeviceExtension;
+pDeviceExt-&gt;pDevice = pDevice;
+pDeviceExt-&gt;USzDeviceName = USzDeviceName;
+pDeviceExt-&gt;USzSysLinkName = USzSysLinkName;
+
+//初始化定时器对象, Dpc对象
+KeInitializeTimer( &amp;pDeviceExt-&gt;StTimer );
+KeInitializeDpc( &amp;pDeviceExt-&gt;StDpc, &amp;OnTimerDpc, pDevice );
+
+for( i = 0; i &lt; IRP\_MJ\_MAXIMUM\_FUNCTION; i++ ) {
+	pDriverObj-&gt;MajorFunction\[i\] = &amp;DispatchRoutine;
+}
+pDriverObj-&gt;DriverUnload = &amp;DriverUnload;
+pDriverObj-&gt;MajorFunction\[IRP\_MJ\_WRITE\] = &amp;DispatchWrite;
+
+return Status;
+</code></pre>
+<p>}</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-11-11
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E7%94%A8%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F1/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">驱动程序调用驱动程序1</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E5%86%85%E6%A0%B8%E5%AE%9A%E6%97%B6%E5%99%A8/">
+            <span class="next-text nav-default">内核定时器</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

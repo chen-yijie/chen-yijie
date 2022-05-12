@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>键盘过滤二(接管93h中断) - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="这两天确实有些纠结啊, 理想很丰满, 现实很骨感.. 上一篇已经把键盘过滤写完, 用的是挂一个设备到KbdClass类驱动的设备上面.这是很正统的做" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E9%94%AE%E7%9B%98%E8%BF%87%E6%BB%A4%E4%BA%8C%E6%8E%A5%E7%AE%A193h%E4%B8%AD%E6%96%AD/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="键盘过滤二(接管93h中断)" />
+<meta property="og:description" content="这两天确实有些纠结啊, 理想很丰满, 现实很骨感.. 上一篇已经把键盘过滤写完, 用的是挂一个设备到KbdClass类驱动的设备上面.这是很正统的做" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E9%94%AE%E7%9B%98%E8%BF%87%E6%BB%A4%E4%BA%8C%E6%8E%A5%E7%AE%A193h%E4%B8%AD%E6%96%AD/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-11-27T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-11-27T00:00:00+00:00" />
+
+<meta itemprop="name" content="键盘过滤二(接管93h中断)">
+<meta itemprop="description" content="这两天确实有些纠结啊, 理想很丰满, 现实很骨感.. 上一篇已经把键盘过滤写完, 用的是挂一个设备到KbdClass类驱动的设备上面.这是很正统的做"><meta itemprop="datePublished" content="2011-11-27T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-11-27T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2496">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="键盘过滤二(接管93h中断)"/>
+<meta name="twitter:description" content="这两天确实有些纠结啊, 理想很丰满, 现实很骨感.. 上一篇已经把键盘过滤写完, 用的是挂一个设备到KbdClass类驱动的设备上面.这是很正统的做"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">键盘过滤二(接管93h中断)</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-11-27 </span>
+        <div class="post-category">
+            <a href="/categories/%E6%AF%94%E8%BE%83%E7%BB%99%E5%8A%9B%E7%9A%84%E5%86%85%E6%A0%B8%E7%A8%8B%E5%BA%8F/"> 比较给力的内核程序 </a>
+            </div>
+          <span class="more-meta"> 约 2496 字 </span>
+          <span class="more-meta"> 预计阅读 5 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>这两天确实有些纠结啊, 理想很丰满, 现实很骨感.. 上一篇已经把键盘过滤写完, 用的是挂一个设备到KbdClass类驱动的设备上面.这是很正统的做法, 不是很难就可以把这个问题解决. 再后面两个一个是搜索KbdClass驱动的分发函数进行Hook还有一个搜索端口驱动回调KbdClass的一个回调函数的地址. 这两个办法都遇到问题.. 还有这个替换93号中断也遇到问题..</p>
+<p>首先来说, Hook KbdClass的分发函数这个倒是很简单, 但是Hook以后就遇到一个问题, 因为KbdClass的分发函数被调用的时候是还没有被完成的, 所以在过滤设备的时候我们搞的是一个完成函数, 但是我们如果Hook KbdClass以后设置一个完成例程是不会被调用的, 我跟了下KbdClass驱动自己内部的反汇编代码, 原来它自己内部也设置了一个完成函数, 我倒..<br>
+ </p>
+<p>于是我想到了另外一个办法, 就是让KbdClass原来的分发函数执行完了以后再执行我们的函数, 但是这样又遇到一个问题, 因为KbdClass内部会将Irp下发, 或者Peeding. 反正处理KbdClass内部就没法再处理了.. 我倒. 没法解决, 寒江独钓里面也就给了个Hook分发函数的代码, 根本就起不到什么作用.<br>
+ </p>
+<p>还有一个问题就是关于搜索KbdClass在端口驱动中的回调函数地址, 按照寒江独钓里面的代码实现了下, 发现根本就搜索不到这个函数地址, 或者是我代码写错了? 就是是写准确了, 这个回调函数的原型是什么, 又是一个纠结的问题. 我倒. 寒江独钓啊&hellip;真是让人纠结的一本书.<br>
+ </p>
+<p>就这两个问题我专门发邮件给寒江独钓的作者谭文, 得到的解答居然是完全没有看我的问题, 只是敷衍了下, 一点营养都没有.. 谭文是这样回的邮件:<br>
+ </p>
+<p>你好！</p>
+<p>你的研究很有意思，也很深入。但是我不得不提醒你，你恐怕得独立研究。我不愿意也没有时间去看你的代码，因为我和你一样，我也有许多工作要做，而且和你的工作没有任何丝毫关联。我相信别人也和你我一样。祝你好运。</p>
+<p>我倒. 高手都很忙啊!算了, 先放放吧, 于是我前进, 接着敲这个接管93h中断的例子, 这个接管中断倒不是很难, 不过我想写的更进一步,就是实现和R3的通信, 所以还是和上一篇那个套路, R3的读取请求进入R0以后就先挂起来, 然后在R0这边接管了93h中断, 如果有按键消息那么就会进入我们设置的中断例程执行, 问题就在这里, 在我们的中断例程里面我们将键盘读取处理, 并且拿到了这个扫描码, 这时候按说是完成R3的读取请求, 如果是这样那么一切就完美了, 但是在中断例程中是不允许调用KeSetEvent函数的, 因为中断级太高了. 如果单纯的用DbgPrint打印一下当然很舒服了. 但是要完成R3的读取请求那就比较麻烦了..<br>
+ </p>
+<p>这时候我想到了DPC例程, 但是使用Dpc例程还是有问题, 我倒, 伤不起啊!因为键盘按下一个键是产生两个扫描码, 也就是说我们的中断例程会迅速被执行两次, 这时候Dpc例程很快就插入了两个, 然后中断例程执行完了以后退回来接着执行Dpc例程, Dpc例程里面结构以非常快的速度调用了KeSetEvent两次, 结果还是蓝屏. 我倒.<br>
+ </p>
+<p>不熟练啊, 看来Windows内核的讨论掌握的还是不够多啊!革命尚未成功, 还需要努力啊, 这边也算把接管中断这个写完了. 就是简单的DbgPrint打印了下, 先就这样吧!<br>
+ </p>
+<p>不过说回来, 我觉得这个接管中断还是没有意义, 现在的电脑一般都开始使用USB设备了, 这个中断很明显只能够适用于PS/2的键盘, 所以就当练练接管中断吧! </p>
+<p><img src="images/IdtKeyBoardCap.jpg" alt=""></p>
+<p>这边是代码非常简单了, 只是接管了个中断, 连设备都没有创建:</p>
+<p>/*
+Windows 内核下键盘过滤设备的简单演示, 接管93h中断 驱动层代码
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;ntddk.h&gt;
+#include &lt;windef.h&gt;
+#include &ldquo;IdtKeyBoard.h&rdquo;</p>
+<p>//===========================================================================
+//打开写保护 CR0 Bit16 WP = 1 禁止0环程序乱写乱画
+//===========================================================================
+VOID WriteProteOpen() {
+__asm {
+cli
+mov eax, cr0
+and eax, not 10000h
+mov cr0, eax
+}
+}
+//===========================================================================
+//关闭写保护 CR0 bit16 WP = 0 开启0环程序乱写乱画
+//===========================================================================
+VOID WriteProteClose() {
+__asm {
+mov eax, cr0
+or eax, 10000h
+mov cr0, eax
+sti
+}
+}
+//===========================================================================
+//等待键盘直到可读
+//===========================================================================
+ULONG WaitForKbRead() {
+ULONG i = 100;
+BYTE byChar;</p>
+<pre><code>do {
+	\_asm {
+		in	al, 0x64
+		mov	byChar, al
+	}
+	KeStallExecutionProcessor( 50 );
+	if( !( byChar &amp; OBUFFER\_FULL ) ) {
+		break;
+	}
+} while ( i-- );
+
+if( i ) return TRUE;
+
+return FALSE;
+</code></pre>
+<p>}
+//===========================================================================
+//等待键盘直到可写
+//===========================================================================
+ULONG WaitForKbWrite() {
+ULONG i = 100;
+BYTE byChar;</p>
+<pre><code>do {
+	\_asm {
+		in	al, 0x64
+		mov	byChar, al
+	}
+
+	KeStallExecutionProcessor( 50 );
+	if( !( byChar &amp; IBUFFER\_FULL ) ) {
+		break;
+	}
+} while ( i-- );
+
+if( i ) return TRUE;
+
+return FALSE;
+</code></pre>
+<p>}
+//===========================================================================
+// 首先读端口获得按键扫描码打印出来。然后将这个扫描码写回端口, 以便别的应用
+//程序能正确接收到按键, 如果不想让别的程序截获按键，可以写回一个任意的数据.
+//===========================================================================
+VOID NewInterruptFilter() {
+BYTE byKey;
+static BYTE byBeforKey = 0;</p>
+<pre><code>PAGED\_CODE\_LOCKED();
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+WaitForKbRead();
+_asm {
+in al, 0x60
+mov byKey, al
+}</p>
+<pre><code>KdPrint( ( &quot;读取到一个按键, 扫描码:%p\\n&quot;, byKey ) );
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+//  把数据写回端口，以便让别的程序可以正确读取.
+if( byBeforKey != byKey ) {</p>
+<pre><code>	byBeforKey = byKey;
+
+	\_asm {
+		mov	al, 0xd2
+		out	0x64, al
+	}
+
+	WaitForKbWrite();
+
+	\_asm {
+		mov	al, byKey
+		out	0x64, al
+	}
+}
+</code></pre>
+<p>}
+//===========================================================================
+// 下面这个函数用sidt指令读出一个P2C_IDTR结构, 并返回IDT的地址
+//===========================================================================
+VOID* Get93hIdt() {
+IDTR Idtr;</p>
+<pre><code>\_asm Sidt Idtr
+
+return ( void \* )Idtr.Base;
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+VOID* g_pOld93InterruptRoutine = NULL;			//旧的93h号中断地址
+//===========================================================================
+//93号中断中继函数
+//===========================================================================
+__declspec( naked ) New93InterruptProc() {</p>
+<pre><code>PAGED\_CODE\_LOCKED();
+\_\_asm {
+	pushad					// 保存所有的通用寄存器
+	pushfd					// 保存标志寄存器
+	call	NewInterruptFilter		// 调一个我们自己的函数
+	popfd					// 恢复标志寄存器
+	popad					// 恢复通用寄存器
+	jmp	g\_pOld93InterruptRoutine	// 跳到原来的中断服务程序
+}
+</code></pre>
+<p>}
+//===========================================================================
+//替换93h号中断
+//bFlags	:是Hook还是UnHook. True为Hook
+//===========================================================================
+NTSTATUS SetNew93Idt( BOOLEAN bFlags ) {
+KIRQL Irql;
+PIDT_ENTRY pStOld93Idt =  NULL;</p>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+//获取旧的93号Idt地址
+pStOld93Idt = ( ( PIDT_ENTRY )Get93hIdt() ) + 0x93;
+ASSERT( pStOld93Idt );</p>
+<pre><code>KdPrint ( ( &quot;系统中旧的93h中断地址%p\\n&quot;,
+            \_MAKELONG( pStOld93Idt-&gt;OffsetLow, pStOld93Idt-&gt;OffsetHight )  ) );
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+if( bFlags ) {</p>
+<pre><code>	g\_pOld93InterruptRoutine = ( void\* )\_MAKELONG(
+	                               pStOld93Idt-&gt;OffsetLow, pStOld93Idt-&gt;OffsetHight );
+	WriteProteClose();			//关闭写保护
+	Irql = KeRaiseIrqlToDpcLevel();		//提升IRQL中断级
+
+	pStOld93Idt-&gt;OffsetLow = LOW16\_OF\_32( &amp;New93InterruptProc );
+	pStOld93Idt-&gt;OffsetHight = HIGH16\_OF\_32( &amp;New93InterruptProc );
+
+	KeLowerIrql ( Irql );			//恢复Irql
+	WriteProteOpen();			//打开写保护
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+} else {
+WriteProteClose();			//关闭写保护
+Irql = KeRaiseIrqlToDpcLevel();		//提升IRQL中断级</p>
+<pre><code>	pStOld93Idt-&gt;OffsetLow = LOW16\_OF\_32( g\_pOld93InterruptRoutine );
+	pStOld93Idt-&gt;OffsetHight = HIGH16\_OF\_32( g\_pOld93InterruptRoutine );
+
+	KeLowerIrql ( Irql );			//恢复Irql
+	WriteProteOpen();			//打开写保护
+}
+
+KdPrint ( ( &quot;系统中当前的93h中断地址%p\\n&quot;,
+            \_MAKELONG( pStOld93Idt-&gt;OffsetLow, pStOld93Idt-&gt;OffsetHight ) ) );
+return STATUS\_SUCCESS;
+</code></pre>
+<p>}
+//===========================================================================
+//驱动卸载例程
+//===========================================================================
+VOID DriverUnLoad( PDRIVER_OBJECT pDriverObj ) {</p>
+<pre><code>//恢复旧的中断
+if ( g\_pOld93InterruptRoutine ) {
+	SetNew93Idt( FALSE );
+}
+</code></pre>
+<p>}
+//===========================================================================
+//驱动程序入口
+//===========================================================================
+#pragma code_seg( &ldquo;INIT&rdquo; )
+NTSTATUS DriverEntry(  PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pRegPath  ) {
+NTSTATUS Status;</p>
+<pre><code>pDriverObj-&gt;DriverUnload = &amp;DriverUnLoad;
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+//替换93h号中断
+Status = SetNew93Idt( TRUE );
+if ( !NT_SUCCESS( Status ) ) {
+KdPrint ( ( &ldquo;替换93号中断失败!\n&rdquo; ) );
+return Status;
+}
+//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+KdPrint ( ( &ldquo;DriverEntry执行完毕!\n&rdquo; ) );
+return Status;
+}</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-11-27
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/wdf%E8%99%9A%E6%8B%9F%E7%A3%81%E7%9B%98%E9%A9%B1%E5%8A%A8ramdisk/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">WDF虚拟磁盘驱动(RamDisk)</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E9%94%AE%E7%9B%98%E8%BF%87%E6%BB%A4%E4%B8%80%E7%BB%91%E5%AE%9Akbdclass/">
+            <span class="next-text nav-default">键盘过滤一(绑定KbdClass)</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

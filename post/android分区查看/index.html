@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Android分区查看 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="android 下面没有像以前windows 那样那么方便的查看分区情况. 前两天提到说查看android 下面的分区情况. 今天好好的看了下. 发现android" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/android%E5%88%86%E5%8C%BA%E6%9F%A5%E7%9C%8B/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Android分区查看" />
+<meta property="og:description" content="android 下面没有像以前windows 那样那么方便的查看分区情况. 前两天提到说查看android 下面的分区情况. 今天好好的看了下. 发现android" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/android%E5%88%86%E5%8C%BA%E6%9F%A5%E7%9C%8B/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2015-04-07T00:00:00+00:00" />
+<meta property="article:modified_time" content="2015-04-07T00:00:00+00:00" />
+
+<meta itemprop="name" content="Android分区查看">
+<meta itemprop="description" content="android 下面没有像以前windows 那样那么方便的查看分区情况. 前两天提到说查看android 下面的分区情况. 今天好好的看了下. 发现android"><meta itemprop="datePublished" content="2015-04-07T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2015-04-07T00:00:00+00:00" />
+<meta itemprop="wordCount" content="748">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Android分区查看"/>
+<meta name="twitter:description" content="android 下面没有像以前windows 那样那么方便的查看分区情况. 前两天提到说查看android 下面的分区情况. 今天好好的看了下. 发现android"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Android分区查看</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2015-04-07 </span>
+        <div class="post-category">
+            <a href="/categories/android/"> android </a>
+            </div>
+          <span class="more-meta"> 约 748 字 </span>
+          <span class="more-meta"> 预计阅读 2 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>android 下面没有像以前windows 那样那么方便的查看分区情况. 前两天提到说查看android 下面的分区情况. 今天好好的看了下. 发现android下面查看分区也挺简单的..</p>
+<p>~ # fdisk -l /dev/block/mmcblk0
+fdisk -l /dev/block/mmcblk0</p>
+<p>Disk /dev/block/mmcblk0: 15.7 GB, 15758000128 bytes
+1 heads, 16 sectors/track, 1923584 cylinders
+Units = cylinders of 16 * 512 = 8192 bytes</p>
+<pre><code>          Device Boot      Start         End      Blocks  Id System
+</code></pre>
+<p>/dev/block/mmcblk0p1               1     1923584    15388671+ ee EFI GPT
+Partition 1 does not end on cylinder boundary</p>
+<p>这种方法查看到的信息还是有限, 因为分区是GPT的.. 所以可以使用这个命令</p>
+<p>~ # parted /dev/block/mmcblk0 print all
+parted /dev/block/mmcblk0 print all
+Model: MMC MAG2GC (sd/mmc)
+Disk /dev/block/mmcblk0: 15.8GB
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt</p>
+<p>Number  Start   End     Size    File system  Name      Flags
+1      4194kB  19.9MB  15.7MB               apnhlos
+2      19.9MB  80.2MB  60.2MB               modem
+3      80.2MB  80.7MB  524kB                sbl1
+4      80.7MB  80.7MB  32.8kB               dbi
+5      80.7MB  80.7MB  32.8kB               ddr
+6      80.7MB  82.8MB  2097kB               aboot
+7      82.8MB  83.4MB  524kB                rpm
+8      83.4MB  83.9MB  524kB                tz
+9      83.9MB  94.4MB  10.5MB               pad
+10      94.4MB  105MB   10.5MB               param
+11      105MB   120MB   14.7MB  ext4         efs
+12      120MB   123MB   3146kB               modemst1
+13      123MB   126MB   3146kB               modemst2
+14      126MB   137MB   11.5MB               boot
+15      137MB   151MB   13.6MB               recovery
+16      151MB   165MB   13.6MB               fota
+17      165MB   172MB   7331kB               backup
+18      172MB   175MB   3146kB               fsg
+19      175MB   175MB   1024B                fsc
+20      175MB   175MB   8192B                ssd
+21      175MB   184MB   8389kB  ext4         persist
+22      184MB   193MB   9437kB  ext4         persdata
+23      193MB   2559MB  2366MB  ext4         system
+24      2559MB  2923MB  365MB   ext4         cache
+25      2923MB  2934MB  10.5MB  ext4         hidden
+26      2934MB  15.8GB  12.8GB  ext4         userdata</p>
+<p>这样就把所有分区显示完整了.. 分区真多. 有很多都不知道是什么用的..同时也可以使用这条命令观察分区的链接情况</p>
+<p>~ # cd /dev/block/platform/msm_sdcc.1/by-name/
+cd /dev/block/platform/msm_sdcc.1/by-name/
+/dev/block/platform/msm_sdcc.1/by-name # ls -l
+ls -l
+lrwxrwxrwx    1 root     root            20 Mar 19  1970 aboot -&gt; /dev/block/mmcblk0p6
+lrwxrwxrwx    1 root     root            20 Mar 19  1970 apnhlos -&gt; /dev/block/mmcblk0p1
+lrwxrwxrwx    1 root     root            21 Mar 19  1970 backup -&gt; /dev/block/mmcblk0p17
+lrwxrwxrwx    1 root     root            21 Mar 19  1970 boot -&gt; /dev/block/mmcblk0p14
+lrwxrwxrwx    1 root     root            21 Mar 19  1970 cache -&gt; /dev/block/mmcblk0p24
+lrwxrwxrwx    1 root     root            20 Mar 19  1970 dbi -&gt; /dev/block/mmcblk0p4
+lrwxrwxrwx    1 root     root            20 Mar 19  1970 ddr -&gt; /dev/block/mmcblk0p5
+lrwxrwxrwx    1 root     root            21 Mar 19  1970 efs -&gt; /dev/block/mmcblk0p11
+lrwxrwxrwx    1 root     root            21 Mar 19  1970 fota -&gt; /dev/block/mmcblk0p16
+lrwxrwxrwx    1 root     root            21 Mar 19  1970 fsc -&gt; /dev/block/mmcblk0p19
+lrwxrwxrwx    1 root     root            21 Mar 19  1970 fsg -&gt; /dev/block/mmcblk0p18
+lrwxrwxrwx    1 root     root            21 Mar 19  1970 hidden -&gt; /dev/block/mmcblk0p25
+lrwxrwxrwx    1 root     root            20 Mar 19  1970 modem -&gt; /dev/block/mmcblk0p2
+lrwxrwxrwx    1 root     root            21 Mar 19  1970 modemst1 -&gt; /dev/block/mmcblk0p12
+lrwxrwxrwx    1 root     root            21 Mar 19  1970 modemst2 -&gt; /dev/block/mmcblk0p13
+lrwxrwxrwx    1 root     root            20 Mar 19  1970 pad -&gt; /dev/block/mmcblk0p9
+lrwxrwxrwx    1 root     root            21 Mar 19  1970 param -&gt; /dev/block/mmcblk0p10
+lrwxrwxrwx    1 root     root            21 Mar 19  1970 persdata -&gt; /dev/block/mmcblk0p22
+lrwxrwxrwx    1 root     root            21 Mar 19  1970 persist -&gt; /dev/block/mmcblk0p21
+lrwxrwxrwx    1 root     root            21 Mar 19  1970 recovery -&gt; /dev/block/mmcblk0p15
+lrwxrwxrwx    1 root     root            20 Mar 19  1970 rpm -&gt; /dev/block/mmcblk0p7
+lrwxrwxrwx    1 root     root            20 Mar 19  1970 sbl1 -&gt; /dev/block/mmcblk0p3
+lrwxrwxrwx    1 root     root            21 Mar 19  1970 ssd -&gt; /dev/block/mmcblk0p20
+lrwxrwxrwx    1 root     root            21 Mar 19  1970 system -&gt; /dev/block/mmcblk0p23
+lrwxrwxrwx    1 root     root            20 Mar 19  1970 tz -&gt; /dev/block/mmcblk0p8
+lrwxrwxrwx    1 root     root            21 Mar 19  1970 userdata -&gt; /dev/block/mmcblk0p26</p>
+<p>可以查看到分区以后, 最检查做的两个操作, 一个是重新分区.</p>
+<p><a href="http://www.cnblogs.com/freeliver54/archive/2013/06/26/3157599.html">http://www.cnblogs.com/freeliver54/archive/2013/06/26/3157599.html</a></p>
+<p><a href="http://bbs.ydss.cn/thread-496703-1-1.html">http://bbs.ydss.cn/thread-496703-1-1.html</a></p>
+<p>一个是像windows的ghost那样备份分区..</p>
+<p><a href="http://bbs.zoopda.com/thread-145901-1-1.html">http://bbs.zoopda.com/thread-145901-1-1.html</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2015-04-07
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/cve-2015-3636-%E4%B8%89%E6%98%9Fs6-pingpong/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">CVE-2015-3636 三星S6 pingpong</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E6%9C%89mov-edi-edi/">
+            <span class="next-text nav-default">为什么会有mov edi, edi</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

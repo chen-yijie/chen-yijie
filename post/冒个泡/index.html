@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>冒个泡 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="确实很久没有写blog了.. 前一段时间主要是忙, 另外一个确实也没有什么好写的, 我发现人一旦懒惰, 就会在越来越懒, 如果勤奋也会越来越勤奋, 而我" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E5%86%92%E4%B8%AA%E6%B3%A1/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="冒个泡" />
+<meta property="og:description" content="确实很久没有写blog了.. 前一段时间主要是忙, 另外一个确实也没有什么好写的, 我发现人一旦懒惰, 就会在越来越懒, 如果勤奋也会越来越勤奋, 而我" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E5%86%92%E4%B8%AA%E6%B3%A1/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2012-07-12T00:00:00+00:00" />
+<meta property="article:modified_time" content="2012-07-12T00:00:00+00:00" />
+
+<meta itemprop="name" content="冒个泡">
+<meta itemprop="description" content="确实很久没有写blog了.. 前一段时间主要是忙, 另外一个确实也没有什么好写的, 我发现人一旦懒惰, 就会在越来越懒, 如果勤奋也会越来越勤奋, 而我"><meta itemprop="datePublished" content="2012-07-12T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2012-07-12T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1510">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="冒个泡"/>
+<meta name="twitter:description" content="确实很久没有写blog了.. 前一段时间主要是忙, 另外一个确实也没有什么好写的, 我发现人一旦懒惰, 就会在越来越懒, 如果勤奋也会越来越勤奋, 而我"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">冒个泡</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2012-07-12 </span>
+        <div class="post-category">
+            <a href="/categories/nothing/"> nothing </a>
+            </div>
+          <span class="more-meta"> 约 1510 字 </span>
+          <span class="more-meta"> 预计阅读 4 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>确实很久没有写blog了.. 前一段时间主要是忙, 另外一个确实也没有什么好写的, 我发现人一旦懒惰, 就会在越来越懒, 如果勤奋也会越来越勤奋, 而我今年来看是有慢慢变懒的趋势.. 改刹车了. 重新反省反省. 做点有营养的事情.<br>
+ </p>
+<p>我操, 其实我刚才已经写了一篇很长的了. 我直接点发布, 忘记点保存了. 结果OVER.. 以前就有遇到这种恶心的事情, 只是时间久了, 又忘记了, 再一次告诫自己, 写东西千万不能在网页上直接写.. 太恶心了..</p>
+<p>这段时间一直基本都没有怎么写过Blog, 一方面的话, 前一段时间从事的是分析工作, 分析工作的话, 基本上都是点经验, 没有什么好说的,经验这东西, 时间久了回来也忘不了, 而且很多东西写出来其实也没有什么, 分析就是一种感觉, 当然也是有一些套路的, 但是主要还是感觉.看雪上面有各种各种写分析经验的帖子, 如果你直接去看了, 跟着操作你都没有问题, 但是换一个版本或者换一个环境的话就是搞不定, 这就是经验, 人家分析这个中间已经有了经验的积累, 如果你直接上去想吃第9个包子, 不吃前面几个,那肯定是不可能的..</p>
+<p>另外一方面, 前一段时间的工作, 被老板欺压的比较厉害, 每天从早上9点到晚上10点都是满负荷在运行.. 倒. 没有什么时间倒腾自己想弄的东西,每天就是分析, 分析. 再分析.. 周末也没有休几个.. 太恶心了..</p>
+<p>最近换的这份工作, 时间倒是挺充裕了, 每天的分析基本上没有什么压力, 公司就这样, 还是需要自己扩展啊. 无意当中让我看到了NewBluePill(<a href="http://www.invisiblethingslab.com/">http://www.invisiblethingslab.com/</a>) 这个开源工程, 让我喜出望外, 最重要的是, 还有人写了本书, 《NewBluePill：深入理解硬件虚拟机》咋个我早就没有发现呢? 看来消息还是有点闭塞啊.</p>
+<p>看了一段时间, 很有收获, 原来的时候想学习 VT技术, 发现一直都没有一个很好的资料, 好像除了Intel 手册, 其他几乎见不到太多关于VT, SVM的描述, 也有几本讲虚拟化的书, 但是都没有给代码, 代码.. 代码啊.. 码农还是这个比较管用..</p>
+<p>NewBluePill很全面, 上面有描述Intel的VT, 和AMD的SVM, 代码写的也很优美, 看看人家写的代码, 再看看自己写的, 从每个方面来看都感觉不足为什么人家写的东西灵活性就这么高? 看起来就这么的优美, 再看看自己的, 我错了..</p>
+<p>NewBluePill分析完了, 收获挺大, 这个项目的话, 首先能够获取到的是关于VT,SVM相关的使用技术, 也就是虚拟化了.. 另外一方面就是关于分页的, 有人说, 分页不是很简单么? 问题是X64的话呢? 再一个问题是如果是自己构建页表替换Windows自己的, 再自己维护呢? 那难度可不是一般的简单的, 分析代码的时候,我总有种头晕的感觉, 还好挺过来了..</p>
+<p>NewBluePill还有一个亮点就是关于多核方面的出来, 还是在开启虚拟化的时候可以禁用分页机制. 这也是好几个开源的虚拟化项目所没有的,另外NewBluePill还具有很多亮点, 内存隐藏方面, 虽然在发布的版本中内存隐藏去掉了. 但是只是去掉了一部分, 关于页表构建的代码并没有去掉. 所以啊, 只要完全理解了NewBluePill和X64的分页机制, 还是可以写出来的..</p>
+<p>在看《NewBluePill:深入理解硬件虚拟机》的时候就一直想着施展下拳脚, 写点东西, 是的, 确实改做点什么了. 我一直很自信的是对汇编语言的掌握,和对保护模式的理解, 但是搞了很长一段时间才发现, 现在基本上没有什么用武之地, 但是现在不一样了, VT SVM 就是最好施展拳脚的地方,以前对保护模式的理解确实帮了我很多. 我一直坚信这句话 &ndash;  明白了, 理解了, 不代表你会了, 能够写出来, 你就是真的会了!.是的, 是改做点什么的时候了!</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2012-07-12
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E5%90%84%E7%A7%8D%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%8C%89%E9%92%AE%E4%BA%8B%E4%BB%B6/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">各种程序的按钮事件</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E8%99%9A%E6%8B%9F%E7%A3%81%E7%9B%98%E5%85%89%E9%A9%B1filedisk/">
+            <span class="next-text nav-default">虚拟磁盘光驱(FileDisk)</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

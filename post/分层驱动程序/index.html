@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>分层驱动程序 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="分层驱动程序也不难嘛, 就是逻辑上有点乱了. 不过逻辑上分开以后写代码就清晰多了. 在结构上可以得到很多好处,恩, 这个分层驱动也不只是WDM式驱动" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E5%88%86%E5%B1%82%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="分层驱动程序" />
+<meta property="og:description" content="分层驱动程序也不难嘛, 就是逻辑上有点乱了. 不过逻辑上分开以后写代码就清晰多了. 在结构上可以得到很多好处,恩, 这个分层驱动也不只是WDM式驱动" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E5%88%86%E5%B1%82%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-11-13T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-11-13T00:00:00+00:00" />
+
+<meta itemprop="name" content="分层驱动程序">
+<meta itemprop="description" content="分层驱动程序也不难嘛, 就是逻辑上有点乱了. 不过逻辑上分开以后写代码就清晰多了. 在结构上可以得到很多好处,恩, 这个分层驱动也不只是WDM式驱动"><meta itemprop="datePublished" content="2011-11-13T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-11-13T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1892">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="分层驱动程序"/>
+<meta name="twitter:description" content="分层驱动程序也不难嘛, 就是逻辑上有点乱了. 不过逻辑上分开以后写代码就清晰多了. 在结构上可以得到很多好处,恩, 这个分层驱动也不只是WDM式驱动"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">分层驱动程序</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-11-13 </span>
+        <div class="post-category">
+            <a href="/categories/kernel/"> kernel </a>
+            </div>
+          <span class="more-meta"> 约 1892 字 </span>
+          <span class="more-meta"> 预计阅读 4 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>分层驱动程序也不难嘛, 就是逻辑上有点乱了. 不过逻辑上分开以后写代码就清晰多了. 在结构上可以得到很多好处,恩, 这个分层驱动也不只是WDM式驱动才支持, NT式驱动也是可以的, 优点很多.</p>
+<p>首先比原来写的驱动就是自己写的驱动套在一个已经有的驱动上面, 然后呢, 所有的原来驱动的Irp都会发送到现有的驱动中, 非常的暴力. 那么前面已经我们已经可以写一个驱动程序了, 接下来需要做的是把我们写的驱动挂载到想要挂载的驱动上面, 所以写这个驱动程序, 要准备好几个驱动程序来做, 所以感觉有点乱, 不过呢, 确实是很好用的.</p>
+<p>挂载的函数是IoAttachDeviceToDeviceStack.. 将一个设备挂载到另外一个设备上面, 挂上去以后被挂载设备的所有Irp就会先经过我们写的驱动了, 是不是很好.</p>
+<p>当Irp来到我们的驱动程序的时候, 我们可以做几件事情, 首先可以直接调用IoCompleteRequest函数, 这样Irp就不会往下传递了, 这时候我们在Status中如果返回错误, 那么显然上面调用就成了错误了, 想想这时候我们绑定的是一个硬盘设备, 这样就可以实现只读U盘了, 哈哈. 第2种就是调用StartIo, 操作系统就会将该Irp串行化, 这个用的不是很多, 略. 第3种就是不管, 直接略过. 这种处理方法就最简单了..</p>
+<p>基本也就这么多东西了. 其他有些细节的话在代码中很好体现. 先来写一个最简单的驱动程序, 所有的Irp直接下发. 回头再做更进一步的操作, 因为这里需要一个底层设备, 这个驱动还是前两篇写得测试驱动, 不动, 这边只需要写挂载的驱动就可以了.. 看代码. 这边是用户态的:<br>
+ </p>
+<p>/*
+最简单的分层驱动程序, 所有Irp直接下发 3环代码
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;</p>
+<p>#define DEVICE_NAME		&quot;\\\\.\\SysLinkFiltering&quot;</p>
+<p>VOID Jmain( ) {
+HANDLE hFile;
+UCHAR ucBuf[10];
+DWORD dwByteWrite;
+DWORD dwByteRead;
+BOOL bRet;</p>
+<pre><code>do {
+	hFile = CreateFile( DEVICE\_NAME, GENERIC\_READ | GENERIC\_WRITE,
+			    FILE\_SHARE\_READ, NULL, OPEN\_EXISTING,
+			    FILE\_ATTRIBUTE\_NORMAL, NULL );
+	if ( hFile == INVALID\_HANDLE\_VALUE ) {
+		printf( &amp;quot;打开设备失败!\\n&amp;quot; );
+		break;
+	}
+
+	RtlFillMemory( ucBuf, sizeof( ucBuf ), &amp;#39;a&amp;#39; );
+	bRet = WriteFile( hFile, ucBuf, sizeof( ucBuf ), &amp;amp;dwByteWrite, NULL  );
+	if ( !bRet ) {
+		printf( &amp;quot;写入失败失败!\\n&amp;quot; );
+		break;
+	}
+
+	RtlZeroMemory( ucBuf, sizeof( ucBuf ) );
+	bRet = ReadFile( hFile, ucBuf, sizeof( ucBuf ), &amp;amp;dwByteRead, NULL );
+	if ( !bRet ) {
+		printf( &amp;quot;读取设备失败!\\n&amp;quot; );
+		break;
+	}
+	printf( &amp;quot;操作设备成功!\\n&amp;quot; );
+} while ( FALSE );
+
+if ( hFile != INVALID\_HANDLE\_VALUE ) {
+	CloseHandle( hFile );
+}
+</code></pre>
+<p>}</p>
+<p>内核这边的代码:</p>
+<p>/*
+最简单的分层驱动程序, 所有Irp直接下发 0环代码
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;ntddk.h&gt;</p>
+<p>#define DEVICE_NAME		L&quot;\\Device\\DevFiltering&quot;
+#define SYSLINK_NAME		L&quot;\\??\\SysLinkFiltering&quot;
+#define BING_DEVICE_NAME	L&quot;\\Device\\DevTestDriver&quot;</p>
+<p>typedef struct tagDevice_Ext {
+PDEVICE_OBJECT pFilterDeviceObj;	//当前设备对象
+PDEVICE_OBJECT pTargetDevice;		//下一层设备对象
+UNICODE_STRING USzDeviceName;
+UNICODE_STRING USzSysLinkName;
+} DEVICE_EXT, *PDEVICE_EXT;</p>
+<p>//===========================================================================
+//驱动卸载例程
+//===========================================================================
+VOID DriverUnload( PDRIVER_OBJECT pDriverObj ) {
+PDEVICE_EXT pDeviceExt = NULL;
+PDEVICE_OBJECT	pNextDeviceObj = NULL;</p>
+<pre><code>pNextDeviceObj = pDriverObj-&gt;DeviceObject;
+
+while ( pNextDeviceObj != NULL ) {
+	pDeviceExt = pNextDeviceObj-&gt;DeviceExtension;
+
+	IoDeleteSymbolicLink( &amp;pDeviceExt-&gt;USzSysLinkName );
+	//解除设备栈上的绑定
+	IoDetachDevice( pDeviceExt-&gt;pTargetDevice );
+
+	IoDeleteDevice( pDeviceExt-&gt;pFilterDeviceObj );
+
+	KdPrint( ( &quot;删除%wZ设备成功!\\n&quot;, &amp;pDeviceExt-&gt;USzDeviceName ) );
+
+	pNextDeviceObj = pNextDeviceObj-&gt;NextDevice;
+}
+</code></pre>
+<p>}
+//===========================================================================
+//所有不关心的Irp处理
+//===========================================================================
+NTSTATUS DispatchRoutine( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+PDEVICE_EXT pDeviceExt = NULL;
+NTSTATUS Status;</p>
+<pre><code>pDeviceExt = pDeviceObj-&gt;DeviceExtension;
+
+//跳过当前I/O堆栈
+IoSkipCurrentIrpStackLocation( pIrp );
+
+//向下转发IRP
+Status = IoCallDriver( pDeviceExt-&gt;pTargetDevice, pIrp );
+
+KdPrint( ( &quot;不关心的Irp来了一次!\\n&quot; ) );
+return Status;
+</code></pre>
+<p>}
+//===========================================================================
+//创建设备
+//===========================================================================
+NTSTATUS _CreateDeviec( PDRIVER_OBJECT pDriverObj, PDEVICE_EXT* ppDeviceExt ) {
+NTSTATUS Status;
+PDEVICE_OBJECT pDeviceObj = NULL;
+UNICODE_STRING USzDeviceName = RTL_CONSTANT_STRING( DEVICE_NAME );
+UNICODE_STRING USzSysLinkName = RTL_CONSTANT_STRING( SYSLINK_NAME );</p>
+<pre><code>//创建设备对象
+Status = IoCreateDevice( pDriverObj, sizeof( DEVICE\_EXT ), &amp;USzDeviceName,
+			 FILE\_DEVICE\_UNKNOWN, 0, TRUE, &amp;pDeviceObj );
+if ( !NT\_SUCCESS( Status ) ) {
+	return Status;
+}
+
+//创建符号链接
+Status = IoCreateSymbolicLink( &amp;USzSysLinkName, &amp;USzDeviceName );
+if ( !NT\_SUCCESS( Status ) ) {
+	return Status;
+}
+
+ASSERT( ppDeviceExt != NULL );
+
+pDeviceObj-&gt;Flags |= DO\_BUFFERED\_IO;
+\*ppDeviceExt = pDeviceObj-&gt;DeviceExtension;
+( \*ppDeviceExt )-&gt;USzDeviceName = USzDeviceName;
+( \*ppDeviceExt )-&gt;USzSysLinkName = USzSysLinkName;
+( \*ppDeviceExt )-&gt;pFilterDeviceObj = pDeviceObj;
+
+return Status;
+</code></pre>
+<p>}
+//===========================================================================
+//读取请求处理例程
+//===========================================================================
+NTSTATUS DispatchRead( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+PDEVICE_EXT pDeviceExt = NULL;
+NTSTATUS Status;</p>
+<pre><code>pDeviceExt = pDeviceObj-&gt;DeviceExtension;
+
+//跳过当前I/O堆栈
+IoSkipCurrentIrpStackLocation( pIrp );
+
+//向下转发IRP
+Status = IoCallDriver( pDeviceExt-&gt;pTargetDevice, pIrp );
+
+KdPrint( ( &quot;Filter: DispatchRead来了一次!\\n&quot; ) );
+return Status;
+</code></pre>
+<p>}
+//===========================================================================
+//写入请求处理例程
+//===========================================================================
+NTSTATUS DispatchWrite( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+PDEVICE_EXT pDeviceExt = NULL;
+NTSTATUS Status;</p>
+<pre><code>pDeviceExt = pDeviceObj-&gt;DeviceExtension;
+
+//跳过当前I/O堆栈
+IoSkipCurrentIrpStackLocation( pIrp );
+
+//向下转发IRP
+Status = IoCallDriver( pDeviceExt-&gt;pTargetDevice, pIrp );
+
+KdPrint( ( &quot;Filter: DispatchWrite来了一次!\\n&quot; ) );
+return Status;
+</code></pre>
+<p>}
+//===========================================================================
+//驱动入口
+//===========================================================================
+NTSTATUS DriverEntry( PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pUSzRegPath ) {
+ULONG i;
+NTSTATUS Status;
+PDEVICE_EXT pDeviceExt = NULL;
+PFILE_OBJECT pBingFileObj = NULL;
+PDEVICE_OBJECT pTargetDevice = NULL;
+PDEVICE_OBJECT pBingDeviceObj = NULL;
+UNICODE_STRING USzBindDeviceName = RTL_CONSTANT_STRING( BING_DEVICE_NAME );</p>
+<pre><code>for( i = 0; i &lt; IRP\_MJ\_MAXIMUM\_FUNCTION; i++ ) {
+	pDriverObj-&gt;MajorFunction\[i\] = &amp;DispatchRoutine;
+}
+pDriverObj-&gt;MajorFunction\[IRP\_MJ\_READ\] = &amp;DispatchRead;
+pDriverObj-&gt;MajorFunction\[IRP\_MJ\_WRITE\] = &amp;DispatchWrite;
+pDriverObj-&gt;DriverUnload = &amp;DriverUnload;
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+do {
+//寻找欲打开的设备
+Status = IoGetDeviceObjectPointer( &amp;USzBindDeviceName, FILE_ALL_ACCESS,
+&amp;pBingFileObj, &amp;pBingDeviceObj );
+if ( !NT_SUCCESS( Status ) ) {
+KdPrint( ( &ldquo;欲绑定的设备不存在, 是否是没有启动设备!\n&rdquo; ) );
+break;
+}</p>
+<pre><code>	Status = \_CreateDeviec( pDriverObj, &amp;pDeviceExt );
+	if ( !NT\_SUCCESS( Status ) ) {
+		KdPrint( ( &quot;创建自身设备失败!\\n&quot; ) );
+		break;
+	}
+
+	//将自己的设备对象挂载在目标设备对象上
+	pTargetDevice = IoAttachDeviceToDeviceStack(
+				pDeviceExt-&gt;pFilterDeviceObj, pBingDeviceObj );
+
+	pDeviceExt-&gt;pTargetDevice = pTargetDevice;
+	if ( !pTargetDevice ) {
+		KdPrint( ( &quot;挂载目标设备失败!\\n&quot; ) );
+		break;
+	}
+
+	//设置过滤设备属性
+	pDeviceExt-&gt;pFilterDeviceObj-&gt;DeviceType = pTargetDevice-&gt;DeviceType;
+	pDeviceExt-&gt;pFilterDeviceObj-&gt;Characteristics = pTargetDevice-&gt;Characteristics;
+	pDeviceExt-&gt;pFilterDeviceObj-&gt;Flags &amp;= ~DO\_DEVICE\_INITIALIZING;
+
+	pDeviceExt-&gt;pFilterDeviceObj-&gt;Flags |= pTargetDevice-&gt;Flags &amp;
+					       ( DO\_DIRECT\_IO | DO\_BUFFERED\_IO );
+
+	if ( pBingFileObj ) {
+		ObDereferenceObject( pBingFileObj );
+		pBingFileObj = NULL;
+	}
+
+	KdPrint( ( &quot;绑定设备成功!\\n&quot; ) );
+} while ( FALSE );
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+//释放资源
+if ( !NT_SUCCESS( Status ) ) {</p>
+<pre><code>	if ( pBingFileObj ) {
+		ObDereferenceObject( pBingFileObj );
+	}
+
+	if ( pDeviceExt &amp;&amp; pDeviceExt-&gt;pFilterDeviceObj ) {
+		IoDeleteDevice( pDeviceExt-&gt;pFilterDeviceObj );
+	}
+
+	if ( pBingFileObj ) {
+		ObDereferenceObject( pBingFileObj );
+	}
+
+}
+return Status;
+</code></pre>
+<p>}</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-11-13
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E5%AE%8C%E6%88%90%E4%BE%8B%E7%A8%8B/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">完成例程</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E7%94%A8%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F2/">
+            <span class="next-text nav-default">驱动程序调用驱动程序2</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>kernel on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+    <link>https://xchen.com/categories/kernel/</link>
+    <description>Recent content in kernel on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 01 Jan 2015 00:00:00 +0000</lastBuildDate><atom:link href="https://xchen.com/categories/kernel/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Windows CrashDump</title>
+      <link>https://xchen.com/post/windows-crashdump/</link>
+      <pubDate>Thu, 01 Jan 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/windows-crashdump/</guid>
+      <description>在自动化测试过程中，如果碰到应用程序崩溃，往往会弹出一个”error reporting”的对话框，如果不人工关闭这个对话框的话会导致程序无法</description>
+    </item>
+    
+    <item>
+      <title>完成例程返回Status_Processing_Required</title>
+      <link>https://xchen.com/post/%E5%AE%8C%E6%88%90%E4%BE%8B%E7%A8%8B%E8%BF%94%E5%9B%9Estatus_processing_required/</link>
+      <pubDate>Tue, 15 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%AE%8C%E6%88%90%E4%BE%8B%E7%A8%8B%E8%BF%94%E5%9B%9Estatus_processing_required/</guid>
+      <description>上一篇谈到了这个完成例程, 我们在完成例程中返回的是Status_Success, 这样Irp会继续向上回卷, 此时的完成例程仅仅是一个通知, 表明</description>
+    </item>
+    
+    <item>
+      <title>遍历设备栈</title>
+      <link>https://xchen.com/post/%E9%81%8D%E5%8E%86%E9%A9%B1%E5%8A%A8%E4%B8%8A%E7%9A%84%E8%AE%BE%E5%A4%87%E5%AF%B9%E8%B1%A1/</link>
+      <pubDate>Mon, 14 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E9%81%8D%E5%8E%86%E9%A9%B1%E5%8A%A8%E4%B8%8A%E7%9A%84%E8%AE%BE%E5%A4%87%E5%AF%B9%E8%B1%A1/</guid>
+      <description>这一篇基本上就没有什么新东西了, 就是上几篇的应用. 遍历一个驱动的所有设备对象, 还有绑定在设备上面的所有的驱动对象, 设备对象. 其实就是对驱动对</description>
+    </item>
+    
+    <item>
+      <title>完成例程</title>
+      <link>https://xchen.com/post/%E5%AE%8C%E6%88%90%E4%BE%8B%E7%A8%8B/</link>
+      <pubDate>Mon, 14 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%AE%8C%E6%88%90%E4%BE%8B%E7%A8%8B/</guid>
+      <description>在将Irp发送给底层驱动程序, 或者其他驱动之前, 我们可以对Irp设置一个完成例程, 这样一旦在底层驱动程序将Irp完成以后, Irp完成例程将被</description>
+    </item>
+    
+    <item>
+      <title>分层驱动程序</title>
+      <link>https://xchen.com/post/%E5%88%86%E5%B1%82%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F/</link>
+      <pubDate>Sun, 13 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%88%86%E5%B1%82%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F/</guid>
+      <description>分层驱动程序也不难嘛, 就是逻辑上有点乱了. 不过逻辑上分开以后写代码就清晰多了. 在结构上可以得到很多好处,恩, 这个分层驱动也不只是WDM式驱动</description>
+    </item>
+    
+    <item>
+      <title>驱动程序调用驱动程序2</title>
+      <link>https://xchen.com/post/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E7%94%A8%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F2/</link>
+      <pubDate>Sun, 13 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E7%94%A8%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F2/</guid>
+      <description>上一篇说到内核里面用户态这边差不多的函数, 比如ZwCreateFile, ZwReadFile什么之类的, 内核里面其实还有些更加暴力的东西存在</description>
+    </item>
+    
+    <item>
+      <title>驱动程序调用驱动程序1</title>
+      <link>https://xchen.com/post/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E7%94%A8%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F1/</link>
+      <pubDate>Sat, 12 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E7%94%A8%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F1/</guid>
+      <description>除了在Win32下面可以调用ReadFile, WriteFile之类的函数打开设备对象, 在内核中也是可以的, 而且方法比用户态这边更多. 首先这</description>
+    </item>
+    
+    <item>
+      <title>Irp超时处理</title>
+      <link>https://xchen.com/post/irp%E8%B6%85%E6%97%B6%E5%A4%84%E7%90%86/</link>
+      <pubDate>Fri, 11 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/irp%E8%B6%85%E6%97%B6%E5%A4%84%E7%90%86/</guid>
+      <description>很多时候Irp被送到底层驱动程序后, 由于硬件设备的问题, Irp不能够得到及时的处理, 甚至有可能永远都不会被处理.这时候需要对Irp超时情况作</description>
+    </item>
+    
+    <item>
+      <title>内核定时器</title>
+      <link>https://xchen.com/post/%E5%86%85%E6%A0%B8%E5%AE%9A%E6%97%B6%E5%99%A8/</link>
+      <pubDate>Fri, 11 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%86%85%E6%A0%B8%E5%AE%9A%E6%97%B6%E5%99%A8/</guid>
+      <description>在Win32上面基本上定时做事情事情的话, 一般会使用WM_TIMER消息, 当然其他还有很多种选择, 同样的, 在内核中一样很多种的定时器对象可供</description>
+    </item>
+    
+    <item>
+      <title>StartIo例程</title>
+      <link>https://xchen.com/post/startio%E4%BE%8B%E7%A8%8B/</link>
+      <pubDate>Thu, 10 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/startio%E4%BE%8B%E7%A8%8B/</guid>
+      <description>凡是和多线程有关的东西, 一般就涉及非常恼火的线程同步问题, 而这个问题还不是那么直观, 不像其他一般的bug比较好调试, 有时候这个多线程的问题,</description>
+    </item>
+    
+    <item>
+      <title>自定义StartIo</title>
+      <link>https://xchen.com/post/%E8%87%AA%E5%AE%9A%E4%B9%89startio/</link>
+      <pubDate>Thu, 10 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E8%87%AA%E5%AE%9A%E4%B9%89startio/</guid>
+      <description>这个系统给的StartIo虽然好用, 但是很多时候我们还是需要使用自定义的StartIo例程的. 因为系统提供的只能使用一个队列.如果是我们自己</description>
+    </item>
+    
+    <item>
+      <title>挂起当前IRP</title>
+      <link>https://xchen.com/post/%E6%8C%82%E8%B5%B7%E5%BD%93%E5%89%8Dirp/</link>
+      <pubDate>Wed, 09 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%8C%82%E8%B5%B7%E5%BD%93%E5%89%8Dirp/</guid>
+      <description>如果需要将IRP异步完成, 一般不会在处理函数中调用IoCompleteRequest函数, 因为调用IoCompleteRequest函数就意</description>
+    </item>
+    
+    <item>
+      <title>取消IRP</title>
+      <link>https://xchen.com/post/%E5%8F%96%E6%B6%88irp/</link>
+      <pubDate>Wed, 09 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%8F%96%E6%B6%88irp/</guid>
+      <description>上一篇说的是挂起IRP, 并在挂起IRP的时候将挂起的IRP结束, 还有另外一个办法就是取消IRP, 逐个结束. 这就是传说中的取消IRP请求. 这个</description>
+    </item>
+    
+    <item>
+      <title>Win32与内核同步</title>
+      <link>https://xchen.com/post/win32%E4%B8%8E%E5%86%85%E6%A0%B8%E5%90%8C%E6%AD%A5/</link>
+      <pubDate>Sat, 05 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/win32%E4%B8%8E%E5%86%85%E6%A0%B8%E5%90%8C%E6%AD%A5/</guid>
+      <description>关于这个线程同步这块, 就比较恶心了, Windows驱动开发技术详解里面 这章的源码都没有. 难道是当时忘记了? 不应该啊! 我倒. 虽然说起来和Win</description>
+    </item>
+    
+    <item>
+      <title>和内核共享内存</title>
+      <link>https://xchen.com/post/%E5%92%8C%E5%86%85%E6%A0%B8%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98/</link>
+      <pubDate>Tue, 01 Nov 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%92%8C%E5%86%85%E6%A0%B8%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98/</guid>
+      <description>Windows确实给我们提供了很多的内存共享方法,有同进程的, 有不同进程的, 各种方法都有, 我看kmdkit中介绍了一种和内核共享内存的方法,</description>
+    </item>
+    
+    <item>
+      <title>DeviceIoControl与驱动交互</title>
+      <link>https://xchen.com/post/deviceiocontrol%E4%B8%8E%E9%A9%B1%E5%8A%A8%E4%BA%A4%E4%BA%92-2/</link>
+      <pubDate>Mon, 31 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/deviceiocontrol%E4%B8%8E%E9%A9%B1%E5%8A%A8%E4%BA%A4%E4%BA%92-2/</guid>
+      <description>DeviceIoControl的其实和ReadFile和WriteFile是一样的, 不过这个功能更强, 一次交互能够输入数据, 也可以输出数据.</description>
+    </item>
+    
+    <item>
+      <title>其他缓冲区方式模拟文件操作</title>
+      <link>https://xchen.com/post/%E5%85%B6%E4%BB%96%E7%BC%93%E5%86%B2%E5%8C%BA%E6%96%B9%E5%BC%8F%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/</link>
+      <pubDate>Sun, 30 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%85%B6%E4%BB%96%E7%BC%93%E5%86%B2%E5%8C%BA%E6%96%B9%E5%BC%8F%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/</guid>
+      <description>还有一种操作内存的方式, MicroSoft没有给其起名字, 然后Windows驱动编程详解上面就叫这种方式为其他方式, 其实什么方式没有什么所谓</description>
+    </item>
+    
+    <item>
+      <title>缓冲区设备模拟文件读写</title>
+      <link>https://xchen.com/post/%E7%BC%93%E5%86%B2%E5%8C%BA%E8%AE%BE%E5%A4%87%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99/</link>
+      <pubDate>Sat, 29 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E7%BC%93%E5%86%B2%E5%8C%BA%E8%AE%BE%E5%A4%87%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99/</guid>
+      <description>原来以为写Win32程序基于消息处理, 原来内核里面也是一个套路, 也差不多. 不过内核里面和这个消息肯定是有些区别的, 不过既然款式是一样的, 那么</description>
+    </item>
+    
+    <item>
+      <title>直接方式模拟文件读写</title>
+      <link>https://xchen.com/post/%E7%9B%B4%E6%8E%A5%E6%96%B9%E5%BC%8F%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99-3/</link>
+      <pubDate>Sat, 29 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E7%9B%B4%E6%8E%A5%E6%96%B9%E5%BC%8F%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99-3/</guid>
+      <description>上一篇说的是直接方式的读取设备, 这篇接着说. 其实还有两种方式的, 一种是直接方式读写设备, 这种方式需要创建完设备以后将Flags设置成DO_D</description>
+    </item>
+    
+    <item>
+      <title>内核中注册表操作</title>
+      <link>https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E6%B3%A8%E5%86%8C%E8%A1%A8%E6%93%8D%E4%BD%9C/</link>
+      <pubDate>Fri, 28 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E6%B3%A8%E5%86%8C%E8%A1%A8%E6%93%8D%E4%BD%9C/</guid>
+      <description>内核中的注册表操作和Win32下面是没有什么区别的. 最多来说就是函数的名字稍微换了下. 都是一个套路. 所以说学习新东西啊, 都是建立在旧东西的基</description>
+    </item>
+    
+    <item>
+      <title>内核中文件操作</title>
+      <link>https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/</link>
+      <pubDate>Tue, 11 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/</guid>
+      <description>文件操作也是比较有用的功能, 而且这部分功能也比较有用. 当然全部记录下来也没有什么营养. 学内核还是要学内核的架构. 关于这个函数的使用. 我觉得不</description>
+    </item>
+    
+    <item>
+      <title>内核中的字符串操作</title>
+      <link>https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C/</link>
+      <pubDate>Mon, 10 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C/</guid>
+      <description>内核下面操作字符串也不外乎就是初始化, 然后增,删,改,连接, 撒的. 和Win32下面没有太大的区别, 只是需要更多的耐心. 因为操作的是一个结构!</description>
+    </item>
+    
+    <item>
+      <title>内核中内存操作的一些函数</title>
+      <link>https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E5%86%85%E5%AD%98%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%BA%9B%E5%87%BD%E6%95%B0/</link>
+      <pubDate>Mon, 10 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%86%85%E6%A0%B8%E4%B8%AD%E5%86%85%E5%AD%98%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%80%E4%BA%9B%E5%87%BD%E6%95%B0/</guid>
+      <description>内核下面分配内存很简单. 我倒. 比3环下面还简单呢. 3环还需要调用两次函数, 0环更加方便.. 呵呵! 当然这只是使用上了. 内核中比用户态多了个后备</description>
+    </item>
+    
+    <item>
+      <title>最简单的NT式驱动</title>
+      <link>https://xchen.com/post/%E6%9C%80%E7%AE%80%E5%8D%95%E7%9A%84nt%E5%BC%8F%E9%A9%B1%E5%8A%A8/</link>
+      <pubDate>Sun, 09 Oct 2011 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E6%9C%80%E7%AE%80%E5%8D%95%E7%9A%84nt%E5%BC%8F%E9%A9%B1%E5%8A%A8/</guid>
+      <description>一直想着, 再写点东西. 本来关于驱动这方面的话, 网上资料很丰富. 相对保护模式来说吧!所以不是很想写了. 还有说到这个写点东西的话. 我发现我也不是</description>
+    </item>
+    
+  </channel>
+</rss>

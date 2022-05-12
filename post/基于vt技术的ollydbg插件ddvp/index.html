@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>基于VT技术的OllyDbg插件Ddvp - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="随着软件产业的发展, 在Windows平台上, 为了防止软件被逆向, 破解, 出现了很多保护软件的手段, 其中一种就是反调试, 在反调试领域, 最强的莫过" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E5%9F%BA%E4%BA%8Evt%E6%8A%80%E6%9C%AF%E7%9A%84ollydbg%E6%8F%92%E4%BB%B6ddvp/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="基于VT技术的OllyDbg插件Ddvp" />
+<meta property="og:description" content="随着软件产业的发展, 在Windows平台上, 为了防止软件被逆向, 破解, 出现了很多保护软件的手段, 其中一种就是反调试, 在反调试领域, 最强的莫过" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E5%9F%BA%E4%BA%8Evt%E6%8A%80%E6%9C%AF%E7%9A%84ollydbg%E6%8F%92%E4%BB%B6ddvp/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2013-08-15T00:00:00+00:00" />
+<meta property="article:modified_time" content="2013-08-15T00:00:00+00:00" />
+
+<meta itemprop="name" content="基于VT技术的OllyDbg插件Ddvp">
+<meta itemprop="description" content="随着软件产业的发展, 在Windows平台上, 为了防止软件被逆向, 破解, 出现了很多保护软件的手段, 其中一种就是反调试, 在反调试领域, 最强的莫过"><meta itemprop="datePublished" content="2013-08-15T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2013-08-15T00:00:00+00:00" />
+<meta itemprop="wordCount" content="4098">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="基于VT技术的OllyDbg插件Ddvp"/>
+<meta name="twitter:description" content="随着软件产业的发展, 在Windows平台上, 为了防止软件被逆向, 破解, 出现了很多保护软件的手段, 其中一种就是反调试, 在反调试领域, 最强的莫过"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">基于VT技术的OllyDbg插件Ddvp</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2013-08-15 </span>
+        <div class="post-category">
+            <a href="/categories/virtual-technology/"> virtual-technology </a>
+            </div>
+          <span class="more-meta"> 约 4098 字 </span>
+          <span class="more-meta"> 预计阅读 9 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>随着软件产业的发展, 在Windows平台上, 为了防止软件被逆向, 破解, 出现了很多保护软件的手段, 其中一种就是反调试, 在反调试领域, 最强的莫过于在网络游戏方面.在网络游戏反调试上, 总是有一拨孜孜不倦的人, 不断的突破游戏公司的封锁, 而游戏公司又不断的改进反调试的方法.</p>
+<p>有没有一种一劳永逸的方法呢? 这时候VT技术进入了我的视野.</p>
+<p>这些反调试系统大致功能都是让OllyDbg不能调试, Cheat Engine( CE ) 不能查看搜索被保护程序的内存. 让人们无法逆向它们.</p>
+<p>对抗从来都没有停止过. 每当这些反调试公司研究出新的反调试手段的时候, 又不断的有人对它进行破解, 绕过. 过去的手段是每当出现一种新的保护的时候, 就要重复性的再破解一次. 而且每种游戏保护采用的手段虽然大致相同, 但是还是略有区别. 这种状态一直持续到滴水公司出的DTDebug. 当时它们的调试器推出以后, 号称可以无视任何反调试. 根据我个人使用情况来看, 对于市面上常见的游戏保护是有效果的. 当然是2年前了. 最近据说一直没有更新. 被人提串了..</p>
+<p>从DTDebug上面,  Virtualization Technolegy(VT)技术进入我们的视野. 经过一段时间的研究, 我准备写点VT的东西出来, 最开始我写了一个基于VT技术的单机内核调试器, 算是对VT技术的演练. 后面我想, 为什么不写一个有实际应用的调试插件呢?</p>
+<p>写这个插件需要时间, 感谢cncert的王明华处长和李佳处长给的机会. 给我空间发挥. 于是我准备写一个Ollydbg的插件, 套上VT技术. 经过几个月码代码. 终于写的差不多了. 对于cncert来说. 写这个插件是一种研究性的目的. 而我也放弃了将这个插件商业化的想法. 所以项目搁浅.</p>
+<p>这里再重点说说cncert <a href="http://www.cert.org.cn/">http://www.cert.org.cn/</a> 一直非常关注最前沿的安全技术, 为我们国家的安全事业做出了不可磨灭的贡献. 同时cncert刚成立的前沿网络安全技术实验室也是牛人的摇篮.</p>
+<p>摆了一段时间以后, 有几个朋友想找个要源码过去观摩下,看到看雪论坛也放出来VT技术的项目, 这个提醒了我, 在我征得cncert的同意下. 我想还是把他开源吧, 还算能够给大家做点贡献. 烂在硬盘里面总归不是上策. 我把这个插件的名字叫Ddvp. Ddvp是敌敌畏的缩写, 显示这个插件调试Bug确实很厉害.</p>
+<p><strong>技术细节</strong> 项目总共分成3部分. 分别是Ollydbg的插件部分. 调试函数调用界面. 和内核调试框架.</p>
+<p>2.1 OllyDbg插件部分: 这部分的代码主要是显示一个开启VT调试框,用于开启和关闭调试框架..目前开多个调试器也是支持的.也就是说可以运行多份调试器.</p>
+<p>在选择开启调试引擎以后, 程序会枚举符号. 这个要看你网络的情况了. 如果中间一直处于枚举符号状态, 请检查网络. 并在任务管理器中停止程序, 重新开启.</p>
+<p>2.1 调试函数调用界面: 调试调用界面我写成的是一个DLL.DbgObj.dll 模拟了Windows和调试相关的大部分函数. 这些函数会以自己的方式进内核. 当时整这个DLL的时候, 我想到有一天可能在其他的地方使用, 比如Cheat Engine(CE)上面, 所以设计的还是比较满意的, 如果CE需要使用反调试框架, 那么只要勾住CE调用的函数使用我们DbgObj.dll中的函数就可以了. 细节请查看源码.</p>
+<p>2.3 内核调试框架. 这是整个项目的重点, 里面的内容也可以分成几部分. 重写Windows调试框架. 重载内核. VT技术. 我分别说下这几部分.</p>
+<p>在重写Windows调试框架部分. 我没有用系统原来的DbugPort. 另外自己维护了一份调试器与被调试进程的结构. 在采集调试消息的时候, 都是走我们的例程.. 和Windows的DebugPort类似, 下面这个是我写的调试框架的DebugPort.</p>
+<p>typedef struct tagDbgItem { LIST_ENTRY  ListEntry; PEPROCESS   Debugger; ULONG_PTR   DebuggerCr3; PEPROCESS   Debugged; ULONG_PTR  DebuggedCr3; ULONG       Active; ULONG    RefCount; ULONG    ProcessFlags; NTSTATUS    Status; BYTE    Buffer[64]; DEBUG_OBJECT DebugObject; DEBUGGED_THREAD DebuggedThread; } DBG_ITEM, *PDBG_ITEM;</p>
+<p>细节方面, 请查看源码.</p>
+<p>重载内核部分, 分成几步 查找系统内核模块. 不是ntkrnlpa.exe就是ntoskrnl.exe, 其中之一 映射内核文件 重定位模块 修复输入表, ( ntos 的输入表有3个DLL依赖项. 需要修复) 修改新的内核SSDT表 删除我们新的镜像PE头</p>
+<p>VT 技术方面, 因为VT技术比较新, 如果你对VT技术还不甚明白, 请先查看intel 文档. 中文不大好可以配合newbluepill那本书看, VT技术方面, 我使用它的下面几个特性.</p>
+<p>重定向中断. 对于1号中断, 属于硬件中断, 我会在windows中搜索0x20一下的中断号给1号中断使用. 对于3号中断属于软中断, 随便在IDT中搜索一个空的就OK了.</p>
+<p>MSR寄存器保护, 我在插件开启的时候会将MSR_IA32_SYSENTER_EIP 0x176 换掉, 换成我们实现的KiFastCallEntry. 在这里判断是否是我们需要出来的SSDT调用, 根据不同的SSDT调用我们转到不同的内核模块中. (我们重定位的模块, 或者是系统本身的模块)</p>
+<p>VT技术还有很多特性, 比如CR寄存器访问, DR寄存器访问. 本来都想用上, 但是发现, 不行. 因为在CR寄存器访问, 和DR寄存器访问的时候, 我没有办法确定线程的运行上下文在那个进程, 线程环境中.. 所以针对Cr3的保护, 和DRx寄存器保护没有做.</p>
+<p>另外还有一个比较遗憾的地方是, 本来我决定要给整一个无限断点的. 后面因为项目搁置没有弄. 绝对不是不会整. 另外一个是想写一个类似NewBluePill的内存隐藏. 如果给台硬件调试器, 可以试试.</p>
+<p><strong>后记</strong> 如果你也想拿源码改改自己用, 那么你还需要再了解点东西, 首先代码大部分是在windbg+vmware双机调试下写出来的. 关于VT部分的代码是在bochs里面写出来的. Bochs很好很强大, 如果有时间真的应该把bochs的源码下载过来看看. 我在写VT的时候, 有些技术细节不懂的时候, 我就看看bochs的实现. 看看鞋子, 脚就懂了!</p>
+<p>不过说到bochs的时候, 不得不说他这个东西非常的慢, 你需要一台非常好的电脑. 我的I7电脑运行起来依然慢的让我伤心.. 当然如果你有钱搞硬件调试器, 我就没话说了.</p>
+<p>用bochs调试的时候在配置文件中加入这么一句 magic_break: enabled=1 那么遇到xchg bx, bx.. Bochs就会停下来, 类似windbg的. Int 3中断. 加入这么一句的时候, 在进入windows系统的时候, 好像windows的代码会不停的阻断在这个xchg bx, bx上面, 恶心至极. 在我恶心的受不了的时候. 我做出了改变. 改动了bochs的源码, 整个世界, 一瞬间清静了..下面这个帖子有告诉你bochs怎么开启VT. 怎么改变xchg bx, bx.</p>
+<p><a href="http://www.joenchen.com/archives/801">http://www.joenchen.com/archives/801</a></p>
+<p>用bochs安装系统也是一个折磨人的工作, 当然你不需要做了. 如果你需要windows xp sp3的系统, 或者win 7 的系统可以联系我给你传. 链接我就不放了. 免得你告我盗版..</p>
+<p>另外一方面, 目前NP, HS的反调试除了对系统的一些检测以外, 还提取了OllyDbg的特征码. 我就好人做到底，送佛送到西. 下面的下载链接里面已经有一个完整可以运行的OllyDbg. 可以调试HS. 已经修改过特征码了. 我用的是网上的OllyDbg加强版改的. 版权该谁还是谁的.</p>
+<p><strong>代码编译</strong> 编译代码请先设置$(WINDDK)环境变量设置成你自己安装的DDK目录. 因为要编译驱动. 运行代码请在Intel 的Cpu上. AMD的虚拟化没写. 倒&hellip;并且BIOS开启了VT技术.</p>
+<p>Windows xp sp3系统, 最好原版安装的. 不要使用什么ghost的系统, 以免出现神奇的错误.</p>
+<p><strong>插件运行</strong> 目前程序可以稳定的调试TP, HS的游戏, TP我测试的是dnf. HS测试的是冒险岛. StrongOD我已经设置好了. 不要随便去改动, 除非你自己知道在做什么..</p>
+<p>另外请先开启调试器, 再开启游戏调试. 注意了. HS如果不先开启调试器, 并开启引擎. 那么是调试不了的..</p>
+<p>需要自己支持其他的插件的话, 将插件的输入表修改成DdvpOD.EXE就可以了. 原本是OllyDbg.exe..</p>
+<p>DdvpOD插件可以按Atl+Q呼出来, 或者自己在插件菜单开启, 首次运行的时候有可能需要枚举符号, 需要一点时间, 具体看你网络了. 目前只支持原版xp sp3系统, 其他的没有测试过.. 使用Intel的Cpu. AMD还不支持..</p>
+<p>1. 首先你应该开启DebugView. 程序处于调试版本状态. 开启DebugView会有助于确定程序崩溃的地方.</p>
+<p>2. 点击DdvpOD.exe开启程序. Ddvp已经以插件的形式提供给OD使用. 同时OD的特征码也被我修改过. 放心使用.</p>
+<p>3. Alt+Q呼出插件(或者在插件菜单开启). 点击开启调试引擎. 开启调试引擎的时候, 容易出错, 请确定你是用的是windows xp sp3系统  intel的cpu. 同时你的cpu支持VT技术, BIOS里面也已经开启.</p>
+<p>4. 确认你的电脑处于联网状态, 首次运行需要联网枚举符号. 所以首次运行请联网..</p>
+<p>程序组成结构:</p>
+<p>原本OllyDbg.exe的东西, 我就不多说了. Ddvp在OD的目录下添加的文件作用我说一说..</p>
+<p><a href="http://bbs.pediy.com/attachment.php?attachmentid=81718&amp;d=1376447983" title="名称:  Ddvp_0.72_bin.part1.rar&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;
+查看次数: 2902&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;
+文件大小:  4.00 MB">Ddvp_0.72_bin.part1.rar</a>. <a href="http://bbs.pediy.com/attachment.php?attachmentid=81719&amp;d=1376447983" title="名称:  Ddvp_0.72_bin.part2.rar&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;
+查看次数: 2641&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;
+文件大小:  3.63 MB">Ddvp_0.72_bin.part2.rar</a>. <a href="http://bbs.pediy.com/attachment.php?attachmentid=81720&amp;d=1376447999" title="名称:  Ddvp_0.72_Src.rar&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;
+查看次数: 1680&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;
+文件大小:  1.08 MB">Ddvp_0.72_Src.rar</a>. 1.DbgObj.dll 这是基于VT技术的调试框架的R3函数实现,基本上都是模拟Windows的函数调用. 比如CreateProcess. DebugActiveProcess</p>
+<p>2.DbgSys.sys DbgObj.dll启动以后会释放一个驱动文件在OD的主目录下面. 是负责调试框架的R0层..</p>
+<p>3.[Plugin]Dichlorvos.dll 这是开放给OD使用的插件, 符合OD插件编写规范. 这个插件主要的功能是现实开启调试框架界面, Hook OD的调试有关函数  Hook以后走DbgObj.dll这边.</p>
+<p>另外我修改了OD使用的DbgHelp.dll, OD自带的版本太旧了. 还有为了支持符号枚举, 添加了3个文件pingme.txt, symsrv.dll, symsrv.yes.这几个文件都是和符号枚举有关的. [![点击图片以查看大图</p><br /><br /><br /><br /><br /><br /><br /><br /></p>
+<p>图片名称:	未命名.jpg<br /><br /><br /><br /><br /><br /><br /><br /><br />
+查看次数:	8<br /><br /><br /><br /><br /><br /><br /><br /><br />
+文件大小:	162.6 KB<br /><br /><br /><br /><br /><br /><br /><br /><br />
+文件 ID :	81715](http://bbs.pediy.com/attachment.php?attachmentid=81715&thumb=1&d=1376444572 "点击图片以查看大图</p><br /><br /><br /><br /><br /><br /><br /><br />
+<p>图片名称:	未命名.jpg<br /><br /><br /><br /><br /><br /><br /><br /><br />
+查看次数:	8<br /><br /><br /><br /><br /><br /><br /><br /><br />
+文件大小:	162.6 KB<br /><br /><br /><br /><br /><br /><br /><br /><br />
+文件 ID :	81715")](http://bbs.pediy.com/attachment.php?attachmentid=81715&d=1376444572)[![点击图片以查看大图</p><br /><br /><br /><br /><br /><br /><br /><br />
+<p>图片名称:	未命名2.jpg<br /><br /><br /><br /><br /><br /><br /><br /><br />
+查看次数:	24<br /><br /><br /><br /><br /><br /><br /><br /><br />
+文件大小:	158.6 KB<br /><br /><br /><br /><br /><br /><br /><br /><br />
+文件 ID :	81716](http://bbs.pediy.com/attachment.php?attachmentid=81716&thumb=1&d=1376444572 "点击图片以查看大图</p><br /><br /><br /><br /><br /><br /><br /><br />
+<p>图片名称:	未命名2.jpg<br /><br /><br /><br /><br /><br /><br /><br /><br />
+查看次数:	24<br /><br /><br /><br /><br /><br /><br /><br /><br />
+文件大小:	158.6 KB<br /><br /><br /><br /><br /><br /><br /><br /><br />
+文件 ID :	81716")](http://bbs.pediy.com/attachment.php?attachmentid=81716&d=1376444572)
+<p>另外, 求包养, 求笼罩.求抱大腿.  QQ:51753931.</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2013-08-15
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/ida%E8%84%9A%E6%9C%AC%E7%9A%84%E7%BC%96%E5%86%99%E6%96%B9%E6%B3%95/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">IDA脚本的编写方法</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/ida-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BB%93%E6%9E%84%E4%BD%93%E5%BF%AB%E6%8D%B7%E9%94%AE%E6%93%8D%E4%BD%9C%E6%96%B9%E6%B3%95/">
+            <span class="next-text nav-default">IDA 自定义结构体快捷键操作方法</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

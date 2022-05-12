@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>串口过滤 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="终于鸟枪换炮, 可以写点东西了. Windows驱动编程详解从12章后面基本上就是讲各种硬件的开发了, 先放放, 还是以内核模块的开发为主. 所以可以" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E4%B8%B2%E5%8F%A3%E8%BF%87%E6%BB%A4/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="串口过滤" />
+<meta property="og:description" content="终于鸟枪换炮, 可以写点东西了. Windows驱动编程详解从12章后面基本上就是讲各种硬件的开发了, 先放放, 还是以内核模块的开发为主. 所以可以" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E4%B8%B2%E5%8F%A3%E8%BF%87%E6%BB%A4/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-11-24T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-11-24T00:00:00+00:00" />
+
+<meta itemprop="name" content="串口过滤">
+<meta itemprop="description" content="终于鸟枪换炮, 可以写点东西了. Windows驱动编程详解从12章后面基本上就是讲各种硬件的开发了, 先放放, 还是以内核模块的开发为主. 所以可以"><meta itemprop="datePublished" content="2011-11-24T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-11-24T00:00:00+00:00" />
+<meta itemprop="wordCount" content="3098">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="串口过滤"/>
+<meta name="twitter:description" content="终于鸟枪换炮, 可以写点东西了. Windows驱动编程详解从12章后面基本上就是讲各种硬件的开发了, 先放放, 还是以内核模块的开发为主. 所以可以"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">串口过滤</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-11-24 </span>
+        <div class="post-category">
+            <a href="/categories/%E6%AF%94%E8%BE%83%E7%BB%99%E5%8A%9B%E7%9A%84%E5%86%85%E6%A0%B8%E7%A8%8B%E5%BA%8F/"> 比较给力的内核程序 </a>
+            </div>
+          <span class="more-meta"> 约 3098 字 </span>
+          <span class="more-meta"> 预计阅读 7 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>终于鸟枪换炮, 可以写点东西了. Windows驱动编程详解从12章后面基本上就是讲各种硬件的开发了, 先放放, 还是以内核模块的开发为主. 所以可以敲寒江独钓上面的代码了, 早先8月份就把寒江独钓看完了, 一直都忍住了敲几行代码的冲动, 一步一步的先学了保护模式, 然后把这个Windows驱动编程详解的代码也敲得差不多了. 可以开始寒江独钓了. 我是这样想的, 所以从最简单的串口过滤开始..</p>
+<p>寒江独钓里面的串口过滤只写了内核这边的代码, 截获出来只能够在R0里面显示, 这肯定不是我们所想要的, 正常的应该把这个搞复杂一点, 建立和R3的通信. 把截获到的串口数据发送到R3这边.. 显示出来. 哈哈..</p>
+<p>最近这两次的代码都遇到了比较难调试的bug. 不是语法错误, 而是在设置设备属性的时候把|= 写成了=我倒.. 在串口过滤的时候也设置属性的时候也把要设置属性的设备搞错了.这个Bug很难查找, 不会在设置的时候有问题, 但是如果一旦在下发Irp请求的时候就会遇到问题. 所以啊. 这个问题一定要切记, 切记..</p>
+<p>另外就没有什么好说的了. 主要说说这个串口和R3通信这边的问题. 因为寒江独钓上已经有了关于串口截获的代码, 说的也很详细, 本身也是比较简单的, 这里主要是需要注意R3通信这边, 和R3通信的时候R3那边的Irp要先挂起来, 然后在串口有数据到达的时候, 获得数据, 再将该Irp完成..所以相对寒江独钓里面搞的那个代码还是多了点复杂度, 另外在读取Irp里面我设置了一个取消例程, 这样就不需要在卸载设备的时候.再等待了.</p>
+<p>其他也就没有什么好说的.. 有图有真相..</p>
+<p>        <a href="http://www.joenchen.com/JoenTools/ComCap.rar">http://www.joenchen.com/JoenTools/ComCap.rar</a></p>
+<p><img src="images/comcap.jpg" alt="">  <br>
+这边是用户态的代码:循环读取设备:</p>
+<p>/*
+Windows 内核下串口过滤设备的简单演示 应用层代码
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;windows.h&gt;
+#include &lt;tchar.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;locale.h&gt;</p>
+<p>#pragma comment( linker, &ldquo;/Entry:Jmain&rdquo; )</p>
+<p>//===========================================================================
+//串口过滤, 主函数
+//===========================================================================
+int Jmain( ) {
+ULONG i;
+HANDLE hDevice= NULL;
+_TCHAR tcBuf[10];
+DWORD dwByteRead;
+BOOL bRet;</p>
+<pre><code>setlocale(LC\_ALL, &quot;chs&quot; );
+
+hDevice = CreateFile( \_T(&quot;\\\\\\\\.\\\\SysLinkComCap&quot;), GENERIC\_READ|GENERIC\_WRITE, 0,
+	NULL,OPEN\_EXISTING, FILE\_ATTRIBUTE\_NORMAL, NULL );
+
+if ( hDevice == INVALID\_HANDLE\_VALUE ) {
+	wprintf( \_T(&quot;打开设备失败\\n&quot;) );
+	return -1;
+}
+wprintf( \_T( &quot;开始截取串口流过的数据!\\n&quot;) );
+while ( 1 ) {
+
+	RtlZeroMemory(tcBuf, sizeof(tcBuf));
+
+	bRet = ReadFile(hDevice,tcBuf, sizeof(tcBuf), &amp;dwByteRead, NULL );
+	if ( !bRet ) {
+		wprintf( \_T(&quot;串口读取完成!\\n&quot;));
+		break;
+	}else {
+		for( i = 0; i &lt; dwByteRead; i++ ) {
+			wprintf( \_T( &quot;%c&quot; ), tcBuf\[i\] );
+		}
+	}
+}
+return 0;
+</code></pre>
+<p>}</p>
+<p>这边是内核态的代码:</p>
+<p>/*
+Windows 内核下串口过滤设备的简单演示 驱动程序代码
+编译方法参见makefile. TAB = 8
+*/</p>
+<p>#include &lt;ntddk.h&gt;
+#include &lt;wdm.h&gt;
+#include &lt;ntstrsafe.h&gt;
+#include &lt;process.h&gt;</p>
+<p>#define  CCP_MAX_COM_ID 32</p>
+<p>#define  DEVICE_NAME	L&quot;\\Device\\DevComCap&quot;
+#define  SYS_LINK_NAME	L&quot;\\??\\SysLinkComCap&quot;</p>
+<p>typedef struct tagDeviceExt {
+ULONG bFlags;		//TRUE表示过滤设备, FALSE就是我们自己的设备了
+PIRP pCurrentIrp;
+PDEVICE_OBJECT pDeviceObj;
+PDEVICE_OBJECT pLowDeviceObj;
+UNICODE_STRING USzDeviceName;
+UNICODE_STRING USzSysLinkName;
+} DEVICE_EXT, *PDEVICE_EXT;
+//===========================================================================
+//驱动卸载例程
+//===========================================================================
+VOID DriverUnLoad( PDRIVER_OBJECT pDriverObj ) {
+PDEVICE_EXT pDeviceExt = NULL;
+PDEVICE_OBJECT pNextDeviceObj = NULL;</p>
+<pre><code>pNextDeviceObj = pDriverObj-&gt;DeviceObject;
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+//遍历所有的设备进行取消绑定, 删除
+//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+while ( pNextDeviceObj != NULL ) {
+pDeviceExt = pNextDeviceObj-&gt;DeviceExtension;</p>
+<pre><code>	//如果当前还有Irp处理, 那么取消
+	if ( pDeviceExt-&gt;pCurrentIrp ) {
+		IoCancelIrp( pDeviceExt-&gt;pCurrentIrp );
+	}
+
+	//如果有符号链接, 删除
+	if ( ( pDeviceExt-&gt;USzSysLinkName ).Buffer ) {
+		IoDeleteSymbolicLink( &amp;( pDeviceExt-&gt;USzSysLinkName ) );
+	}
+
+	//取消绑定
+	if ( pDeviceExt-&gt;pLowDeviceObj ) {
+		IoDetachDevice( pDeviceExt-&gt;pLowDeviceObj );
+
+	}
+
+	//删除设备
+	IoDeleteDevice( pDeviceExt-&gt;pDeviceObj );
+
+	pNextDeviceObj = pNextDeviceObj-&gt;NextDevice;
+
+	if ( ( pDeviceExt-&gt;USzDeviceName ).Buffer ) {
+		KdPrint ( ( &quot;删除%wZ设备成功!\\n&quot;, &amp;( pDeviceExt-&gt;USzDeviceName ) ) );
+	} else {
+		KdPrint ( ( &quot;删除过滤设备成功!\\n&quot; ) );
+	}
+}
+</code></pre>
+<p>}
+//===========================================================================
+//写入Irp处理例程
+//===========================================================================
+NTSTATUS DispatchWrite( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+ULONG ulBufLen, j;
+ULONG ulUserBufLen;
+PUCHAR pBuf = NULL;
+PUCHAR pUserBuf = NULL;
+PDEVICE_EXT pDeviceExt = NULL;
+PDEVICE_OBJECT pNextDevice = NULL;
+PIO_STACK_LOCATION pStack = NULL;
+PIO_STACK_LOCATION pUserStack = NULL;</p>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+pStack = IoGetCurrentIrpStackLocation( pIrp );</p>
+<pre><code>//获取写长度
+ulBufLen = pStack-&gt;Parameters.Write.Length;
+
+//获取缓冲区
+if( pIrp-&gt;MdlAddress != NULL ) {
+	pBuf = ( PUCHAR )MmGetSystemAddressForMdlSafe( pIrp-&gt;MdlAddress , NormalPagePriority );
+} else {
+	pBuf = ( PUCHAR )pIrp-&gt;UserBuffer;
+}
+
+if( pBuf == NULL ) {
+	pBuf = ( PUCHAR )pIrp-&gt;AssociatedIrp.SystemBuffer;
+}
+
+KdPrint ( ( &quot;写入Irp处理例程!\\n&quot; ) );
+
+//打印数据
+for( j = 0; j &lt; ulBufLen; j++ ) {
+	KdPrint( ( &quot;数据: 0x%X  %c\\n&quot;, pBuf\[j\], pBuf\[j\] ) );
+}
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+//如果与我们通信的3环Irp被挂起了, 那么这里就可以返回了
+//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+pNextDevice = ( pDeviceObj-&gt;DriverObject )-&gt;DeviceObject;</p>
+<pre><code>while ( pNextDevice != NULL ) {
+
+	pDeviceExt = pNextDevice-&gt;DeviceExtension;
+	ASSERT( pDeviceExt );
+
+	if ( pDeviceExt-&gt;pCurrentIrp ) {
+
+		//获取R3那边读取请求的Irp
+		pUserStack = IoGetCurrentIrpStackLocation( pDeviceExt-&gt;pCurrentIrp );
+
+		//缓冲区长度
+		ulUserBufLen = pUserStack-&gt;Parameters.Write.Length;
+
+		//映射R3那边的地址到高2G这边来
+		pUserBuf = MmGetSystemAddressForMdlSafe( pDeviceExt-&gt;pCurrentIrp-&gt;MdlAddress,
+		           NormalPagePriority );
+
+		//如果缓冲区传递错误了
+		if ( !pUserBuf ) {
+			pDeviceExt-&gt;pCurrentIrp-&gt;IoStatus.Status = STATUS\_INVALID\_PARAMETER;
+			pDeviceExt-&gt;pCurrentIrp-&gt;IoStatus.Information = 0;
+
+		} else {
+			//如果用户态那边的缓冲区太少, 返回错误
+			if ( ulUserBufLen &lt; ulBufLen ) {
+				pDeviceExt-&gt;pCurrentIrp-&gt;IoStatus.Status = STATUS\_BUFFER\_TOO\_SMALL;
+				pDeviceExt-&gt;pCurrentIrp-&gt;IoStatus.Information = 0;
+			} else {
+				//条件都够了那么就Copy内存过去
+				RtlCopyMemory( pUserBuf, pBuf, ulBufLen );
+				pDeviceExt-&gt;pCurrentIrp-&gt;IoStatus.Status = STATUS\_SUCCESS;
+				pDeviceExt-&gt;pCurrentIrp-&gt;IoStatus.Information = ulBufLen;
+			}
+
+		}
+
+		IoCompleteRequest( pDeviceExt-&gt;pCurrentIrp, IO\_NO\_INCREMENT );
+		pDeviceExt-&gt;pCurrentIrp = NULL;
+		pDeviceExt = NULL;
+		break;
+	}
+
+	//遍历下一个设备
+	pNextDevice = pNextDevice-&gt;NextDevice;
+}
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+// 这些请求直接下发执行即可, 需要其他处理, 这里搞
+IoSkipCurrentIrpStackLocation( pIrp );
+pDeviceExt = pDeviceObj-&gt;DeviceExtension;</p>
+<pre><code>ASSERT( pDeviceExt-&gt;pLowDeviceObj );
+return IoCallDriver( pDeviceExt-&gt;pLowDeviceObj, pIrp );
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//R3那边发送的读取Irp取消例程
+//===========================================================================
+VOID OnCancelIRP( PDEVICE_OBJECT pDeviceObj, PIRP pIrp  ) {
+PDEVICE_EXT pDeviceExt = NULL;</p>
+<pre><code>//释放Cancel自旋锁
+IoReleaseCancelSpinLock( pIrp-&gt;CancelIrql );
+
+pDeviceExt = pDeviceObj-&gt;DeviceExtension;
+ASSERT( pDeviceExt );
+
+if ( pDeviceExt-&gt;pCurrentIrp == pIrp ) {
+	pDeviceExt-&gt;pCurrentIrp = NULL;
+}
+
+//设置完成状态为STATUS\_CANCELLED
+pIrp-&gt;IoStatus.Status = STATUS\_CANCELLED;
+pIrp-&gt;IoStatus.Information = 0;
+IoCompleteRequest( pIrp, IO\_NO\_INCREMENT );
+</code></pre>
+<p>}
+//===========================================================================
+//R3那边过来读取请求. 将其挂起
+//===========================================================================
+NTSTATUS DispatchRead( PDEVICE_OBJECT pDeviceObj, PIRP pIrp  ) {
+NTSTATUS Status;
+PDEVICE_EXT pDeviceExt  = NULL;</p>
+<pre><code>PAGED\_CODE();
+
+pDeviceExt = pDeviceObj-&gt;DeviceExtension;
+ASSERT( pDeviceExt );
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+//这边请求也有我们自己创建的设备发送的和, 过滤发送的这里注意区别
+//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+if ( !pDeviceExt-&gt;bFlags ) {</p>
+<pre><code>	pDeviceExt-&gt;pCurrentIrp = pIrp;
+
+	//将IRP设置为挂起
+	IoMarkIrpPending( pIrp );
+
+	//设置取消例程
+	IoSetCancelRoutine( pIrp, OnCancelIRP );
+
+	KdPrint ( ( &quot;R3读取请求来了一次!\\n&quot; ) );
+
+	//返回pending状态
+	Status = STATUS\_PENDING;
+
+} else {
+	KdPrint ( ( &quot;过滤了一次读取请求!\\n&quot; ) );
+	IoSkipCurrentIrpStackLocation( pIrp );
+	Status = IoCallDriver( pDeviceExt-&gt;pLowDeviceObj, pIrp );
+}
+
+return Status;
+</code></pre>
+<p>}
+//===========================================================================
+//所有不关心的Irp处理
+//===========================================================================
+NTSTATUS DispatchRoutine( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+NTSTATUS Status;
+PDEVICE_EXT pDeviceExt = NULL;
+PIO_STACK_LOCATION pStack = NULL;</p>
+<pre><code>pStack = IoGetCurrentIrpStackLocation( pIrp );
+pDeviceExt = pDeviceObj-&gt;DeviceExtension;
+
+//前面我们创建的设备是不会有这个消息的
+if( pStack-&gt;MajorFunction == IRP\_MJ\_POWER ) {
+
+	//直接跳过当前堆栈, 发送给下层设备
+	PoStartNextPowerIrp( pIrp );
+	IoSkipCurrentIrpStackLocation( pIrp );
+	KdPrint ( ( &quot;电源Irp来了一次!\\n&quot; ) );
+
+	Status =  PoCallDriver( pDeviceExt-&gt;pLowDeviceObj, pIrp );
+
+} else {
+
+	KdPrint ( ( &quot;不关心的Irp来了一次!\\n&quot; ) );
+
+	pIrp-&gt;IoStatus.Status = STATUS\_SUCCESS;
+	pIrp-&gt;IoStatus.Information = 0;
+
+	if ( pDeviceExt-&gt;bFlags ) {
+		// 这些请求直接下发执行即可
+		IoSkipCurrentIrpStackLocation( pIrp );
+		Status = IoCallDriver( pDeviceExt-&gt;pLowDeviceObj, pIrp );
+	} else {
+		IoCompleteRequest( pIrp, IO\_NO\_INCREMENT );
+		Status =  STATUS\_SUCCESS;
+	}
+}
+
+return Status;
+</code></pre>
+<p>}
+//===========================================================================
+//	绑定串口设备
+//===========================================================================
+NTSTATUS _AttachDevice( PDEVICE_OBJECT pDeviceObj, PDEVICE_OBJECT pTargetDevObj ) {
+NTSTATUS Status;
+PDEVICE_EXT pDeviceExt = NULL;
+PDEVICE_OBJECT pLowDeviceObj = NULL;</p>
+<pre><code>//获取设备扩展
+pDeviceExt = pDeviceObj-&gt;DeviceExtension;
+ASSERT( pDeviceExt );
+
+Status = IoAttachDeviceToDeviceStackSafe( pDeviceObj, pTargetDevObj,
+         &amp;( pDeviceExt-&gt;pLowDeviceObj ) );
+
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint ( ( &quot;绑定设备失败!\\n&quot; ) );
+	return Status;
+}
+
+//设置过滤设备属性(很重要)
+pDeviceObj-&gt;DeviceType = pTargetDevObj-&gt;DeviceType;
+pDeviceObj-&gt;Characteristics = pTargetDevObj-&gt;Characteristics;
+pDeviceObj-&gt;Flags &amp;= ~DO\_DEVICE\_INITIALIZING;
+pDeviceObj-&gt;Flags |= DO\_POWER\_PAGABLE;
+pDeviceObj-&gt;Flags |= pTargetDevObj-&gt;Flags &amp; ( DO\_DIRECT\_IO | DO\_BUFFERED\_IO );
+
+return STATUS\_SUCCESS;
+</code></pre>
+<p>}
+//===========================================================================
+//创建设备用于和R3通信
+//pDriverObj		驱动对象指针
+//pDeviceObjName	设备对象名称
+//pSysLinkName		设备对象的符号链接名称(可以为NULL)
+//bFlags		是否是绑定设备的标记
+//pDeviceObj		二级指针, 用于返回设备对象
+//===========================================================================
+NTSTATUS _CreateDevice( PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pDeviceObjName,
+PUNICODE_STRING pSysLinkName, ULONG bFlags, PDEVICE_OBJECT* pDeviceObj ) {</p>
+<pre><code>NTSTATUS Status;
+PDEVICE\_EXT pDeviceExt = NULL;
+
+Status = IoCreateDevice( pDriverObj, sizeof( DEVICE\_EXT ), pDeviceObjName,
+                         FILE\_DEVICE\_UNKNOWN, 0, TRUE, pDeviceObj );
+
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint ( ( &quot;创建%wZ设备失败!\\n&quot;, pDeviceObjName ) );
+	return Status;
+}
+
+if ( pSysLinkName ) {
+	Status = IoCreateSymbolicLink( pSysLinkName, pDeviceObjName );
+
+	if ( !NT\_SUCCESS( Status ) ) {
+
+		KdPrint ( ( &quot;创建%wZ符号链接失败!\\n&quot;, pSysLinkName ) );
+		IoDeleteDevice( \*pDeviceObj  );
+		return Status;
+	}
+}
+
+pDeviceExt = ( \*pDeviceObj )-&gt;DeviceExtension;
+ASSERT( pDeviceExt );
+
+//设置设备属性, 因为这个设备不是过滤设备, 所以bFlags为False
+RtlZeroMemory( pDeviceExt, sizeof( DEVICE\_EXT ) );
+pDeviceExt-&gt;pDeviceObj = \*pDeviceObj;
+pDeviceExt-&gt;bFlags = bFlags;
+
+if ( pDeviceObjName  ) {
+	pDeviceExt-&gt;USzDeviceName = \*pDeviceObjName;
+}
+
+if ( pSysLinkName ) {
+	pDeviceExt-&gt;USzSysLinkName = \*pSysLinkName;
+}
+
+return Status;
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//绑定所有的串口设备
+//pDriverObj	驱动对象
+//===========================================================================
+VOID _AttachAllComs( PDRIVER_OBJECT pDriverObj ) {
+ULONG i;
+NTSTATUS Status;
+WCHAR wSzName[32];
+UNICODE_STRING USzName;
+PDEVICE_OBJECT pDeviceObj = NULL;
+PFILE_OBJECT pTargetFileObj = NULL;
+PDEVICE_OBJECT pTargetDevObj = NULL;</p>
+<pre><code>for( i = 0; i &lt; CCP\_MAX\_COM\_ID; i++, pTargetDevObj = NULL, pDeviceObj = NULL ) {
+
+	RtlZeroMemory( &amp;wSzName, sizeof( wSzName ) );
+	RtlStringCchPrintfW( wSzName, sizeof( wSzName ), L&quot;\\\\Device\\\\Serial%d&quot;, i );
+	RtlInitUnicodeString( &amp;USzName, wSzName );
+
+	//通过设备名称获取到对象的指针
+	Status = IoGetDeviceObjectPointer( &amp;USzName, FILE\_ALL\_ACCESS,
+	                                   &amp;pTargetFileObj, &amp;pTargetDevObj );
+
+	if ( Status == STATUS\_SUCCESS ) {
+		//绑定成功这里要马上释放文件对象句柄
+		ObDereferenceObject( pTargetFileObj );
+	}
+
+	if( pTargetDevObj == NULL ) {
+		KdPrint( ( &quot;设备无效绑定失败: %wZ\\n&quot;, &amp;USzName ) );
+		continue;
+	}
+
+	Status = \_CreateDevice( pDriverObj, NULL, NULL, TRUE, &amp;pDeviceObj );
+
+	if ( !NT\_SUCCESS( Status ) ) {
+		KdPrint ( ( &quot;创建过滤设备失败!\\n&quot; ) );
+		continue;
+	}
+
+	ASSERT( pDeviceObj != NULL );
+
+	//绑定底层串口设备
+	Status = \_AttachDevice( pDeviceObj, pTargetDevObj );
+
+	if ( !NT\_SUCCESS( Status ) ) {
+		if ( pDeviceObj ) {
+			IoDeleteDevice( pDeviceObj );
+		}
+
+		continue;
+	}
+
+	KdPrint( ( &quot;绑定了设备:%wZ!\\n&quot;, &amp;USzName ) );
+}
+</code></pre>
+<p>}
+//===========================================================================
+//驱动入口
+//===========================================================================
+#pragma code_seg( &ldquo;INIT&rdquo;, &ldquo;DriverEntry&rdquo; )
+NTSTATUS DriverEntry( PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pUSzRegPath ) {
+ULONG i;
+NTSTATUS Status;
+PDEVICE_OBJECT pDeviceObj = NULL;
+UNICODE_STRING USzDeviceName = RTL_CONSTANT_STRING( DEVICE_NAME );
+UNICODE_STRING USzSysLinkName = RTL_CONSTANT_STRING( SYS_LINK_NAME );</p>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+Status = _CreateDevice( pDriverObj, &amp;USzDeviceName, &amp;USzSysLinkName,
+FALSE, &amp;pDeviceObj );</p>
+<pre><code>if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint ( ( &quot;创建通信设备失败!\\n&quot; ) );
+	return Status;
+}
+
+KdPrint ( ( &quot;%wZ设备创建成功!\\n&quot;, &amp;USzDeviceName ) );
+
+//设备缓冲区操作方式
+pDeviceObj-&gt;Flags |= DO\_DIRECT\_IO;
+
+//绑定所有的串口设备
+\_AttachAllComs( pDriverObj );
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+//设置分发函数例程
+for( i = 0; i &lt; IRP_MJ_MAXIMUM_FUNCTION; i++ ) {
+pDriverObj-&gt;MajorFunction[i] = &amp;DispatchRoutine;
+}</p>
+<pre><code>pDriverObj-&gt;MajorFunction\[IRP\_MJ\_READ\] = &amp;DispatchRead;
+pDriverObj-&gt;MajorFunction\[IRP\_MJ\_WRITE\] = &amp;DispatchWrite;
+pDriverObj-&gt;DriverUnload = &amp;DriverUnLoad;
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;</p>
+<pre><code>KdPrint ( ( &quot;驱动入口执行完毕!\\n&quot; ) );
+return Status;
+</code></pre>
+<p>}</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-11-24
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E9%94%AE%E7%9B%98%E8%BF%87%E6%BB%A4%E4%B8%80%E7%BB%91%E5%AE%9Akbdclass/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">键盘过滤一(绑定KbdClass)</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E5%AE%8C%E6%88%90%E4%BE%8B%E7%A8%8B%E8%BF%94%E5%9B%9Estatus_processing_required/">
+            <span class="next-text nav-default">完成例程返回Status_Processing_Required</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

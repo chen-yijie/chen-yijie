@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>漏洞挖掘 on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+    <link>https://xchen.com/categories/%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/</link>
+    <description>Recent content in 漏洞挖掘 on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 13 May 2015 00:00:00 +0000</lastBuildDate><atom:link href="https://xchen.com/categories/%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>CVE-2015-3636 三星S6 pingpong</title>
+      <link>https://xchen.com/post/cve-2015-3636-%E4%B8%89%E6%98%9Fs6-pingpong/</link>
+      <pubDate>Wed, 13 May 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/cve-2015-3636-%E4%B8%89%E6%98%9Fs6-pingpong/</guid>
+      <description>5月2号, Keen Team 向CVE曝出了一个非常劲爆的漏洞, 编号是CVE-2015-3636, 这个漏洞的细节可以关注这个链接 https://loudong.sjtu.edu.cn/show/CNVD-2015-02891 应该是比去年那个CVE-2</description>
+    </item>
+    
+    <item>
+      <title>Easy RM to MP3 Converter(version 2.7.3.700)缓冲区溢出利用</title>
+      <link>https://xchen.com/post/easy-rm-to-mp3-converterversion-2-7-3-700%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%E5%88%A9%E7%94%A8-txt/</link>
+      <pubDate>Fri, 09 Aug 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/easy-rm-to-mp3-converterversion-2-7-3-700%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%E5%88%A9%E7%94%A8-txt/</guid>
+      <description>看了&amp;laquo;Oday安全软件漏洞分析技术&amp;raquo;这本书, 在开始入手之前有一个缓冲区溢出的实例, 不过我感觉那个溢出实例不够接近实战</description>
+    </item>
+    
+  </channel>
+</rss>

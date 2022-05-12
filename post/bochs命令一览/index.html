@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Bochs命令一览 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="Bochs是一个给力的东西.. 在准备自己写点想在裸机上跑的东西. 这个工具是必备的. Bochs继承自Unix和Windows不一路. 命令和Wi" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/bochs%E5%91%BD%E4%BB%A4%E4%B8%80%E8%A7%88/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Bochs命令一览" />
+<meta property="og:description" content="Bochs是一个给力的东西.. 在准备自己写点想在裸机上跑的东西. 这个工具是必备的. Bochs继承自Unix和Windows不一路. 命令和Wi" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/bochs%E5%91%BD%E4%BB%A4%E4%B8%80%E8%A7%88/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-09-08T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-09-08T00:00:00+00:00" />
+
+<meta itemprop="name" content="Bochs命令一览">
+<meta itemprop="description" content="Bochs是一个给力的东西.. 在准备自己写点想在裸机上跑的东西. 这个工具是必备的. Bochs继承自Unix和Windows不一路. 命令和Wi"><meta itemprop="datePublished" content="2011-09-08T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-09-08T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2245">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Bochs命令一览"/>
+<meta name="twitter:description" content="Bochs是一个给力的东西.. 在准备自己写点想在裸机上跑的东西. 这个工具是必备的. Bochs继承自Unix和Windows不一路. 命令和Wi"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Bochs命令一览</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-09-08 </span>
+        <div class="post-category">
+            <a href="/categories/prote/"> prote </a>
+            </div>
+          <span class="more-meta"> 约 2245 字 </span>
+          <span class="more-meta"> 预计阅读 5 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>Bochs是一个给力的东西.. 在准备自己写点想在裸机上跑的东西. 这个工具是必备的.</p>
+<p>Bochs继承自Unix和Windows不一路. 命令和Windbg之流完全不是一个款式, 好在命令就那么几十条, 很快就能够上手. 不需要太多时间就可以全部掌握..</p>
+<p>另外一个就是配置文件的问题了. 配置文件也很简单. 里面已经有了Linux的Demo直接就可以拿来用. 只需要修改下这两行</p>
+<p>        floppya: 1_44=MSDOS71.IMG, status=inserted<br>
+        floppyb: 1_44=CodeFile.IMG, status=inserted</p>
+<p>修改成自己想要启动的软盘就可以了. 另外在下面设置下启动软盘, 是这句<br>
+        boot: a<br>
+那么就可以开始跑了. 本来这个配置文件也简单没有什么好说的, 但是有一个比较给力的地方需要说下. 在Windows上做开发的时候, 对它的Int 3 一直是爱不释手,, 只要写个程序里面嵌入一句Int 3 那么Windbg就自动绑上去了. 真给力.. 开始接触Bochs的时候我就在想, Bochs里面有没有这个东西呢? 果然啊, 也是又的, 不过不是Int 3了, 是这么一句代码<br>
+        xchg bx, bx<br>
+只要在自己想中断的地方加入这个语句就OK了. 当然配置文件中不要忘记加这么一句话.<br>
+        #断点开启(这句是很重要的遇到xchg bx,bx则暂停<br>
+        magic_break: enabled=1</p>
+<p>这一下又觉得这世界美好了一些.. 再转载点, Bochs的命令..</p>
+<p>[执行控制]
+c|cont                  向下执行，相当于WinDBG的“g”。
+s|step|stepi [count]    单步执行，相当于WinDBG的“t”，count 默认为 1。
+p|n|next                单步执行，类似于WinDBG的“p”。
+q|quit|exit             退出调试，同时关闭虚拟机。
+Ctrl-C                  结束执行状态，返回调试器提示符。
+Ctrl-D                  if at empty line on command line, exit
+（至少在Windows版本中我没有发现Ctrl-D有什么功能）</p>
+<p>[执行断点]
+vb|vbreak [seg:off]         在虚拟地址上下断点。
+lb|lbreak [addr]            在线性地址上下断点，相当于WinDBG的“bp”。
+pb|pbreak|b|break [addr]    在物理地址上下断点。（为了兼容GDB的语法，地址前
+可以加上一个“*”）。
+blist                       显示断点状态，相当于WinDBG的“bl”。
+bpd|bpe [num]               禁用/启用断点，WinDBG的“be”和“bd”。num是断
+点号，可以用blist命令查询。
+d|del|delete [num]          删除断点，相当于WinDBG的“bc”。mum是断点号，可
+以用blist命令查询。
+[读写断点]
+watch read [addr]       设置读断点。
+watch write [addr]      设置写断点。
+unwatch read [addr]     清除读断点。
+unwatch write [addr]    清除写断点。
+watch                   显示当前所有读写断点。
+unwatch                 清除当前所有读写断点。
+watch stop|continue     开关选项，设置遇到读写断点时中断下来还是显示出来但
+是继续运行。</p>
+<p>[内存操作]
+x  /nuf [addr]  显示线性地址的内容
+xp /nuf [addr]  显示物理地址的内容
+n           显示的单元数
+u           每个显示单元的大小，u可以是下列之一：
+b BYTE
+h WORD
+w DWORD
+g DWORD64
+注意: 这种命名法是按照GDB习惯的，而并不是按照inter的规范。</p>
+<pre><code>f           显示格式，f可以是下列之一：
+                x 按照十六进制显示
+                d 十进制显示
+                u 按照无符号十进制显示
+                o 按照八进制显示
+                t 按照二进制显示
+                c 按照字符显示
+n、f、u是可选参数，如果不指定，则u默认是w，f默认是x。如果前面使用过x或
+者xp命令，会按照上一次的x或者xp命令所使用的值。n默认为1。addr 也是一个
+可选参数，如果不指定，addr是0，如过前面使用过x或者xp命令，指定了n=i，
+则再次执行时n默认为i+1。
+</code></pre>
+<p>setpmem [addr] [size] [val]    设置物理内存某地址的内容。</p>
+<p>需要注意的是，每次最多只能设置一个DWORD：
+这样是可以的：
+&lt;bochs:1&gt;  setpmem 0x00000000 0x4 0x11223344
+&lt;bochs:2&gt; x /4 0x00000000
+[bochs]:
+0x00000000 &lt;bogus+       0&gt;:    0x11223344 0x00000000 0x00000000 0x00000000
+这样也可以：
+&lt;bochs:1&gt;  setpmem 0x00000000 0x2 0x11223344
+&lt;bochs:2&gt; x /4 0x00000000
+[bochs]:
+0x00000000 &lt;bogus+       0&gt;:    0x00003344 0x00000000 0x00000000 0x00000000
+或者：
+&lt;bochs:1&gt;  setpmem 0x00000000 0x1 0x20
+&lt;bochs:2&gt; x /4 0x00000000
+[bochs]:
+0x00000000 &lt;bogus+       0&gt;:    0x00000020 0x00000000 0x00000000 0x00000000
+下面的做法都会导致出错：
+&lt;bochs:1&gt;  setpmem 0x00000000 0x3 0x112233
+Error: setpmem: bad length value = 3
+&lt;bochs:2&gt;  setpmem 0x00000000 0x8 0x11223344
+Error: setpmem: bad length value = 8</p>
+<p>crc [start] [end]     显示物理地址start到end之间数据的CRC。</p>
+<p>[寄存器操作]
+set $reg = val              设置寄存器的值。现在版本可以设置的寄存器包括：
+eax ecx edx ebx esp ebp esi edi
+暂时不能设置：
+eflags  cs  ss  ds  es  fs  gs</p>
+<p>r|reg|registers reg = val   同上。</p>
+<p>dump_cpu                    显示完整的CPU信息。</p>
+<p>set_cpu                     设置CPU状态，这里可以设置dump_cpu所能显示出来的
+所有CPU状态。</p>
+<p>[反汇编命令]</p>
+<p>u|disas|disassemble [/num] [start] [end]
+反汇编物理地址start到end 之间的代码，如
+果不指定参数则反汇编当前EIP指向的代码。
+num是可选参数，指定处理的代码量。
+set $disassemble_size = 0|16|32     $disassemble_size变量指定反汇编使用的段
+大小。</p>
+<p>set $auto_disassemble = 0|1         $auto_disassemble决定每次执行中断下来的
+时候（例如遇到断点、Ctrl-C等）是否反汇
+编当前指令。</p>
+<p>[其他命令]
+trace-on|trace-off      Tracing开关打开后，每执行一条指令都会将反汇编的结果
+显示出来。</p>
+<p>ptime                   显示Bochs自本次运行以来执行的指令条数。</p>
+<p>sb [val]                再执行val条指令就中断。val是64-bit整数，以L结尾，形
+如“1000L”</p>
+<p>sba [val]               执行到Bochs自本次运行以来的第val条指令就中断。val是
+64-bit整数，以L结尾，形如“1000L”</p>
+<p>modebp                  设置切换到v86模式时中断。</p>
+<p>record [&quot;filename&quot;]     将输入的调试指令记录到文件中。文件名必须包含引号。</p>
+<p>playback [&quot;filename&quot;]   回放record的记录文件。文件名必须包含引号。</p>
+<p>print-stack [num]       显示堆栈，num默认为16，表示打印的条数。</p>
+<p>?|calc                  和WinDBG的“?”命令类似，计算表达式的值。</p>
+<p>load-symbols [global] filename [offset]
+载入符号文件。如果设定了“global”关键字，则符号针
+对所有上下文都有效。offset会默认加到所有的symbol地
+址上。symbol文件的格式为：&quot;%x %s&quot;。</p>
+<p>[info命令]</p>
+<p>info program            显示程序执行的情况。
+info registers|reg|r    显示寄存器的信息。
+info pb|pbreak|b|break  相当于blist
+info dirty              显示脏页的页地址。
+info cpu                显示所有CPU寄存器的值。
+info fpu                显示所有FPU寄存器的值。
+info idt                显示IDT。
+info gdt [num]          显示GDT。
+info ldt                显示LDT。
+info tss                显示TSS。
+info pic                显示PIC。
+info ivt [num] [num]    显示IVT。
+info flags              显示状态寄存器。
+info cr                 显示CR系列寄存器。
+info symbols            显示symbol信息。
+info ne2k|ne2000        显示虚拟的ne2k网卡信息。</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-09-08
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E4%BB%A3%E7%A0%81/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">引导扇区代码</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6%E5%92%8C%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/">
+            <span class="next-text nav-default">保护模式分段机制和分页机制</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>VT VMCS结构信息 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="熟悉Intel VT的人都知道. 使用VT的过程, 基本上就是操作VMCS结构的过程. 这个结构非常的大. 非常复杂, 基本上和VT有关的东西都在这里." /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/vt-vmcs%E7%BB%93%E6%9E%84%E4%BF%A1%E6%81%AF/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="VT VMCS结构信息" />
+<meta property="og:description" content="熟悉Intel VT的人都知道. 使用VT的过程, 基本上就是操作VMCS结构的过程. 这个结构非常的大. 非常复杂, 基本上和VT有关的东西都在这里." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/vt-vmcs%E7%BB%93%E6%9E%84%E4%BF%A1%E6%81%AF/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2012-10-18T00:00:00+00:00" />
+<meta property="article:modified_time" content="2012-10-18T00:00:00+00:00" />
+
+<meta itemprop="name" content="VT VMCS结构信息">
+<meta itemprop="description" content="熟悉Intel VT的人都知道. 使用VT的过程, 基本上就是操作VMCS结构的过程. 这个结构非常的大. 非常复杂, 基本上和VT有关的东西都在这里."><meta itemprop="datePublished" content="2012-10-18T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2012-10-18T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2605">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="VT VMCS结构信息"/>
+<meta name="twitter:description" content="熟悉Intel VT的人都知道. 使用VT的过程, 基本上就是操作VMCS结构的过程. 这个结构非常的大. 非常复杂, 基本上和VT有关的东西都在这里."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">VT VMCS结构信息</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2012-10-18 </span>
+        <div class="post-category">
+            <a href="/categories/virtual-technology/"> virtual-technology </a>
+            </div>
+          <span class="more-meta"> 约 2605 字 </span>
+          <span class="more-meta"> 预计阅读 6 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>熟悉Intel VT的人都知道. 使用VT的过程, 基本上就是操作VMCS结构的过程. 这个结构非常的大. 非常复杂, 基本上和VT有关的东西都在这里.</p>
+<p>*这里是按照Intel 手册描述的VMCS的数据区组成部分依次填写 详细信息参考[开发日志2].VMCS数据区总共6个组成部分. 分别是 1.客户区状态域(Guest State Area) 2.宿主机状态域(Host State Area ) 3.虚拟机运行控制域( VM-Execuction Control Fields ) 4.VMEntry行为控制域( VM-Entry Control Fields ) 5.VMExit行为控制域( VM-Exit Control Fields ) 6.VMExit相关信息域( VM-Exit Information Fields )(只读)</p>
+<p><strong>1.客户区状态域(Guest State Area)</strong>:</p>
+<p>1.1客户机寄存器状态内容(Guest Register State ) 控制寄存器: CR0, CR3, CR4 调试寄存器: DR7 Esp, Eip, 和Eflags CS, SS, DS, ES, FS, GS, LDTR, TR选择子, 基址, 段长, 属性 GDTR, IDTR, 基址, 段长 一些MSR寄存器的值, IA32_DEBUGCTL, IA32_SYSENTER_CS, IA32_SYSENTER_ESP, IA32_SYSENTER_EIP,IA32_PERF_GLOBAL_CTRL, IA32_PAT, IA32_EFER</p>
+<p><strong>1.2客户机非寄存器状态内容(Guest Non-Register State )</strong></p>
+<p>活动性状态(Activity State):活跃的(Active), 中断的(hlt), 关闭的(Shutdown), 等待SIPI中断(Wait-for-SIPI)只有活跃的可以自行Guest指令, 其他都表示发生错误</p>
+<p>中断能力状态</p>
+<p>推迟调试异常</p>
+<p>VMCS连接指针(保留)</p>
+<p>VMX抢占计时器</p>
+<p>PDPTE项(开启了EPT模式会用到此域)PDPTE0-PDPTE3</p>
+<p><strong>2.宿主机状态域(Host State Area ):</strong> 这个域只存储Hypervisor的寄存器信息, 在发生#VMExit事件的时候恢复到相应寄存器 控制寄存器: CR0, CR3, CR4 Esp,Eip CS, SS, DS, ES, FS, GS和TR寄存器, 选择子 FS, GS, TR, GDTR, IDTR信息, 基址 一些MSR寄存器, IA32_SYSENTER_CS, IA32_SYSENTER_ESP, IA32_SYSENTER_EIP,IA32_PERF_GLOBAL_CTRL, IA32_PAT, IA32_EFER</p>
+<p><strong>3.虚拟机运行控制域(VM-Execution Control Fields ):</strong> 这个域用来控制CPU在Non-Root模式下运行行为, 控制某条指令是否产生VM-Exit,还有异常 和中断的配置, 可以看出来, 这个地方很重要了. 要控制什么指令.中断, 异常.产生异常,就是配置这里</p>
+<p><strong>3.1基于针脚的虚拟机执行控制(Pin-Based VM-Execution Controls ):</strong> 管理中断等异步事件, 如果启用抢占计时器就是在这个域中设置的. 设置要参考IA32_VMX_PINBASED_CTLS和IA32_VMX_TRUE_PINBASED_CTLS两个MSR寄存器的值</p>
+<p><strong>3.2基于处理器的虚拟机执行控制(Processor-Based VM-Exection Controls ):</strong> 这里就是配置一些指令是否产生#VM-Exit事件的地方了, 还有师傅开启EPT地址翻译 开启VPID, 开启虚拟APIC</p>
+<p><strong>3.3异常位图(Exception Bitmap):</strong> 该域32位长, 每一位代表当某种异常发生时, 硬件会自动产生#VM-Exit时间, 如果某位 为0, 表示这个异常会通过IDT表正常处理. 要捕获异常就是这里了.当然缺页在另外地方配置</p>
+<p><strong>3.4IO位图地址(IO Bitmap Addresses ):</strong> 64位长的物理地址, 指向两块IO位图, 只有在Primary Processor-Based VM-Execution Controls.Use I/O Bitmaps[bit 25]=1的情况下才会被使用. 在处理IO指令时根据位图相应产生#VM-Exit.地址要4K对齐</p>
+<p><strong>3.5时间戳计数器偏移(Time-Stamp Counter Offset ):</strong> 当Guest 利用RDTSC TDTSCP指令或者访问IA32_TIME_STAMP_COUNTER MSR寄存器的时候, 得到的结果是 真实的值+上这个偏移量的和</p>
+<p><strong>3.6虚拟机/Hypervisor屏蔽和 CR0/CR4访问隐藏设置:</strong> 这个域主要对CR0/CR4进行保护, 虚拟机/Hypervisor屏蔽中置位1的部分说明会产生#VM-Exit事件.</p>
+<p><strong>3.7 CR3访问控制.</strong> 包含最多4个CR3目标值, 如果是这几个CR3中的一个那么赋值CR3的时候不产生#VM-Exit</p>
+<p><strong>3.8 APIC访问控制:</strong></p>
+<p>VT技术对APIC的虚拟化, 这边先不管</p>
+<p><strong>3.9 MSR 位图地址(MSR Bitmap Address ):</strong> 指向MSR位图区域的物理地址, 当Primary Processor-Based VM-Execution Controls.Use MSR Bitmaps[bit 28 ] = 1 使用, MSR位图4K大小, 当配置好时, 相应的MSR访问会产生#VM-Exit.</p>
+<p><strong>3.10 执行体VMCS指针(Executive-VMCS Pointer ):</strong> 64位, 用于VT技术对系统管理中断(SMI)和系统管理模式(SMM)进行监管.</p>
+<p><strong>3.11 EPT指针( Extended Page Table Pointer ):</strong> 指向EPT页表的基地址(EPML4级页表的物理地址)以及一些EPT的配置信息. 当Secondary Processor-Based VM-Execution Controls.Enable EPT[bit 1]=1时启用.</p>
+<p><strong>3.12 虚拟机标识符(Virtual Processor Identifier, VPID):</strong> 虚拟机标识符16位长, 当Secondary Processor-Based VM-Execution Controls.Enable EPT[bit 5]=1时启用</p>
+<p><strong>4.VMEntry行为控制域( VM-Entry Control Fields ) :</strong> 定义在#VM-Entry事件发生后, 硬件要立即做的事情</p>
+<p><strong>4.1 #VM-Entry 基本操作控制设置</strong> 1.加载调试寄存器内容, (DR7, IA32_DEBUGCTL MSR 寄存器. 2.虚拟机是否进入x64模式, x86用于为0 3.进入系统管理模式 4.关闭Dual-Monitor Treatment 5.加载IA32_PERF_GLOBAL_CTRL MSR寄存器 6.加载IA32_PAT MSR寄存器 7.加载IA32_EFER MSR寄存器</p>
+<p><strong>4.2 #VM-Entry MSR寄存器操作控制设置</strong> 这个域可以配置在进入#VM-Entry的时候加载一些有关虚拟机状态的MSR寄存器.</p>
+<p><strong>4.3 #VM-Entry 注入事件控制设置</strong> #VM-Entry可以在所有虚拟机状态恢复完毕后, 通过客户机IDT表触发一个中断.通过这个域配置</p>
+<p><strong>5.VMExit行为控制域( VM-Exit Control Fields ):</strong> 定义在#VM-Exit事件发生后, 硬件要立即做的事情.</p>
+<p><strong>5.1 #VM-Exit 基本操作控制设置</strong> 1.保存调试寄存器内容, (DR7, IA32_DEBUGCTL MSR 寄存器. 2.Hypervisor地址空间大小(x86永远为0) 3.加载IA32_PERF_GLOBAL_CTRL MSR 寄存器 4.VMExit保留外部中断原因信息(Acknowledge Interrupt on Exit ) 5.保存IA32_PAT MSR寄存器 6.加载IA32_PAT MSR寄存器 7.保存IA32_EFER MSR寄存器 8.加载IA32_EFER MSR寄存器 9.保存VMX抢占计时器值.</p>
+<p>5.2 #VM-Exit MSR寄存器操作控制设置 和#VM-Entry类似</p>
+<p><strong>6.VMExit相关信息域(只读区域)</strong></p>
+<p>6.1 #VM-Exit事件基本信息区(Basic VM-Exit Information): 1. 退出原因( Exit Reason) 2. 退出条件( Exit Qualification ) 3. 客户机线性地址( Guest-Linear Address ) 4. 客户机物理地址( Guest-Physical Address )</p>
+<p>6.2 向量化事件 #VM-Exit 信息区(VM Exits Due to Vectored Events ): 1. #VM-Exit中断信息 2. #VM-Exit中断异常号</p>
+<p>6.3 事件分发时#VM-Exit信息区(VM Exits Occur During Event Delivery): 1. IDT向量表信息 2. IDT向量表异常号</p>
+<p>6.4 指令执行时VMExit信息区(VM Exits Due to Instruction Execution ): 1. VMExit指令长度 2. VMExit指令信息 6.5 VM指令错误信息区(VM Instruction Error Field ): 描述了执行虚拟机操作指令, 发生的最后一个Non-Faulting 错误的信息</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2012-10-18
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/createdialogparam%E9%9D%9E%E6%A8%A1%E6%80%81%E5%AF%B9%E8%AF%9D%E6%A1%86/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">CreateDialogParam非模态对话框</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/bochs%E8%B0%83%E8%AF%95vt%E4%BB%A3%E7%A0%81/">
+            <span class="next-text nav-default">bochs调试VT代码</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

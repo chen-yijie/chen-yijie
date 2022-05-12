@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>SSL证书生成 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="使用OpenSSL生成整套证书流程，使用的是windows上git安装好之后的openssl工具。 .key格式：私有的密钥 .csr格式：证书" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/ssl%E8%AF%81%E4%B9%A6%E7%94%9F%E6%88%90/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="SSL证书生成" />
+<meta property="og:description" content="使用OpenSSL生成整套证书流程，使用的是windows上git安装好之后的openssl工具。 .key格式：私有的密钥 .csr格式：证书" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/ssl%E8%AF%81%E4%B9%A6%E7%94%9F%E6%88%90/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2020-04-14T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-04-14T00:00:00+00:00" />
+
+<meta itemprop="name" content="SSL证书生成">
+<meta itemprop="description" content="使用OpenSSL生成整套证书流程，使用的是windows上git安装好之后的openssl工具。 .key格式：私有的密钥 .csr格式：证书"><meta itemprop="datePublished" content="2020-04-14T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2020-04-14T00:00:00+00:00" />
+<meta itemprop="wordCount" content="874">
+<meta itemprop="keywords" content="ssl," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="SSL证书生成"/>
+<meta name="twitter:description" content="使用OpenSSL生成整套证书流程，使用的是windows上git安装好之后的openssl工具。 .key格式：私有的密钥 .csr格式：证书"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">SSL证书生成</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-04-14 </span>
+        <div class="post-category">
+            <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%AE%97%E6%B3%95/"> 数据结构算法 </a>
+            </div>
+          <span class="more-meta"> 约 874 字 </span>
+          <span class="more-meta"> 预计阅读 2 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>使用OpenSSL生成整套证书流程，使用的是windows上git安装好之后的openssl工具。</p>
+<p>.key格式：私有的密钥<br>
+.csr格式：证书签名请求（证书请求文件），含有公钥信息，certificate signing request的缩写<br>
+.crt格式：证书文件，certificate的缩写<br>
+.crl格式：证书吊销列表，Certificate Revocation List的缩写<br>
+.pem格式：用于导出，导入证书时候的证书的格式，有证书开头，结尾的格式</p>
+<p>ca根证书：</p>
+<p>生成CA私钥（.key）&ndash;&gt;生成CA证书请求（.csr）&ndash;&gt;自签名得到根证书（.crt）（CA给自已颁发的证书）。</p>
+<ol>
+<li># Generate CA private key   </li>
+<li>openssl genrsa -out ca.key 2048   </li>
+<li># Generate CSR   </li>
+<li>openssl req -new -key ca.key -out ca.csr  </li>
+<li># Generate Self Signed certificate（CA 根证书）  </li>
+<li>openssl x509 -req -days 365 -in ca.csr -signkey ca.key -out ca.crt  </li>
+</ol>
+<p>用户证书生成步骤： 生成私钥（.key）&ndash;&gt;生成证书请求（.csr）&ndash;&gt;用CA根证书签名得到证书（.crt）</p>
+<p>服务器端用户证书：</p>
+<ol>
+<li># private key  </li>
+<li>$openssl genrsa -des3 -out server.key 1024   </li>
+<li># generate csr  </li>
+<li>$openssl req -new -key server.key -out server.csr  </li>
+<li># generate certificate  </li>
+<li>$openssl ca -in server.csr -out server.crt -cert ca.crt -keyfile ca.key </li>
+</ol>
+<p>Organization Name (eg, company) [Internet Widgits Pty Ltd]: ca，服务端，客户端写成不一样即可</p>
+<p>Common Name (e.g. server FQDN or YOUR name) []: 填写生成证书的域名</p>
+<p>客户端证书：</p>
+<ol>
+<li>$openssl genrsa -des3 -out client.key 1024   </li>
+<li>$openssl req -new -key client.key -out client.csr  </li>
+<li>$openssl ca -in client.csr -out client.crt -cert ca.crt -keyfile ca.key  </li>
+</ol>
+<p>生成pem格式证书： <br>
+有时需要用到pem格式的证书，可以用以下方式合并证书文件（crt）和私钥文件（key）来生成 </p>
+<p>$cat client.crt client.key&gt; client.pem </p>
+<p>$cat server.crt server.key &gt; server.pem</p>
+<p>结果：</p>
+<p>服务端证书：ca.crt, server.key, server.crt, server.pem</p>
+<p>客户端证书：ca.crt, client.key, client.crt, client.pem</p>
+<p><strong>注意：</strong></p>
+<p>在执行$openssl ca -in server.csr -out server.crt -cert ca.crt -keyfile ca.key时可能会出错：</p>
+<p>Using configuration from /usr/share/ssl/openssl.cfg I am unable to access the ./demoCA/newcerts directory ./demoCA/newcerts: No such file or directory </p>
+<p>解决方法：</p>
+<p>1)mkdir -p ./demoCA/newcerts <br>
+2)touch demoCA/index.txt <br>
+3)touch demoCA/serial <br>
+4)echo 01 &gt; demoCA/serial</p>
+<p>其实都是openssl.cnf文件里面配置的，修改一下配置文件也可以。 另外下面看到一个开源项目是基于OpenSSL做流量过滤的</p>
+<p><a href="https://github.com/kazkansouh/mitm-ssl">https://github.com/kazkansouh/mitm-ssl</a></p>
+<p>另外还找到一个专业做这方面的工具，这个还需要再研究一下,mitmproxy是专业工具，相比Fiddler Charles可以看到SSL包的更多细节。</p>
+<p><a href="https://mitmproxy.org/">https://mitmproxy.org/</a></p>
+<p>如果要调试OpenSSL的SSL流程可以使用以下命令</p>
+<p>openssl  s_client -debug -connect joenchen.com:443 -state -showcerts -tlsextdebug -msg                                                                 </p>
+<p>参考文章<br>
+<a href="https://blog.csdn.net/moonhillcity/article/details/52768218">https://blog.csdn.net/moonhillcity/article/details/52768218</a><br>
+<a href="https://coolcao.com/2018/08/06/https/">https://coolcao.com/2018/08/06/https/</a><br>
+<a href="https://blog.cloudflare.com/keyless-ssl-the-nitty-gritty-technical-details/">https://blog.cloudflare.com/keyless-ssl-the-nitty-gritty-technical-details/</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2020-04-14
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/ssl.html">ssl</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/visual-leak-detector%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E6%A3%80%E6%B5%8B/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Visual Leak Detector内存泄漏检测</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E5%88%9D%E8%AF%95rust/">
+            <span class="next-text nav-default">初试Rust</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

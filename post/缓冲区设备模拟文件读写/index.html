@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>缓冲区设备模拟文件读写 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="原来以为写Win32程序基于消息处理, 原来内核里面也是一个套路, 也差不多. 不过内核里面和这个消息肯定是有些区别的, 不过既然款式是一样的, 那么" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E7%BC%93%E5%86%B2%E5%8C%BA%E8%AE%BE%E5%A4%87%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="缓冲区设备模拟文件读写" />
+<meta property="og:description" content="原来以为写Win32程序基于消息处理, 原来内核里面也是一个套路, 也差不多. 不过内核里面和这个消息肯定是有些区别的, 不过既然款式是一样的, 那么" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E7%BC%93%E5%86%B2%E5%8C%BA%E8%AE%BE%E5%A4%87%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-10-29T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-10-29T00:00:00+00:00" />
+
+<meta itemprop="name" content="缓冲区设备模拟文件读写">
+<meta itemprop="description" content="原来以为写Win32程序基于消息处理, 原来内核里面也是一个套路, 也差不多. 不过内核里面和这个消息肯定是有些区别的, 不过既然款式是一样的, 那么"><meta itemprop="datePublished" content="2011-10-29T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-10-29T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2623">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="缓冲区设备模拟文件读写"/>
+<meta name="twitter:description" content="原来以为写Win32程序基于消息处理, 原来内核里面也是一个套路, 也差不多. 不过内核里面和这个消息肯定是有些区别的, 不过既然款式是一样的, 那么"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">缓冲区设备模拟文件读写</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-10-29 </span>
+        <div class="post-category">
+            <a href="/categories/kernel/"> kernel </a>
+            </div>
+          <span class="more-meta"> 约 2623 字 </span>
+          <span class="more-meta"> 预计阅读 6 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>原来以为写Win32程序基于消息处理, 原来内核里面也是一个套路, 也差不多. 不过内核里面和这个消息肯定是有些区别的, 不过既然款式是一样的, 那么也就基本上可以等同理解了, 反正IO管理器会给你发送IRP, 然后你自己处理好这些个IRP, 那么基本上就OK了, 和Win32发送消息给你一样. 自己处理完返回系统. 看来MicroSoft那帮人还是比较暴力的..</p>
+<p> </p>
+<p>在Windwos中有一种数据结构叫做IRP(输入输出请求包),这个东西和Win32下的消息非常的类似,那么既然和消息很类似,Win32上可以模拟消息, 也可以处理很多消息. 当然也可以发送消息. 既然是差不多. 那么内核里面肯定也是有这些个套路的,就是以前几个经常使用的API函数CreateFile, ReadFile, WriteFile, 原来以前一直被这几个函数给欺骗了, 这些个函数不只是可以打开文件, 还有很大用处, 莫非这个和Unix上那个把所有的设备撒的都当成文件处理有关系?这几个函数如果去打开我们创建出来的设备基本上就是转变为几种IRP请求了. 然后自己处理这些个请求. 处理请求的方式很多. 很多.慢慢来一种一种的写..</p>
+<p>另外一个想想就缺少点什么, 在ReadFile和WriteFile的时候, 不是会写入一些个数据, 和读取一些个数据的么. 那么这个应该如何处理呢?其实有3种处理方式, 一种是操作系统给你把Win32提供的缓冲区给Copy一份,在内核中返回数据以后再Copy一次给Win32这边, 所以很慢..还有一种是直接使用分页机制, 将相同的缓冲区页面映射到同一个物理地址上, 这个相对是比较快了, 因为没有做内存的COPY, 但是还有一种暴力的方式, 是直接不做任何的处理, 将Win32缓冲区的地址传递给内核中的驱动程序, 那么这个很容易就导致崩溃了, 因为驱动在处理IRP的时候很有可能中断级不是很高. 然后会被任务切换给打断, 回头再跑这个代码, 已经处在另外一个进程的地址空间中了, 导致访问那个地址也被换了,或者是根本就没有映射, 那么这样肯定是又问题的. 所以需要驱动程序自己确保这些个问题得到妥善处理. 否则有可能引起程序崩溃.</p>
+<p>那么一种一种来说, 首先我们先使用这个带缓冲区的来试试. 然后我们写个驱动程序, 模拟文件读写的过程. 利用带缓冲区的IO方式..</p>
+<p>我说说下面这个代码的逻辑, 首先在Win32用户层这边先打开了驱动层的设备, 然后调用WriteFile写设备, 写了10次, 每次写完了再设置文件指针. 如果是调用Windows的文件操作函数的话, 写完了文件指针是会自己移动的, 这里我们的驱动进来写简单写. 就不做这个了. 还有一个调用SetFilePointer这号函数是不会向驱动发送IRP的, 只是修改了内核中某个数据结构的地址. 具体是什么, 我倒. 书上没说.</p>
+<p>最后调用ReadFile一次读取出来.如果按照文件的读取方式的话, 应该把前面写入的一次全部读取出来才对, 那么事实上也是这样. 将前面写入的东西全部读取出来. 然后把他们显示出来, 基本上就是这些个东西. 这里我们使用的是带缓冲区的IO方式.. </p>
+<p>        <a href="http://www.joenchen.com/JoenTools/BufferIo.rar">http://www.joenchen.com/JoenTools/BufferIo.rar</a></p>
+<p>这边是用户层的代码:</p>
+<p>/*
+Windows内核下模拟文件的读写操作, IRP的处理(使用带缓冲区的IO方式) 3环代码
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;</p>
+<p>#define  SYS_LINK_NAME	&quot;\\\\.\\SysLinkJoenDevice&quot;
+#define  MAX_LENGTH	1024</p>
+<p>#pragma comment(linker, &quot;/Entry:Jmain&quot;)
+#pragma comment(linker, &quot;/subsystem:console&quot;)</p>
+<p>//===========================================================================
+int Jmain() {
+HANDLE hFile = 0;
+BYTE byBuf[100];
+BYTE byBuf2[MAX_LENGTH];
+DWORD dwByteRead, i;</p>
+<pre><code>//打开设备
+hFile = CreateFile( SYS\_LINK\_NAME, GENERIC\_READ | GENERIC\_WRITE, 0, 0,
+		OPEN\_EXISTING,FILE\_ATTRIBUTE\_NORMAL,0  );
+
+if ( hFile == INVALID\_HANDLE\_VALUE ) {
+	printf( &amp;quot;打开设备错误了!\\n&amp;quot; );
+	return -1;
+}else {
+	printf( &amp;quot;打开设备成功!\\n&amp;quot; );
+}
+
+\_\_try {
+	//循环多次向设备写入信息
+	for( i = 0; i &amp;lt; 10; i++ ) {
+
+		RtlFillMemory( byBuf, sizeof(byBuf ), i+&amp;#39;a&amp;#39; );
+		if( !WriteFile( hFile,byBuf, sizeof(byBuf), &amp;amp;dwByteRead, NULL ) ) {
+			printf( &amp;quot;写入失败!\\n&amp;quot; );
+			return -1;
+		}else {
+			printf( &amp;quot;写入成功!\\n&amp;quot; );
+		}
+
+		//修改文件指针, 好像读取文件Windows内部会自动修改当前指针. 这里就手动了
+		SetFilePointer(hFile, sizeof(byBuf), NULL, FILE\_CURRENT );
+	}
+
+	//复位文件指针
+	SetFilePointer(hFile,0, NULL, FILE\_BEGIN );
+
+	//向设备发送IRP\_READ消息
+	if( !ReadFile(hFile,&amp;amp;byBuf2, sizeof(byBuf2), &amp;amp;dwByteRead, NULL ) ) {
+		printf( &amp;quot;读取文件失败!\\n&amp;quot; );
+	}else {
+		printf( &amp;quot;读取文件成功!\\n%s\\n&amp;quot;, byBuf2);
+	}
+
+}\_\_finally{
+	if ( hFile ) {
+		CloseHandle(hFile);
+	}
+	system( &amp;quot;pause&amp;quot; );
+}
+return 0;
+</code></pre>
+<p>}</p>
+<p>这是内核态的代码:</p>
+<p>/*
+Windows内核下模拟文件的读写操作, IRP的处理(使用带缓冲区的IO方式) 0环代码
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;ntddk.h&gt;</p>
+<p>#define  DEVICE_NAME	L&quot;\\Device\\DevJoenDevice&quot;
+#define  SYS_LINK_NAME	L&quot;\\??\\SysLinkJoenDevice&quot;
+#define  MAX_LENGTH	1024</p>
+<p>typedef struct tagDeviceExt {
+ULONG		dwFileCurrentLength;
+CHAR*		pBuffer;
+PDEVICE_OBJECT	pDeviceObj;
+UNICODE_STRING	USzDeviceName;
+UNICODE_STRING	USzSysLinkName;
+}DEVICEEXT, *PDEVICEEXT;
+//===========================================================================
+//驱动卸载例程
+#pragma code_seg( &ldquo;PAGE&rdquo; )
+VOID DriverUnLoad( PDRIVER_OBJECT pDriverObj ) {
+PDEVICEEXT pDeviceExt;
+PDEVICE_OBJECT pNextObj;</p>
+<pre><code>pNextObj = pDriverObj-&gt;DeviceObject;
+while ( pNextObj != NULL ) {
+	pDeviceExt = pNextObj-&gt;DeviceExtension;
+
+	//删除符号链接, 和设备
+	IoDeleteSymbolicLink( &amp;pDeviceExt-&gt;USzSysLinkName );
+	IoDeleteDevice( pDeviceExt-&gt;pDeviceObj );
+	ExFreePool(pDeviceExt-&gt;pBuffer);
+
+	KdPrint(( &quot;删除%wZ设备成功!\\n&quot;, &amp;pDeviceExt-&gt;USzDeviceName ));
+
+	pNextObj = pNextObj-&gt;NextDevice;
+}
+</code></pre>
+<p>}
+//===========================================================================
+//驱动派遣例程
+NTSTATUS DispatchRoutin( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+UCHAR Type;
+PIO_STACK_LOCATION Stack;
+#if DBG
+//建立一个字符串数组与IRP类型对应起来
+static char* IrpName[] = {
+&ldquo;IRP_MJ_CREATE&rdquo;,
+&ldquo;IRP_MJ_CREATE_NAMED_PIPE&rdquo;,
+&ldquo;IRP_MJ_CLOSE&rdquo;,
+&ldquo;IRP_MJ_READ&rdquo;,
+&ldquo;IRP_MJ_WRITE&rdquo;,
+&ldquo;IRP_MJ_QUERY_INFORMATION&rdquo;,
+&ldquo;IRP_MJ_SET_INFORMATION&rdquo;,
+&ldquo;IRP_MJ_QUERY_EA&rdquo;,
+&ldquo;IRP_MJ_SET_EA&rdquo;,
+&ldquo;IRP_MJ_FLUSH_BUFFERS&rdquo;,
+&ldquo;IRP_MJ_QUERY_VOLUME_INFORMATION&rdquo;,
+&ldquo;IRP_MJ_SET_VOLUME_INFORMATION&rdquo;,
+&ldquo;IRP_MJ_DIRECTORY_CONTROL&rdquo;,
+&ldquo;IRP_MJ_FILE_SYSTEM_CONTROL&rdquo;,
+&ldquo;IRP_MJ_DEVICE_CONTROL&rdquo;,
+&ldquo;IRP_MJ_INTERNAL_DEVICE_CONTROL&rdquo;,
+&ldquo;IRP_MJ_SHUTDOWN&rdquo;,
+&ldquo;IRP_MJ_LOCK_CONTROL&rdquo;,
+&ldquo;IRP_MJ_CLEANUP&rdquo;,
+&ldquo;IRP_MJ_CREATE_MAILSLOT&rdquo;,
+&ldquo;IRP_MJ_QUERY_SECURITY&rdquo;,
+&ldquo;IRP_MJ_SET_SECURITY&rdquo;,
+&ldquo;IRP_MJ_POWER&rdquo;,
+&ldquo;IRP_MJ_SYSTEM_CONTROL&rdquo;,
+&ldquo;IRP_MJ_DEVICE_CHANGE&rdquo;,
+&ldquo;IRP_MJ_QUERY_QUOTA&rdquo;,
+&ldquo;IRP_MJ_SET_QUOTA&rdquo;,
+&ldquo;IRP_MJ_PNP&rdquo;,};
+#endif
+Stack = IoGetCurrentIrpStackLocation( pIrp );
+Type = Stack-&gt;MajorFunction;</p>
+<p>#if	DBG
+if ( Type &lt;= sizeof(IrpName)/sizeof(IrpName[0]) ) {
+KdPrint(( &ldquo;\t%s\n&rdquo;, IrpName[Type] ));
+}
+#endif</p>
+<pre><code>//简单完成IRP
+pIrp-&gt;IoStatus.Status = STATUS\_SUCCESS;
+pIrp-&gt;IoStatus.Information = 0;
+IoCompleteRequest( pIrp, IO\_NO\_INCREMENT );
+return STATUS\_SUCCESS;
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//读请求
+NTSTATUS DispatchRead( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+ULONG ulReadLength;
+ULONG ulReadOffset;
+NTSTATUS Status;
+PDEVICEEXT pDeviceExt;
+PIO_STACK_LOCATION Stack;</p>
+<pre><code>Stack = IoGetCurrentIrpStackLocation( pIrp );
+pDeviceExt = pDeviceObj-&gt;DeviceExtension;
+
+//欲读取的长度, 偏移
+ulReadLength = Stack-&gt;Parameters.Read.Length;
+ulReadOffset = (ULONG)Stack-&gt;Parameters.Read.ByteOffset.QuadPart;
+
+//如果要读取的偏移和长度大于最大缓冲区长度, 返回失败
+if ( ulReadLength + ulReadOffset &gt; MAX\_LENGTH ) {
+	Status = STATUS\_FILE\_INVALID;
+	ulReadLength = 0;
+}else {
+	RtlCopyMemory(pIrp-&gt;AssociatedIrp.SystemBuffer,
+		pDeviceExt-&gt;pBuffer+ulReadOffset, ulReadLength );
+	Status = STATUS\_SUCCESS;
+}
+
+//简单的完成IRP请求
+pIrp-&gt;IoStatus.Status = Status;
+pIrp-&gt;IoStatus.Information = ulReadLength;
+IoCompleteRequest( pIrp, IO\_NO\_INCREMENT );
+
+KdPrint(( &quot;读取请求处理完毕!\\n&quot; ));
+return STATUS\_SUCCESS;
+</code></pre>
+<p>}
+//===========================================================================
+//写请求
+NTSTATUS DispatchWrite( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+ULONG			ulWriteLength;
+ULONG			ulWriteOffset;
+CHAR*			pData = NULL;
+NTSTATUS		Status;
+PDEVICEEXT		pDeviceExt;
+PIO_STACK_LOCATION	Stack;</p>
+<pre><code>Stack = IoGetCurrentIrpStackLocation(pIrp);
+pDeviceExt = pDeviceObj-&gt;DeviceExtension;
+
+//获取欲写入长度与偏移
+ulWriteLength = Stack-&gt;Parameters.Write.Length;
+ulWriteOffset = (ULONG)Stack-&gt;Parameters.Write.ByteOffset.QuadPart;
+pData = pIrp-&gt;AssociatedIrp.SystemBuffer;
+
+//如果要写入的长度达到了最大长度, 返回无效.
+if ( ulWriteOffset + ulWriteLength &gt; MAX\_LENGTH ) {
+	Status = STATUS\_FILE\_INVALID;
+	ulWriteLength = 0;
+}else {
+	//将3环那边的数据存储在缓冲区中
+	RtlCopyMemory(pDeviceExt-&gt;pBuffer+ulWriteOffset,
+		pIrp-&gt;AssociatedIrp.SystemBuffer, ulWriteLength);
+
+	//重新设置下新的文件长度, 这里尽量模仿打开文件操作, 但是我们自己
+	//创建的设备没有SetFilePointer函数, 还是不给力啊!
+	if ( ulWriteLength+ulWriteOffset &gt; pDeviceExt-&gt;dwFileCurrentLength ){
+		pDeviceExt-&gt;dwFileCurrentLength = ulWriteOffset+ulWriteLength;
+	}
+
+	Status = STATUS\_SUCCESS;
+}
+
+pIrp-&gt;IoStatus.Status = Status;
+pIrp-&gt;IoStatus.Information = ulWriteLength;
+IoCompleteRequest( pIrp, IO\_NO\_INCREMENT );
+
+KdPrint(( &quot;写入请求处理完毕!\\n&quot; ));
+return Status;
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+#pragma  code_seg( &ldquo;INIT&rdquo; )
+NTSTATUS DriverEntry( PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pUSzRegPath ) {
+ULONG i;
+NTSTATUS Status;
+PDEVICEEXT pDeviceExt;
+PDEVICE_OBJECT pDeviceObj;
+UNICODE_STRING USzDeviceName = RTL_CONSTANT_STRING( DEVICE_NAME );
+UNICODE_STRING USzSysLinkName = RTL_CONSTANT_STRING( SYS_LINK_NAME );</p>
+<pre><code>//创建设备
+Status = IoCreateDevice(pDriverObj, sizeof(DEVICEEXT), &amp;USzDeviceName,
+	FILE\_DEVICE\_UNKNOWN,0, TRUE, &amp;pDeviceObj);
+if ( !NT\_SUCCESS(Status) ) {
+	KdPrint(( &quot;设备创建失败!\\n&quot; ));
+	return Status;
+}
+
+pDeviceObj-&gt;Flags		|= DO\_BUFFERED\_IO;
+pDeviceExt			= (PDEVICEEXT)pDeviceObj-&gt;DeviceExtension;
+pDeviceExt-&gt;pDeviceObj		= pDeviceObj;
+pDeviceExt-&gt;USzDeviceName	= USzDeviceName;
+pDeviceExt-&gt;USzSysLinkName	= USzSysLinkName;
+pDeviceExt-&gt;dwFileCurrentLength	= 0;
+pDeviceExt-&gt;pBuffer		= (CHAR\*)ExAllocatePool(PagedPool,MAX\_LENGTH);
+RtlZeroMemory(pDeviceExt-&gt;pBuffer, MAX\_LENGTH );
+
+//创建符号链接
+Status = IoCreateSymbolicLink( &amp;USzSysLinkName, &amp;USzDeviceName );
+if ( !NT\_SUCCESS(Status) ) {
+	KdPrint(( &quot;创建符号链接失败!\\n&quot; ));
+	IoDeleteDevice( pDeviceObj );
+	return Status;
+}
+
+for( i = 0; i &lt;= IRP\_MJ\_MAXIMUM\_FUNCTION; i++ ) {
+	pDriverObj-&gt;MajorFunction\[i\] = &amp;DispatchRoutin;
+}
+
+//读请求特殊处理
+pDriverObj-&gt;DriverUnload = DriverUnLoad;
+pDriverObj-&gt;MajorFunction\[IRP\_MJ\_READ\]	= &amp;DispatchRead;
+pDriverObj-&gt;MajorFunction\[IRP\_MJ\_WRITE\]	= &amp;DispatchWrite;
+
+KdPrint(( &quot;驱动安装完成!\\n&quot; ));
+return STATUS\_SUCCESS;
+</code></pre>
+<p>}</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-10-29
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E5%85%B6%E4%BB%96%E7%BC%93%E5%86%B2%E5%8C%BA%E6%96%B9%E5%BC%8F%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">其他缓冲区方式模拟文件操作</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E7%9B%B4%E6%8E%A5%E6%96%B9%E5%BC%8F%E6%A8%A1%E6%8B%9F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99-3/">
+            <span class="next-text nav-default">直接方式模拟文件读写</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

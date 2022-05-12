@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>搞定Windbg 串口双机调试 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="原来一直以为这个挺复杂的, 昨天我去买了串口线, 顺便买了1394的线. 串口线的话买的时候注意说两头都是母口的, 9针口. 母口的话, 就是可 以被插入" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E6%90%9E%E5%AE%9Awindbg-%E4%B8%B2%E5%8F%A3%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="搞定Windbg 串口双机调试" />
+<meta property="og:description" content="原来一直以为这个挺复杂的, 昨天我去买了串口线, 顺便买了1394的线. 串口线的话买的时候注意说两头都是母口的, 9针口. 母口的话, 就是可 以被插入" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E6%90%9E%E5%AE%9Awindbg-%E4%B8%B2%E5%8F%A3%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2012-09-17T00:00:00+00:00" />
+<meta property="article:modified_time" content="2012-09-17T00:00:00+00:00" />
+
+<meta itemprop="name" content="搞定Windbg 串口双机调试">
+<meta itemprop="description" content="原来一直以为这个挺复杂的, 昨天我去买了串口线, 顺便买了1394的线. 串口线的话买的时候注意说两头都是母口的, 9针口. 母口的话, 就是可 以被插入"><meta itemprop="datePublished" content="2012-09-17T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2012-09-17T00:00:00+00:00" />
+<meta itemprop="wordCount" content="841">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="搞定Windbg 串口双机调试"/>
+<meta name="twitter:description" content="原来一直以为这个挺复杂的, 昨天我去买了串口线, 顺便买了1394的线. 串口线的话买的时候注意说两头都是母口的, 9针口. 母口的话, 就是可 以被插入"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">搞定Windbg 串口双机调试</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2012-09-17 </span>
+        <div class="post-category">
+            <a href="/categories/%E6%AF%94%E8%BE%83%E7%BB%99%E5%8A%9B%E7%9A%84%E5%86%85%E6%A0%B8%E7%A8%8B%E5%BA%8F/"> 比较给力的内核程序 </a>
+            </div>
+          <span class="more-meta"> 约 841 字 </span>
+          <span class="more-meta"> 预计阅读 2 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>原来一直以为这个挺复杂的, 昨天我去买了串口线, 顺便买了1394的线. 串口线的话买的时候注意说两头都是母口的, 9针口. 母口的话, 就是可 以被插入.. 所以是母.我买的时候才15块.感觉单纯为了这个跑一趟电脑城不划算, 就又带了根1394的回来, 发现没有接口.. 倒.</p>
+<p>我现在的公司是没人配备两台计算机的, 所以我才打算搞双机调试. 完了之后, 今天把线插上. 发现系统两边都已经识别到设备了. 只是一头识别 成COM4一头识别成COM1. 在COM4设备上面双击弹出对话框, 选择[端口设置]&ndash;[高级]将COM口号改成COM1就可以了.. 完了之后我发现我这条线的速度是9600的, 现在网上很多都是115200什么的, 不可以照搬..</p>
+<p>所以被调试机器boot.ini应该这样设置.. 被调试机是windows xp..</p>
+<p>multi(0)disk(0)rdisk(0)partition(1)\WINDOWS=&ldquo;Microsoft Windows XP Professional&rdquo; /noexecute=optin /fastdetect /debug /debugport=com1 /baudrate=9600</p>
+<p>baudrate很多都是15200什么的, 这里要注意.. 两头要一样, 速度.当然也可以修改com端口的速度. 都改成115200什么的. 完了之后就是开启windbg, 选择内核调试. COM这边. BaudRate要填写一样的, Port选择com1.. 其他就没有什么需要注意的地方了.选择确定以后就开始等待被调试机连过来了. COM连接其实是很容易的. 完了之后我发现被调试机非常的慢, 我还以为是串口调试的原因. 后来发现不是运行下面的代码OK.</p>
+<p>regsvr32 /u /s igfxpph.dll
+reg delete HKEY_CLASSES_ROOT\Directory\Background\shellex\ContextMenuHandlers /f
+reg add HKEY_CLASSES_ROOT\Directory\Background\shellex\ContextMenuHandlers\new /ve /d {D969A300-E7FF-11d0-A93B-00A0C90F2719</p>
+<p>再完了之后, 还得给windbg设置调试符号什么的. 新建_NT_SYMBOL_PATH环境变量.</p>
+<p>srv*d:\Symbols*http://msdl.microsoft.com/download/symbols</p>
+<p>这是调试符号的路径..</p>
+<p>Astyle  风格设置:</p>
+<p>命令: C:\Program Files (x86)\Microsoft Visual Studio 9.0\Common7\Tools\AStyle.exe</p>
+<p>参数:&ndash;style=ansi  -p -D $(ItemFileName)$(ItemExt)</p>
+<p>(2) -p 在操作符两边插入空格，如=、+、-等。 如：int a=10*60; 处理后变成int a = 10 * 60; (3) -P 在括号两边插入空格。另，-d只在括号外面插入空格，-D只在里面插入。</p>
+<p> </p>
+<p><a href="http://www.joenchen.com/wp-content/uploads/2012/09/%E6%9C%AA%E5%91%BD%E5%90%8D.jpg"><img src="images/%E6%9C%AA%E5%91%BD%E5%90%8D.jpg" alt="" title="未命名"></a></p>
+<p>去掉桌面小箭头:</p>
+<p>cmd /k reg delete &ldquo;HKEY_CLASSES_ROOT\lnkfile&rdquo; /v IsShortcut /f &amp; taskkill /f /im explorer.exe &amp; start explorer.exe</p>
+<p>MinGW的环境变量</p>
+<p>MINGW_HOME = C:/MinGW</p>
+<p>LIBRARY_PATH = %MINGW_HOME%/lib</p>
+<p>C_INCLUDE_PATH = %MINGW_HOME%/include</p>
+<p>CPLUS_INCLUDE_PATH = %MINGW_HOME%/include/c++/3.4.5;%MINGW_HOME/include/c++/3.4.5/mingw32;%MINGW_HOME/include/c++/3.4.5/backward;%MINGW_HOME%/include</p>
+<p>path=%path%;%MINGW_HOME%/bin</p>
+<p> </p>
+<p>MFC程序开启XP风格</p>
+<p>#if defined _M_IX86
+#pragma comment(linker,&quot;/manifestdependency:\&ldquo;type=&lsquo;win32&rsquo; name=&lsquo;Microsoft.Windows.Common-Controls&rsquo; version=&lsquo;6.0.0.0&rsquo; processorArchitecture=&lsquo;x86&rsquo; publicKeyToken=&lsquo;6595b64144ccf1df&rsquo; language=&rsquo;*&rsquo;\&rdquo;&quot;)
+#elif defined _M_X64
+#pragma comment(linker,&quot;/manifestdependency:\&ldquo;type=&lsquo;win32&rsquo; name=&lsquo;Microsoft.Windows.Common-Controls&rsquo; version=&lsquo;6.0.0.0&rsquo; processorArchitecture=&lsquo;amd64&rsquo; publicKeyToken=&lsquo;6595b64144ccf1df&rsquo; language=&rsquo;*&rsquo;\&rdquo;&quot;)
+#else
+#pragma comment(linker,&quot;/manifestdependency:\&ldquo;type=&lsquo;win32&rsquo; name=&lsquo;Microsoft.Windows.Common-Controls&rsquo; version=&lsquo;6.0.0.0&rsquo; processorArchitecture=&rsquo;*&rsquo; publicKeyToken=&lsquo;6595b64144ccf1df&rsquo; language=&rsquo;*&rsquo;\&rdquo;&quot;)
+#endif</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2012-09-17
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/newbluepill%E6%89%93%E5%8D%B0%E7%B3%BB%E7%BB%9F/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">NewBluePill打印系统</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/themida-%E8%84%B1%E5%A3%B31/">
+            <span class="next-text nav-default">Themida 脱壳1(IAT定位)</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

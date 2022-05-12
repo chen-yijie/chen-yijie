@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>保护模式9:特权指令的演示 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="在Intel的386CPU中, 增加了一系列的指令用于支持保护模式的操作, 前面的代码其实我们已经使用了不少, 另外还有些针对段描述符的指令也是非" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F9%E7%89%B9%E6%9D%83%E6%8C%87%E4%BB%A4%E7%9A%84%E6%BC%94%E7%A4%BA/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="保护模式9:特权指令的演示" />
+<meta property="og:description" content="在Intel的386CPU中, 增加了一系列的指令用于支持保护模式的操作, 前面的代码其实我们已经使用了不少, 另外还有些针对段描述符的指令也是非" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F9%E7%89%B9%E6%9D%83%E6%8C%87%E4%BB%A4%E7%9A%84%E6%BC%94%E7%A4%BA/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-09-25T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-09-25T00:00:00+00:00" />
+
+<meta itemprop="name" content="保护模式9:特权指令的演示">
+<meta itemprop="description" content="在Intel的386CPU中, 增加了一系列的指令用于支持保护模式的操作, 前面的代码其实我们已经使用了不少, 另外还有些针对段描述符的指令也是非"><meta itemprop="datePublished" content="2011-09-25T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-09-25T00:00:00+00:00" />
+<meta itemprop="wordCount" content="3306">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="保护模式9:特权指令的演示"/>
+<meta name="twitter:description" content="在Intel的386CPU中, 增加了一系列的指令用于支持保护模式的操作, 前面的代码其实我们已经使用了不少, 另外还有些针对段描述符的指令也是非"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">保护模式9:特权指令的演示</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-09-25 </span>
+        <div class="post-category">
+            <a href="/categories/prote/"> prote </a>
+            </div>
+          <span class="more-meta"> 约 3306 字 </span>
+          <span class="more-meta"> 预计阅读 7 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>在Intel的386CPU中, 增加了一系列的指令用于支持保护模式的操作, 前面的代码其实我们已经使用了不少, 另外还有些针对段描述符的指令也是非常有用的..</p>
+<p>由于大部分人不会写自己的操作系统, 所以一般也比较少使用特权指令, 甚至有一部分在3环可以使用的指令也并不了解, 不过话说回来, 类似于sgdt, sidt这样的指令, 就算是获取到了这些值也们没有什么用.  所以对这些指令也就比较陌生了..</p>
+<p>但是对于写保护模式程序来说, 很多指令是非常有用的, 类似lsl(装载段界限)就非常好用, 如果自己使用mov指令那么就比较麻烦了.. 所以遇到这种指令也不用去记, 当需要使用的时候, 当很麻烦的时候自然就会想起这种指令的..</p>
+<p>这一篇估计是保护模式里面最轻松的一篇, 除了介绍一点常用的指令, 没有做任何事情. 唯一的亮点是从16位保护模式段跳入32位保护模式段, 然后在32位保护模式段中返回. 前面我们写代码在这种地方一般是使用Jmp, 这里使用了CALL.</p>
+<p>用CALL指令也不是不可以, 只是在返回的时候需要自己修正堆栈中的CS:IP, 因为16位的段压栈是压16位值. 而32位返回的时候需要堆栈的信息是32位的, 所以需要自己手动修正. 前面关于这个问题我做了不少的实验, 一直都没有成功, 不过随着现在保护模式的代码敲得多了, 对保护模式有了一些感觉了.</p>
+<p>我说说这个代码的逻辑功能, 首先在实模式下初始化一些该初始化的东西, 显示了实模式下的GDT, IDT, 然后跳入保护模式, 用于从实模式跳入保护模式的段, 一般是使用16位段的, 用于作为缓冲段, 因为无法从32位段中返回实模式,然后我们从保护模式的16位段跳入保护模式的32位段, 这里使用的时CALL指令, 以前一直没有使用这个方法, 需要注意下, 不过正常来说,对于这种16-32这种跨度的段还是使用Jmp会好点.</p>
+<p>跳入保护模式以后, 演示了一些只有在保护模式才能够使用的特权指令, 包括str,sldt, cr0, cr3, dr7什么的, 这些都只能在保护模式下使用的指令.. 然后还使用了类似于arpl, verr这些指令, 都是非常有用的, 也非常简单, 跟着代码的注释我想很容易就弄懂了..</p>
+<p>做完这些事情, 然后就ret从32位代码段返回到16位代码段, 然后退回实模式.还是和以前一样, 有图有真相..</p>
+<p>        <a href="http://www.joenchen.com/JoenTools/Priviin.rar">http://www.joenchen.com/JoenTools/Priviin.rar</a></p>
+<p><img src="images/Priviin.jpg" alt="">  </p>
+<p> </p>
+<p>;============================================================================
+;演示特权指令的使用
+;MASM9 + LINK5
+;编译选项请参见 makefile  TAB = 8
+;============================================================================
+.686p
+Include pm.inc
+option casemap:none
+Stack_Len	equ	1024		;堆栈大小
+;============================================================================
+GdtSeg		Segment use32		;全局描述符
+;					;段基址	;段界限			;属性
+Dummy:			Descriptor	0, 	0, 			0		;空的描述符
+Normal:			Descriptor	0, 	0ffffh,			DA_DRW 		;规范段描述符
+g_CodeTempDesc:		Descriptor 	0,	0ffffh, 		DA_C		;非一致代码
+g_StackDesc:		Descriptor	0,	Stack_Len-1,		DA_DRW or 4000h	;32位堆栈段
+g_DataDesc:		Descriptor	0,	0fffffh, 		DA_DRWG		;全局4G数据段
+g_DemoCodeDesc:		Descriptor	0,	DemoCodeSegLen-1,	DA_C or DA_32	;32位演示代码段描述符
+g_VideoDesc:		Descriptor	0b8000h,0ffffh,			DA_DRW		;全局视频操作段</p>
+<p>g_TestDesc:		Descriptor	1111h, 	0ffffh, 		DA_DRW		;测试描述符</p>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+NormalSelector		equ	Normal 			- GdtSeg			;规范段选择子
+g_DataSelector		equ	g_DataDesc		- GdtSeg			;全局数据段
+g_VideoSelector		equ	g_VideoDesc		- GdtSeg			;全局视频段选择子
+g_DemoCodeSelector	equ	g_DemoCodeDesc		- GdtSeg			;演示代码段选择子
+g_StackSelector		equ	g_StackDesc		- GdtSeg			;0环堆栈段
+g_CodeTempSelector	equ	g_CodeTempDesc 		- GdtSeg			;代码段选择子</p>
+<p>g_TestSelector		equ	g_TestDesc		- GdtSeg			;测试选择子
+g_TestRSelector		equ	g_TestDesc		- GdtSeg + SA_RPL3		;测试选择子
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+GDTLen			equ	$ - GdtSeg		;GDT长度
+_RegSp		word	?				;用于保存SS:SP
+_RegSs		word	?
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+SzGdtMsg	byte	&ldquo;RealMode GDT: 0x&rdquo;
+SzIdtMsg	byte	&ldquo;RealMode IDT: 0x&rdquo;
+SzMswMsg	byte	&ldquo;RealMode Msm: 0x&rdquo;
+SzCr0Msg	byte	&ldquo;ProtectedMode CR0: 0x&rdquo;
+SzCr3Msg	byte	0,&ldquo;Cr3: 0x&rdquo;
+SzDr7Msg	byte	0,&ldquo;Dr7: 0x&rdquo;
+SzTrMsg		byte	&ldquo;Tr:  0x&rdquo;
+SzLdtrMsg	byte	&quot; Ldtr:0x&quot;
+SzLimitMsg	byte	0, &ldquo;Limit:&rdquo;
+GdtSeg		Ends
+;============================================================================
+Stack0Seg	Segment use32
+byte	Stack_Len dup(?)
+Stack0Seg	Ends
+;============================================================================
+g_DemoCodeSeg	Segment use32				;演示代码段
+;============================================================================
+;换行, _dwValue传递当前的行列号, 计算好在Eax中返回下一行开始
+PrintLn        Proc    uses ebx  _dwValue:dword
+mov     eax, _dwValue
+mov     bl, 160
+div     bl
+and     eax, 0FFh
+inc     eax
+mov     bl, 160
+mul     bl
+ret
+PrintLn        Endp
+;============================================================================
+;;将al中的数字转成ASCII加上显示属性并在EAX中返回
+HexToAscii     Proc     uses ebx</p>
+<pre><code>    mov     bl, al
+
+    and     al, 0fh
+    add     al, 90h
+    daa
+    adc     al, 40h
+    daa
+    mov     ah, 0ch
+    shl     eax, 16                                 ;转换低位          
+
+    mov     al, bl
+    shr     al, 4
+    and     al, 0fh
+    add     al, 90h
+    daa
+    adc     al, 40h                                 ;将高位转成ASCII
+    daa
+    mov     ah, 0ch                                 ;属性
+    ret
+</code></pre>
+<p>HexToAscii     Endp
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;es:si&ndash;&gt;字符串返回缓冲区, eax要转换的dword
+DwordToHex	Proc	uses ebx 			;dword转成字符串,</p>
+<pre><code>mov	ebx, eax
+shr	eax, 16 + 8
+call	HexToAscii
+stosd
+mov	eax, ebx
+shr	eax, 16
+call	HexToAscii
+stosd
+mov	eax, ebx
+shr	eax, 8
+call	HexToAscii
+stosd
+mov	eax, ebx
+call	HexToAscii
+stosd
+ret
+</code></pre>
+<p>DwordToHex 	Endp
+;============================================================================
+;ds-&gt;si要显示的字符串, es-&gt;di要显示的位置
+ShowMsg	Proc					;显示信息到屏幕上	
+@@:	lodsb
+mov	ah, 0ah
+stosw
+loop	@b
+ret
+ShowMsg 	Endp
+;============================================================================
+;显示控制寄存器值
+ShowControlReg	Proc
+local	_lpRealAddress:dword
+local	wBuf:word</p>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;实模式下的字符串地址, 换算成保护模式下的, 方法
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+mov	esi, GdtSeg
+shl	esi, 4
+mov	_lpRealAddress, esi
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+lea	esi, SzCr0Msg
+add	esi, _lpRealAddress
+mov	ecx, sizeof SzCr0Msg
+call	ShowMsg</p>
+<pre><code>mov	eax, cr0
+call	DwordToHex				;显示cr0
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+lea	esi, SzCr3Msg
+add	esi, _lpRealAddress
+mov	ecx, sizeof SzCr3Msg
+call	ShowMsg</p>
+<pre><code>mov	eax, cr3				;显示CR3
+call	DwordToHex
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+lea	esi, SzDr7Msg
+add	esi, _lpRealAddress
+mov	ecx, sizeof SzDr7Msg
+call	ShowMsg</p>
+<pre><code>mov	eax, dr7				;调试寄存器dr7
+call	DwordToHex
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+Invoke	PrintLn, edi
+mov	edi,eax
+add	edi, (5+14) * 2				;换行</p>
+<pre><code>lea	esi, SzTrMsg
+add	esi, \_lpRealAddress
+mov	ecx, sizeof SzTrMsg
+call	ShowMsg
+
+str	word ptr ss:\[wBuf\]
+movzx	eax, word ptr ss:\[wBuf\]			;Tr寄存器
+call	DwordToHex
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+lea	esi, SzLdtrMsg
+add	esi, _lpRealAddress
+mov	ecx, sizeof SzLdtrMsg
+call	ShowMsg</p>
+<pre><code>sldt	word ptr ss:\[wBuf\]
+movzx	eax, word ptr ss:\[wBuf\]			;LDTR寄存器
+call	DwordToHex
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+ret
+ShowControlReg Endp
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+_DemoEntry		equ	$ - g_DemoCodeSeg
+DemoEntry	Proc	far</p>
+<pre><code>mov	edi, 9 \* 80 \* 2 + 5 \* 2			;9行5列
+Invoke	ShowControlReg
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;测试调整申请特权级指令
+mov	ax, g_TestSelector
+mov	dx, g_TestRSelector		
+arpl	ax, dx			;if (ax)rpl &lt; (cx)rpl (ax)rpl = (cx)rpl
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;装载描述符的界限
+mov	bx, 0
+mov	ax, g_TestSelector
+xor	edx, edx
+xor	cx, cx</p>
+<pre><code>lsl	edx, eax		;将opera2的选择子指向的界限装入
+lsl	cx, ax
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;装载描述符的属性字段
+xor	edx, edx
+xor	cx, cx
+lar	edx, eax
+lar	cx, ax
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;测试选择子指向的段是否可读
+verr	ax
+jnz	@f
+;描述符是可读的
+@@:
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;测试选择子指向的段是否可写
+verw	ax
+jnz	@f
+;描述符是可写的
+@@:
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;由于是从16位代码段跳转过来的, 压栈都是16位的, 这里是32位代码段, 所以
+;必须扩展返回地址, 才能够正常的返回
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+pop	ax					;ip
+pop	cx					;cs
+movzx	ecx, cx
+movzx	eax, ax
+push	ecx					;cs
+push	eax					;eip
+ret
+DemoEntry 	Endp
+DemoCodeSegLen		equ	$ - g_DemoCodeSeg
+g_DemoCodeSeg	Ends
+;============================================================================
+;16位段, 由实模式跳入
+;============================================================================
+g_Code16Seg	Segment	use16
+_GoToProtect	Proc					;返回实模式
+mov	ax, NormalSelector		
+mov	fs, ax					;规范选择子
+mov	es, ax
+mov	ds, ax
+mov	ss, ax
+mov	gs, ax</p>
+<pre><code>mov	eax, cr0				;关PE位, 进入实模式
+and	al, 0feh
+mov	cr0, eax
+
+;刷新段选择子缓冲区, 退回实模式
+Jmp16	&lt;seg StartCodeSeg &gt;, &lt; offset \_RealProtect &gt;
+</code></pre>
+<p>_GoToProtect 	Endp
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+_ProtectEntry	Proc					;实模式跳入入口</p>
+<pre><code>mov	ax, g\_StackSelector
+mov	ss, ax
+mov	esp, Stack\_Len				;设置堆栈
+
+mov	ax, g\_DataSelector			;设置源数据段
+mov	ds, ax
+
+mov	ax, g\_VideoSelector
+mov	es, ax					;设置目标ES
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;这个比较给力, 从16位代码段跳转到32位代码段
+CALL16	&lt;g_DemoCodeSelector&gt;, _DemoEntry	;演示特权指令
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+call	_GoToProtect				;返回保护模式
+_ProtectEntry 	Endp
+g_Code16Seg	Ends
+;============================================================================
+StartCodeSeg	Segment use16		;实模式启动代码
+_InitGdt	Proc	uses es				;初始化全局描述符表
+local	_fGdtPtr:fword</p>
+<pre><code>xor	eax, eax
+mov	ax, GdtSeg
+mov	es, ax					;es--&gt;全局描述符表
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+shl	eax, 4				
+mov	dword ptr es:[_fGdtPtr+2], eax		;初始化VGDT描述符
+mov	word ptr es:[_fGdtPtr], GDTLen-1	;GDT长度
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+xor	eax, eax
+mov	ax, g_Code16Seg				;初始化十六位的代码段
+shl	eax, 4
+mov	word ptr es:[g_CodeTempDesc+2], ax	;段基址低位
+shr	eax, 16
+mov	byte ptr es:[g_CodeTempDesc+4], al	;段基址高地址低位
+mov	byte ptr es:[g_CodeTempDesc+7], ah	;段基址高地址高位
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+xor	eax, eax
+mov	ax, g_DemoCodeSeg			;初始化32位的演示代码段
+shl	eax, 4
+mov	word ptr es:[g_DemoCodeDesc+2], ax
+shr	eax, 16
+mov	byte ptr es:[g_DemoCodeDesc+4], al
+mov	byte ptr es:[g_DemoCodeDesc+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+xor	eax, eax
+mov	ax, Stack0Seg				;初始化32位的演示堆栈
+shl	eax, 4
+mov	word ptr es:[g_StackDesc+2], ax
+shr	eax, 16
+mov	byte ptr es:[g_StackDesc+4], al
+mov	byte ptr es:[g_StackDesc+7], ah
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+lgdt	fword ptr ss:[_fGdtPtr]			;装载GDT
+ret
+_InitGdt 	Endp
+;============================================================================
+;;将al中的数字转成ASCII加上显示属性并在EAX中返回
+_HexToAscii     Proc     uses ebx</p>
+<pre><code>    mov     bl, al
+
+    and     al, 0fh
+    add     al, 90h
+    daa
+    adc     al, 40h
+    daa
+    mov     ah, 0ah
+    shl     eax, 16                                 ;转换低位          
+
+    mov     al, bl
+    shr     al, 4
+    and     al, 0fh
+    add     al, 90h
+    daa
+    adc     al, 40h                                 ;将高位转成ASCII
+    daa
+    mov     ah, 0ah                                 ;属性
+    ret
+</code></pre>
+<p>_HexToAscii     Endp
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;es:si&ndash;&gt;字符串返回缓冲区, eax要转换的dword
+_DwordToHex	Proc	uses ebx 			;dword转成字符串,</p>
+<pre><code>mov	ebx, eax
+shr	eax, 16 + 8
+call	\_HexToAscii
+stosd
+mov	eax, ebx
+shr	eax, 16
+call	\_HexToAscii
+stosd
+mov	eax, ebx
+shr	eax, 8
+call	\_HexToAscii
+stosd
+mov	eax, ebx
+call	\_HexToAscii
+stosd
+ret
+</code></pre>
+<p>_DwordToHex 	Endp
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;es:di&ndash;&gt;字符串写入的缓冲区, ax要转换的word
+_WordToHex	Proc	uses bx
+mov	bx, ax
+shr	ax, 8
+call	_HexToAscii
+stosd
+mov	ax, bx
+call	_HexToAscii
+stosd
+ret
+_WordToHex 	Endp
+;============================================================================
+;换行, _dwValue传递当前的行列号, 计算好在Eax中返回下一行开始
+_PrintLn        Proc    uses ebx  _dwValue:dword
+mov     eax, _dwValue
+mov     bl, 160
+div     bl
+and     eax, 0FFh
+inc     eax
+mov     bl, 160
+mul     bl
+ret
+_PrintLn        Endp
+;============================================================================
+;ds-&gt;si要显示的字符串, es-&gt;di要显示的位置
+_ShowMsg	Proc					;显示信息到屏幕上	
+@@:	lodsb
+mov	ah, 0ch
+stosw
+loop	@b
+ret
+_ShowMsg 	Endp
+;============================================================================
+_ShowRegister	Proc	uses es	ds			;演示实模式下可以使用的特权指令
+local	_fRegBuf:fword
+local	_wBuf:word</p>
+<pre><code>sgdt	fword ptr ss:\[\_fRegBuf\]			;读取实模式下的GDT
+mov	edi, 80 \* 2 \* 5 + 5 \* 2			;5行5列
+mov	ax, 0b800h
+mov	es, ax
+cld
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+;显示GDT
+mov	ax, GdtSeg
+mov	ds, ax
+lea	si, SzGdtMsg
+mov	cx, sizeof SzGdtMsg
+call	_ShowMsg</p>
+<pre><code>mov	eax, dword ptr ss:\[\_fRegBuf+2\]
+call	\_DwordToHex				;显示GDT基址
+
+lea	si, SzLimitMsg
+mov	cx, sizeof SzLimitMsg
+call	\_ShowMsg
+
+mov	ax, word ptr ss:\[\_fRegBuf\]
+call	\_WordToHex				;显示GDT限长
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+Invoke	_PrintLn, edi				;换行
+mov	edi, eax
+add	edi, 5 * 2</p>
+<pre><code>;显示IDT
+sidt	fword ptr ss:\[\_fRegBuf\]			;读取实模式下的IDT
+lea	si, SzIdtMsg
+mov	cx, sizeof SzIdtMsg
+call	\_ShowMsg
+
+mov	eax, dword ptr ss:\[\_fRegBuf+2\]
+call	\_DwordToHex				;显示GDT基址
+
+lea	si, SzLimitMsg
+mov	cx, sizeof SzLimitMsg
+call	\_ShowMsg
+
+mov	ax, word ptr ss:\[\_fRegBuf\]
+call	\_WordToHex				;显示GDT限长
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+smsw	word ptr [_wBuf]			;显示CR0的低16位</p>
+<pre><code>Invoke	\_PrintLn, edi				;换行
+mov	edi, eax
+add	edi, 5 \* 2
+
+lea	si, SzMswMsg
+mov	cx, sizeof SzMswMsg
+call	\_ShowMsg
+
+mov	ax, word ptr ss:\[\_wBuf\]
+call	\_WordToHex				;显示MSW
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-					
+ret
+_ShowRegister 	Endp
+;============================================================================
+Jmain		Proc			;启动入口
+call	_ShowRegister				;显示实模式的关键寄存器
+call	_InitGdt				;初始化GDT全局描述符
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+mov	ax, GdtSeg
+mov	ds, ax</p>
+<pre><code>mov	ds:\[\_RegSs\], ss
+mov	ds:\[\_RegSp\], sp				;保存SS:SP
+
+\_EnableA20					;关中断开A20地址线
+mov	eax, cr0
+or	eax, 1
+mov	cr0, eax				;开启分段, 进入保护模式
+</code></pre>
+<p>;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+Jmp16	g_CodeTempSelector, &lt;offset _ProtectEntry&gt;;跳入保护模式</p>
+<p>Jmain 		Endp
+;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-
+_RealProtect	Proc                                    ;返回保护模式</p>
+<pre><code>    mov     ax, GdtSeg
+    mov     ds, ax
+    lss	sp, dword ptr ds:\[\_RegSp\]		;恢复SS:SP
+  
+    \_DisableA20                                     ;关A20地址线, 开中断
+    sti
+    mov     ax, 4c00h
+    int     21h
+</code></pre>
+<p>_RealProtect	Endp
+StartCodeSeg	Ends
+End	Jmain</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-09-25
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F10%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E4%BF%9D%E6%8A%A4%E6%95%8F%E6%84%9F%E6%8C%87%E4%BB%A4/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">保护模式10:输入输出保护敏感指令</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F8%E5%90%84%E7%A7%8D%E4%B8%AD%E6%96%AD%E7%9A%84%E6%BC%94%E7%A4%BA/">
+            <span class="next-text nav-default">保护模式8:各种中断的演示</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

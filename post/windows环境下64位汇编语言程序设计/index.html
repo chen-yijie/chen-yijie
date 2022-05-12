@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>windows环境下64位汇编语言程序设计 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="进入x64时代用汇编写程序的越来越少了, 经常去的几个汇编论坛也越来越没人气. 也是,现在很少事情非得找到一个用汇编来写的理由了. 所以慢慢也就没" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/windows%E7%8E%AF%E5%A2%83%E4%B8%8B64%E4%BD%8D%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="windows环境下64位汇编语言程序设计" />
+<meta property="og:description" content="进入x64时代用汇编写程序的越来越少了, 经常去的几个汇编论坛也越来越没人气. 也是,现在很少事情非得找到一个用汇编来写的理由了. 所以慢慢也就没" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/windows%E7%8E%AF%E5%A2%83%E4%B8%8B64%E4%BD%8D%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2017-06-08T00:00:00+00:00" />
+<meta property="article:modified_time" content="2017-06-08T00:00:00+00:00" />
+
+<meta itemprop="name" content="windows环境下64位汇编语言程序设计">
+<meta itemprop="description" content="进入x64时代用汇编写程序的越来越少了, 经常去的几个汇编论坛也越来越没人气. 也是,现在很少事情非得找到一个用汇编来写的理由了. 所以慢慢也就没"><meta itemprop="datePublished" content="2017-06-08T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2017-06-08T00:00:00+00:00" />
+<meta itemprop="wordCount" content="8471">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="windows环境下64位汇编语言程序设计"/>
+<meta name="twitter:description" content="进入x64时代用汇编写程序的越来越少了, 经常去的几个汇编论坛也越来越没人气. 也是,现在很少事情非得找到一个用汇编来写的理由了. 所以慢慢也就没"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">windows环境下64位汇编语言程序设计</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2017-06-08 </span>
+        <div class="post-category">
+            <a href="/categories/sdk/"> sdk </a>
+            </div>
+          <span class="more-meta"> 约 8471 字 </span>
+          <span class="more-meta"> 预计阅读 17 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>进入x64时代用汇编写程序的越来越少了, 经常去的几个汇编论坛也越来越没人气. 也是,现在很少事情非得找到一个用汇编来写的理由了. 所以慢慢也就没落了.实际上32位汇编和x64汇编个人感觉差别也不大.为什么就没人用了呢..</p>
+<p>     作为一个看&laquo;Windows环境下32位汇编语言程序设计&raquo;步入编程领域的人, 闲来无事, 就把该书的随书例子都重新翻译成x64的. 总共18章加3个附录. 为了表示向罗云斌致敬, 本文题目就叫&laquo;Windows环境下64位汇编语言程序设计&raquo;.</p>
+<p>     x32上罗牛用的是MASM32的开发包, MASM32是一个好东西, 里面已经收集起来了开发windows程序所需要的编译器和头文件, 也都经过了较为严格的测试,总之之前我用MASM32基本没有遇到什么问题.</p>
+<p>     x64上,目前还没有MASM32那样的牛人来给我们收集头文件, 编译器和其他东西, 一方面可能有一些版权方面的问题, 一方面可能现在x64也不火了.没人搞这方面的工作,所以导致x64上用汇编很麻烦..难倒了很多新人. 就我在将&laquo;Windows环境下32位汇编语言程序设计&raquo;中的例子从32位修改到64位的过程中, 体会最深的一点就是并不是因为32位和64位寄存器大小的区别, 也不是堆栈传递参数的区别, 更不是其他的什么. 而是对齐问题. 对齐问题大部分又是因为头文件没有定义清楚. 所以我在修改的过程中. 一边写代码, 一边还要去修改头文件定义.. 很酸爽. 注意, 如果你在用x64汇编写程序的过程中遇到问题, 首先就想一想是不是对齐问题.. 现在堆栈都要按照16BYTE对齐, 不能乱搞了. 还有很多结构体也要按照16BYTE对齐.</p>
+<p>     为了修改&laquo;Windows环境下32位汇编语言程序设计&raquo;到x64上面, 我从vs2010里面copy出来了cl link rc等程序. 然后汇编器没有用vs2010的. ml64支持不了什么高级语法, 汇编想要写较大型程序必须要要有良好的结构体, 堆栈框架支持. 所以汇编器用的是开源的UASM</p>
+<p>     <a href="http://www.terraspace.co.uk/uasm.html">http://www.terraspace.co.uk/uasm.html</a></p>
+<p>      UASM是从之前的 JWasm 修改过来的, 这个汇编器还是开源的, 兼容MASM的语法. 另外头文件也是从JWasm那边搞过来的, 不过我加入了一些自己的私货. 比如C语言的头文件, 比如UNICODE支持. <strong>MASM32的时代我就已经找到了UNICODE支持中文办法</strong>, 不过一直没有推广出去. 如果你有幸看到这篇文章. 并且以后也会准备用汇编来写程序.. 一定不要再用老掉牙的ANSI编码, 而是要采用UNICODE来写.. 如果你用了附件我上传的开发包, 那么可以这样定义和使用UNICODE. 一种是在.const节里面定义字符串. 还有一种就向C语言一样定义字符串..</p>
+<p>MASM支持中文UNICODE字符串定义</p>
+<table class="syntaxhighlighter cpp" border="0" cellspacing="0" cellpadding="0"><tbody><tr><td class="gutter"><div class="line number1 index0 alt2">1</div><div class="line number2 index1 alt1">2</div><div class="line number3 index2 alt2">3</div><div class="line number4 index3 alt1">4</div><div class="line number5 index4 alt2">5</div><div class="line number6 index5 alt1">6</div><div class="line number7 index6 alt2">7</div><div class="line number8 index7 alt1">8</div><div class="line number9 index8 alt2">9</div><div class="line number10 index9 alt1">10</div><div class="line number11 index10 alt2">11</div><div class="line number12 index11 alt1">12</div><div class="line number13 index12 alt2">13</div><div class="line number14 index13 alt1">14</div><div class="line number15 index14 alt2">15</div><div class="line number16 index15 alt1">16</div><div class="line number17 index16 alt2">17</div><div class="line number18 index17 alt1">18</div><div class="line number19 index18 alt2">19</div><div class="line number20 index19 alt1">20</div><div class="line number21 index20 alt2">21</div><div class="line number22 index21 alt1">22</div><div class="line number23 index22 alt2">23</div><div class="line number24 index23 alt1">24</div><div class="line number25 index24 alt2">25</div><div class="line number26 index25 alt1">26</div><div class="line number27 index26 alt2">27</div><div class="line number28 index27 alt1">28</div><div class="line number29 index28 alt2">29</div><div class="line number30 index29 alt1">30</div><div class="line number31 index30 alt2">31</div><div class="line number32 index31 alt1">32</div><div class="line number33 index32 alt2">33</div><div class="line number34 index33 alt1">34</div><div class="line number35 index34 alt2">35</div><div class="line number36 index35 alt1">36</div><div class="line number37 index36 alt2">37</div><div class="line number38 index37 alt1">38</div><div class="line number39 index38 alt2">39</div><div class="line number40 index39 alt1">40</div><div class="line number41 index40 alt2">41</div><div class="line number42 index41 alt1">42</div><div class="line number43 index42 alt2">43</div><div class="line number44 index43 alt1">44</div></td><td class="code"><div class="container"><div class="line number1 index0 alt2"><code class="cpp spaces">&nbsp;&nbsp;</code><code class="cpp plain">;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code></div><div class="line number2 index1 alt1"><code class="cpp plain">;&nbsp;使用&nbsp;nmake&nbsp;或下列命令进行编译和链接:</code></div><div class="line number3 index2 alt2"><code class="cpp plain">;&nbsp;uasm&nbsp;-c&nbsp;-win64&nbsp;Test.asm</code></div><div class="line number4 index3 alt1"><code class="cpp plain">;&nbsp;rc&nbsp;Test.rc</code></div><div class="line number5 index4 alt2"><code class="cpp plain">;&nbsp;Link&nbsp;/subsystem:windows&nbsp;Test.obj&nbsp;Test.res</code></div><div class="line number6 index5 alt1"><code class="cpp plain">;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code></div><div class="line number7 index6 alt2"><code class="cpp spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="cpp plain">option&nbsp;casemap:none</code></div><div class="line number8 index7 alt1"><code class="cpp spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="cpp plain">option&nbsp;win64:2</code></div><div class="line number9 index8 alt2"><code class="cpp plain">UNICODE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;equ&nbsp;&nbsp;&nbsp;&nbsp;True&nbsp;&nbsp;&nbsp;</code></div><div class="line number10 index9 alt1"><code class="cpp plain">;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code></div><div class="line number11 index10 alt2"><code class="cpp plain">;&nbsp;Include&nbsp;文件定义</code></div><div class="line number12 index11 alt1"><code class="cpp plain">;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code></div><div class="line number13 index12 alt2"><code class="cpp plain">include&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;windows.inc</code></div><div class="line number14 index13 alt1"><code class="cpp plain">include&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unicode.inc</code></div><div class="line number15 index14 alt2"></div><div class="line number16 index15 alt1"><code class="cpp plain">includelib&nbsp;&nbsp;&nbsp;&nbsp;user32.lib</code></div><div class="line number17 index16 alt2"><code class="cpp plain">includelib&nbsp;&nbsp;&nbsp;&nbsp;kernel32.lib</code></div><div class="line number18 index17 alt1"><code class="cpp plain">;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code></div><div class="line number19 index18 alt2"><code class="cpp plain">;&nbsp;数据段</code></div><div class="line number20 index19 alt1"><code class="cpp plain">;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code></div><div class="line number21 index20 alt2"><code class="cpp spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="cpp plain">.</code><code class="cpp keyword bold">const</code></div><div class="line number22 index21 alt1"></div><div class="line number23 index22 alt2"><code class="cpp plain">szCaption&nbsp;&nbsp;&nbsp;&nbsp;db&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="cpp string">'恭喜'</code><code class="cpp plain">,&nbsp;0</code></div><div class="line number24 index23 alt1"><code class="cpp plain">szText&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;db&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="cpp string">'当您看到这个信息的时候，您已经可以编译Win64汇编程序了!'</code><code class="cpp plain">,&nbsp;0</code></div><div class="line number25 index24 alt2"><code class="cpp plain">UszText&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UString&nbsp;&nbsp;&nbsp;&nbsp;(</code><code class="cpp string">'当您看到这个信息的时候,'</code><code class="cpp plain">,10,13,</code><code class="cpp string">"您已经可以编译Win64汇编程序了"</code><code class="cpp plain">,&nbsp;21h,&nbsp;0)</code></div><div class="line number26 index25 alt1"><code class="cpp plain">;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code></div><div class="line number27 index26 alt2"><code class="cpp plain">;&nbsp;代码段</code></div><div class="line number28 index27 alt1"><code class="cpp plain">;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code></div><div class="line number29 index28 alt2"><code class="cpp spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="cpp plain">.code</code></div><div class="line number30 index29 alt1"><code class="cpp plain">Jmain&nbsp;&nbsp;&nbsp;&nbsp;Proc</code></div><div class="line number31 index30 alt2"></div><div class="line number32 index31 alt1"></div><div class="line number33 index32 alt2"><code class="cpp spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="cpp plain">;&nbsp;ANSI编码调用方式</code></div><div class="line number34 index33 alt1"><code class="cpp spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="cpp plain">;invoke&nbsp;&nbsp;&nbsp;&nbsp;MessageBox,&nbsp;NULL,&nbsp;offset&nbsp;szText,&nbsp;offset&nbsp;szCaption,&nbsp;MB_OK</code></div><div class="line number35 index34 alt2"></div><div class="line number36 index35 alt1"><code class="cpp spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="cpp plain">;&nbsp;UNICODE调用方式</code></div><div class="line number37 index36 alt2"><code class="cpp spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="cpp plain">invoke&nbsp;&nbsp;&nbsp;&nbsp;MessageBox,&nbsp;NULL,&nbsp;offset&nbsp;UszText,&nbsp;offset&nbsp;UString$(&nbsp;</code><code class="cpp string">"恭喜"</code>&nbsp;<code class="cpp plain">),&nbsp;MB_OK</code></div><div class="line number38 index37 alt1"></div><div class="line number39 index38 alt2"><code class="cpp spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="cpp plain">invoke&nbsp;&nbsp;&nbsp;&nbsp;ExitProcess,&nbsp;NULL</code></div><div class="line number40 index39 alt1"></div><div class="line number41 index40 alt2"><code class="cpp plain">Jmain&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Endp</code></div><div class="line number42 index41 alt1"></div><div class="line number43 index42 alt2"><code class="cpp plain">;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code></div><div class="line number44 index43 alt1"><code class="cpp spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="cpp plain">end&nbsp;&nbsp;&nbsp;&nbsp;Jmain</code></div></div></td></tr></tbody></table>
+<p>  中文的完美支持. 依靠的就是unicode.inc 如果你下载附件的开发包,里面就已经自带了. 作者是陈浪涛. 也是个汇编高手. 有兴趣可以看看. 显然MASM的M不是Microsoft而是 Macro.. 用MASM的宏可以实现很多完全突破想象的功能, 这里有一个哥们就用MASM实现了面向对象. 有兴趣可以了解下.</p>
+<p>     <a href="http://objasm32.tripod.com/">http://objasm32.tripod.com/</a></p>
+<p>     关于附件中的例子编译方法和罗牛书上是一样的, 只是他用的是masm32 SDK包, 现在换成了UASM. UASM64压缩包解压到一个目录下, 运行目录下的set_path.bat就可以到各个例子目录下运行nmake了. 另外把TAB设置成8个BYTE. 这样显示出来的代码格式才正常.</p>
+<p>      //===========================================================================</p>
+<p>     下面是我修改例子程序的时候, 遇到的一些问题. 不过都已经被解决了..</p>
+<p>     无法接受和发送WM_COPYDATA消息, 原因是对齐方面的问题. COPYDATASTRUCT结构体必须按照16BYTE对齐. 我已经修改了winuser.inc文件, 将COPYDATASTRUCT结构体设置成了16BYTE对齐</p>
+<p>    C:\JASM64\luoyunbin\Chapter04\SendMessage-1</p>
+<p>     这个例子在win7 x64上已经试验不出效果了, 应该是win7的gdi画窗口的方式换了,不过虽然没有效果,我还是修改成了x64的版本.</p>
+<p>     C:\JASM64\luoyunbin\Chapter07\DcCopy</p>
+<p>     无法打开通用对话框 已修复OPENFILENAME对齐必须是16BYTE的. 所以我修改了系统的commdlg.inc后面的人就不会遇到这个坑了.</p>
+<p>     C:\JASM64\luoyunbin\Chapter09\Richedit</p>
+<p>     C:\JASM64\luoyunbin\Chapter10\FormatText</p>
+<p>     设置结构体对齐 pushcontext         alignment option fieldalign:16 popcontext          alignment</p>
+<p>     这些无法打开通用对话框的问题都是由于没有设置对齐引起的. 这个问题折腾了好久好久. 他们说现在用汇编和C差不多, 相信用C肯定不会遇到这种问题.  不禁又让我想起了以前用汇编写驱动的时候, DriverEntry写出来死活崩溃. 偶尔又不崩溃. 最好找了好久的问题才发现原来DriverEntry里面不能动ebx. 如果动了ebx就会出错, 想用的话就要push保存起来. 这些都是一路走来的坑&hellip;</p>
+<p>     工具栏有编译错误,解决</p>
+<p>     C:\JASM64\luoyunbin\Chapter09\Toolbar</p>
+<p>     工具栏有编译错误,已解决</p>
+<p>     C:\JASM64\luoyunbin\Chapter09\Wordpad</p>
+<p>     工具栏错误解决, 主要是因为CommCtrl.inc头文件定义的有问题, 看来WinInc208 jwasm的作者还是没有masm32作者那样做那么多的测试.只是s使用h2incx工具转换好了就不管了. 这个转换难免还是有不少问题的..</p>
+<p>     屌爆了, C:\JASM64\luoyunbin\Chapter10\FindFile 里面使用了COM接口也被我修改成了x64修改了不少的接口定义. 还修改了系统头文件的几个定义, 系统的ShlObj.INC里面关于SHBrowseForFolder等几个函数的名称粉碎方式定义错了..</p>
+<p>     这是只适用于32位的例子.关于内存申请方面测试的例子, 所以就不修改了</p>
+<p>     C:\JASM64\luoyunbin\Chapter10\Fragment</p>
+<p>     这个是在9x做进程隐藏的. 和x64也没有关系也就不修改了.</p>
+<p>     C:\JASM64\luoyunbin\Chapter13\HideProcess9x</p>
+<p>     因为之前罗牛也没有做PE文件的分析,所以这个Test程序在x64上要将PE文件的Relocation stripped勾选, 不然每次地址都不一样patch就无从谈起了, 不过例子程序里面的可以直接运行,如果自己编译的话, 记得勾选Relocation stripped就好了..</p>
+<p>     C:\JASM64\luoyunbin\Chapter13\Patch1</p>
+<p>     Patch2 里面的Test程序也是要勾选Relocation stripped.并且为了可以使upx加壳,我加了不少的nop</p>
+<p>     C:\JASM64\luoyunbin\Chapter13\Patch2</p>
+<p>     这个例子应该是罗牛书中最有技术含量的几个例子之一, 也是汇编相对C语言C语言还有一些做不到的事情之一,处理重定位问题和写_invoke宏花了不少时间.</p>
+<p>     C:\JASM64\luoyunbin\Chapter13\RemoteThread</p>
+<p>     异常始终不进去.经过调试发现,SetUnhandledExceptionFilter调用必须写在函数里面. 不能和32位一样,使用裸函数. 应该又是堆栈对齐方面的问题.</p>
+<p>     C:\JASM64\luoyunbin\Chapter14\TopHandler</p>
+<p>     SEH异常方面,x64完全变掉了, 现在变得更简单了.</p>
+<p>     C:\JASM64\luoyunbin\Chapter14\SEH01</p>
+<p>     C:\UASM64\luoyunbin\Chapter16\Chat-TCP</p>
+<p>     第16章关于网络这块的定义都有问题, 主要问题是出在SOCKET. 之前UASM的头文件定义成了 SOCKET typedef u_int 实际上翻看windows的winsock.h头文件中的定义, typedef UINT_PTR        SOCKET;是一个64位的类型, 所以将头文件修改成 SOCKET typedef qword 就好了. 如果不修改所有和Socket有关的函数都会出问题. 另外fd_set结构体也要修改, 将对齐修改成8BYTE.</p>
+<p>     C:\UASM64\luoyunbin\Chapter17\AddCode</p>
+<p>     17章最复杂的几个例子之一, 但是代码层面的复杂度都被我搞定了, 程序也可以正常运行了, 不知道最后一步调用MessageBox为什么会出错.. 参数各方面都是正确的. 最后发现出错地址在MessageBox函数里面的movdqa指令上, 然后手册发现movdqa指令必须16BYTE对齐, 所以加入了以下指令来做对齐工作,</p>
+<p>MOVDQA - 移动对齐的双四字</p>
+<p>将双四字从源操作数（第二个操作数）移到目标操作数（第一个操作数）。此指令可以用于在 XMM 寄存器与 128 位内存位置之间移入/移出双四字，或是在两个 XMM 寄存器之间移动。源操作数或目标操作数是内存操作数时，操作数必须对齐 16 字节边界，否则将生成一般保护性异常 (#GP)。</p>
+<p>在 16 位寻址模式中执行时，不允许 128 位数据访问的线性地址与 16 位段尾重叠，此时的行为定义成保留行为。在这种情形下，特定的处理器版本可能会生成 #GP 异常，也可能不会，并且，跨越段尾的地址可能会通过舍位变成段首地址，也可能不会。</p>
+<p>另外Chapter17\AddCode总共有两种方式, 一种是在节表后面添加一个节,以为一个节的大小毕竟有限, 所以这种方式是目前的主流方式,另外一种方式是扫描代码段看看有没有空间可以插入代码,这种方式现在不流行了, 因为现在PE文件FileAlignment对齐一般都是0x200而随便写一点shell code都会超过0x200 BYTE.. 这个例子的shell code就有300个BYTE. 因为要放置GetProcAddress 和Get Kernel32 base的代码, 在x64情况下很容易就超了..所以要实验在代码节中添加代码的方式可以找VC6编译的程序, VC6的FileAlignment SectionAlignment都是0x1000比较容易找到空隙. 不然就自己编译代码在link的时候加上这两个选项.</p>
+<p>#pragma comment(linker, &ldquo;/ALIGN:0x1000&rdquo;)</p>
+<p>#pragma comment(linker, &ldquo;/FILEALIGN:0x1000&rdquo;)</p>
+<p>一个是设置文件对齐大小, 一个是设置内存对齐大小的.</p>
+<p>     C:\UASM64\luoyunbin\Chapter17\Reloc</p>
+<p>     重定位显示的例子, 没有什么特别需要说的. 就是之前罗牛只处理了IMAGE_REL_BASED_HIGHLOW一种类型的重定位表, 这个在32位上也是没有错的, 但是x64上面的重定位表一般都是IMAGE_REL_BASED_DIR64, 我都给改过来了. 所以在看例子程序的时候需要注意一下.</p>
+<p>     C:\UASM64\luoyunbin\Chapter18\OdbcSample</p>
+<p>     这是一个使用odbc数据库的例子, 刚开始遇到问题就是没有找到odbc.inc. 后面发现使用的不是odbc.inc文件, 而是使用的sql.inc sqlext.inc两个头文件, 另外UASM自己的头文件也是有问题的, sql.inc里面的函数声明都是proto stdcall. 然后link的时候报错.  无法解析的外部符号 _SQLRowCount@16，一类的. 这个名字一看就是使用了stdcall的名称处理方式, 然后我在odbc32.lib里面里面看到的名称是没有做任何处理的, 所以翻看头文件发现函数的原型定义错了. 原版里面都有stdcall. 现在去掉. 默认使用x64的fastcall..</p>
+<p>     另外x64上面access的连接字符串也要修改一下.</p>
+<p>     32位: &ldquo;Driver={Microsoft Access Driver (*.mdb)};dbq=path;&rdquo;</p>
+<p>     64位: &ldquo;Driver={Microsoft Access Driver (*.mdb,*.accdb)};dbq=path;&rdquo;)</p>
+<p>     还有, 例子里面使用了ListView. 操作ListView需要一个结构体LVITEM. 这个结构体在x64上面也是16 BYTE对齐的. 所以如果你自己找的头文件需要注意这个问题. 当然我发出来的UASM已经被我修改好了.</p>
+<p>     //===========================================================================</p>
+<p>     最后, 所有的例子我修改完成以后都简单做了一下测试. 主要功能应该是没有什么问题的, 不过如果有什么隐藏的bug. 你可以报给我. <a href="http://bbs.pediy.com/thread-218296.htm">joenchen@foxmail.com</a> 当然也欢迎大家加群Q群127285697讨论技术问题.</p>
+<p>     编译环境的下载地址以为看雪附件上传限制. 我上传到了百度云. 请猛戳下载, 附件是修改的18章+3个附录.</p>
+<p>     <a href="http://pan.baidu.com/s/1boBPVXH">http://pan.baidu.com/s/1boBPVXH</a></p>
+<p><a href="http://www.joenchen.com/wp-content/uploads/2017/06/windows.7z">windows环境下64位汇编语言程序设计-密码1</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2017-06-08
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E8%BD%AC%E8%BD%BDverified-boot/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Verified Boot</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/linux%E6%9C%89%E8%B6%A3%E5%91%BD%E4%BB%A4/">
+            <span class="next-text nav-default">Linux有趣命令</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>驱动程序调用驱动程序2 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="上一篇说到内核里面用户态这边差不多的函数, 比如ZwCreateFile, ZwReadFile什么之类的, 内核里面其实还有些更加暴力的东西存在" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E7%94%A8%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F2/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="驱动程序调用驱动程序2" />
+<meta property="og:description" content="上一篇说到内核里面用户态这边差不多的函数, 比如ZwCreateFile, ZwReadFile什么之类的, 内核里面其实还有些更加暴力的东西存在" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E7%94%A8%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F2/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-11-13T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-11-13T00:00:00+00:00" />
+
+<meta itemprop="name" content="驱动程序调用驱动程序2">
+<meta itemprop="description" content="上一篇说到内核里面用户态这边差不多的函数, 比如ZwCreateFile, ZwReadFile什么之类的, 内核里面其实还有些更加暴力的东西存在"><meta itemprop="datePublished" content="2011-11-13T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-11-13T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2862">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="驱动程序调用驱动程序2"/>
+<meta name="twitter:description" content="上一篇说到内核里面用户态这边差不多的函数, 比如ZwCreateFile, ZwReadFile什么之类的, 内核里面其实还有些更加暴力的东西存在"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">驱动程序调用驱动程序2</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-11-13 </span>
+        <div class="post-category">
+            <a href="/categories/kernel/"> kernel </a>
+            </div>
+          <span class="more-meta"> 约 2862 字 </span>
+          <span class="more-meta"> 预计阅读 6 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>上一篇说到内核里面用户态这边差不多的函数, 比如ZwCreateFile, ZwReadFile什么之类的, 内核里面其实还有些更加暴力的东西存在的, 比如说用户态这边打开设备只有一个句柄, 但是内核里面是可以直接触摸到指针的, 用户态那边只可以调用几个固定的函数来发送Irp. 那么内核里面可以自定义Irp的发送, 非常的暴力, 好用!<br>
+ </p>
+<p>首先我们也不用去调用什么ZwCreateFile了, 直接用这个IoGetDeviceObjectPointer函数, 这个函数可以通过设备名获得文件对象指针, 和设备对象指针, 指针啊, 不是句柄了..和ZwCreateFile一样, 末尾记得调用ObDereferenceObject函数, 来解引用.</p>
+<p>打开以后就是发送Irp消息了, 基本上有很多的选择, 看下面代码就知道了, 有同步的又异步的, 非常的暴力好用, 看自己喜欢了. 其实看下面代码就知道了, 同步的和异步的其实区别不是很大, 无论如何还是需要一个同步事件来同步的. 只是放在了不同的地方了. 稍微搞一下就明白了, 这个很简单的嘛.</p>
+<p>重点说说这个, ObReferenceObjectByName这号函数是未公开的函数, 一般未公开的函数就是暴力啊, 其可以获得各类对象的指针, 而不是和IoGetDeviceObjectPointer这样只能够获取设备对象的指针, ObReferenceObjectByName可以获取各种对象的指针, 非常好用了. ObReferenceObjectByName只是引用下对象的指针, 并没有打开操作, 但是IoGetDeviceObjectPointer内部是有打开操作的. 也就是相当于向设备发送了Irp_Mj_Create的Irp. 明白了他们之间的区别, 那么我们就可以适时的在二者中选择某个函数来做一些事情了.</p>
+<p>后面还有一个模拟IoGetDeviceObjectPointer内核函数的实现, 首先要打开设备对象, 获得设备对象的句柄,然后ObReferenceObjectByHandle内核函数将设备对象的句柄, 转换设备对象相关的文件对象的指针. 然后再调用IoGetBaseFileSystemDeviceObject函数, 可以将文件对象指针得到设备对象针! 有点晕了. 主要要把握住, 设备, 文件, 句柄. 这是关键字!</p>
+<p>下面就上代码, 测试驱动已经在上一篇中说到了, 那么这边看看代码的情况:<br>
+ </p>
+<p>/*
+Windows 内核下驱动程序通过设备指针调用其他驱动程序 调用驱动程序
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;ntddk.h&gt;</p>
+<p>//===========================================================================
+#define SYSLINK_NAME	L&quot;\\??\\SysLinkTestDriver&quot;</p>
+<p>#define MAX_PATH	260</p>
+<p>#ifdef __cplusplus
+extern &quot;C&quot;
+{
+#endif
+#include &lt;NTDDK.h&gt;</p>
+<pre><code>NTKERNELAPI
+NTSTATUS
+ObReferenceObjectByName(
+	IN PUNICODE\_STRING ObjectName,
+	IN ULONG Attributes,
+	IN PACCESS\_STATE PassedAccessState OPTIONAL,
+	IN ACCESS\_MASK DesiredAccess OPTIONAL,
+	IN POBJECT\_TYPE ObjectType,
+	IN KPROCESSOR\_MODE AccessMode,
+	IN OUT PVOID ParseContext OPTIONAL,
+	OUT PVOID \*Object
+);
+NTKERNELAPI
+PDEVICE\_OBJECT
+NTAPI
+IoGetBaseFileSystemDeviceObject (
+	IN PFILE\_OBJECT FileObject
+);
+extern POBJECT\_TYPE IoDeviceObjectType;
+</code></pre>
+<p>#ifdef __cplusplus
+}
+#endif</p>
+<p>//===========================================================================
+//模拟系统内部IoGetDeviceObjectPointer实现
+//===========================================================================
+_IoGetDeviceObjectPointer( PUNICODE_STRING pObjName,  ACCESS_MASK DesiredAccess,
+PFILE_OBJECT* ppFileObj, PDEVICE_OBJECT* ppDeviceObj  ) {
+HANDLE hDevice = NULL;
+NTSTATUS Status;
+PFILE_OBJECT pFileObj = NULL;
+OBJECT_ATTRIBUTES ObjAttr;
+IO_STATUS_BLOCK Status_block;</p>
+<pre><code>//初始化要打开的设备名称
+InitializeObjectAttributes( &amp;amp;ObjAttr, pObjName, OBJ\_KERNEL\_HANDLE, NULL, NULL );
+
+//打开设备 对象
+Status = ZwOpenFile( &amp;amp;hDevice, DesiredAccess, &amp;amp;ObjAttr, &amp;amp;Status\_block,
+	0, FILE\_NON\_DIRECTORY\_FILE );
+if ( !NT\_SUCCESS( Status ) ) {
+	return Status;
+}
+
+//通过设备对象句柄得到设备对象指针
+Status = ObReferenceObjectByHandle( hDevice, 0, \*IoFileObjectType,
+	KernelMode, &amp;amp;pFileObj, NULL );
+if ( !NT\_SUCCESS( Status ) ) {
+	return Status;
+}
+
+\*ppFileObj = pFileObj;
+
+//通过设备相关文件对象指针得到设备对象指针
+\*ppDeviceObj = IoGetBaseFileSystemDeviceObject( pFileObj );
+
+if ( hDevice ) {
+	ZwClose(hDevice);
+}
+return STATUS\_SUCCESS;
+</code></pre>
+<p>}
+//===========================================================================
+//打开设备
+//===========================================================================
+NTSTATUS OpenDevice() {
+NTSTATUS Status;
+HANDLE hSysLink;
+HANDLE hDevice = NULL;
+ULONG ulStrLen, i;
+UCHAR ucBuf[10];
+KEVENT Event;
+PIRP pNewIrp = NULL;
+OBJECT_ATTRIBUTES ObjAttr;
+UNICODE_STRING USzDeviceName = {0};
+PIO_STACK_LOCATION pStack = NULL;
+IO_STATUS_BLOCK Status_Block;
+LARGE_INTEGER liOffset;
+PDEVICE_OBJECT pDevice = NULL;
+PFILE_OBJECT pFileObj = NULL;
+UNICODE_STRING USzDeviceLinkName = RTL_CONSTANT_STRING( SYSLINK_NAME );</p>
+<pre><code>do {
+	//这边是内核的对象, 加了个内核属性
+	InitializeObjectAttributes( &amp;amp;ObjAttr, &amp;amp;USzDeviceLinkName,
+				    OBJ\_CASE\_INSENSITIVE | OBJ\_KERNEL\_HANDLE, NULL, NULL );
+
+	//获取符号链接句柄
+	Status = ZwOpenSymbolicLinkObject( &amp;amp;hSysLink, FILE\_ALL\_ACCESS, &amp;amp;ObjAttr );
+	if ( !NT\_SUCCESS( Status ) ) {
+		KdPrint( ( &amp;quot;打开符号链接失败!\\n&amp;quot; ) );
+		break;
+	}
+
+	USzDeviceName.Buffer = ExAllocatePool( PagedPool, MAX\_PATH );
+	USzDeviceName.MaximumLength = MAX\_PATH;
+	ASSERT( USzDeviceName.Buffer );
+
+	//通过符号名称得到设备名称
+	Status = ZwQuerySymbolicLinkObject( hSysLink, &amp;amp;USzDeviceName, &amp;amp;ulStrLen );
+	if ( !NT\_SUCCESS( Status ) ) {
+		KdPrint( ( &amp;quot;符号名称转换成链接名称失败!\\n&amp;quot; ) );
+		break;
+	}
+
+	KdPrint( ( &amp;quot;设备名称%wZ\\n&amp;quot;, &amp;amp;USzDeviceName ) );
+
+	//这个打开设备比ZwCreateFile好多了, 参数简单,
+	//还可以直接获取到文件对象指针, 设备对象指针
+	//这边还模拟了一个系统这个部分的实现.
+	Status = \_IoGetDeviceObjectPointer( &amp;amp;USzDeviceName, FILE\_ALL\_ACCESS,
+					   &amp;amp;pFileObj, &amp;amp;pDevice );
+	if ( !NT\_SUCCESS( Status ) ) {
+		KdPrint( ( &amp;quot;设备名转文件对象指针失败!\\n&amp;quot; ) );
+		break;
+	}
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+//创建同步IRP写入请求, 这里的话, 其实同步和异步差不多
+//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+liOffset.QuadPart = 0i64;
+KeInitializeEvent( &amp;Event, NotificationEvent, FALSE );
+RtlFillMemory( ucBuf, sizeof( ucBuf ), 'a' );</p>
+<pre><code>	//创建同步IRP请求
+	pNewIrp = IoBuildSynchronousFsdRequest( IRP\_MJ\_WRITE, pDevice, &amp;amp;ucBuf\[0\],
+						sizeof( ucBuf ), &amp;amp;liOffset,
+						&amp;amp;Event, &amp;amp;Status\_Block );
+
+	//得到下一层的I/O堆栈(如果驱动不是只有一层, 应该怎么做呢?)
+	pStack = IoGetNextIrpStackLocation( pNewIrp );
+
+	//设置I/O堆栈的文件对象指针
+	pStack-&amp;gt;FileObject = pFileObj;
+
+	//调用下一层驱动
+	Status = IoCallDriver( pDevice, pNewIrp );
+	if ( !NT\_SUCCESS( Status ) ) {
+		KdPrint( ( &amp;quot;调用驱动失败!\\n&amp;quot; ) );
+		break;
+	}
+
+	if ( Status == STATUS\_PENDING ) {
+
+		KeWaitForSingleObject( &amp;amp;Event, Executive, KernelMode, FALSE, NULL );
+
+		Status = Status\_Block.Status;
+
+		if ( NT\_SUCCESS( Status\_Block.Status ) ) {
+			KdPrint( ( &amp;quot;写入设备成功, 总共写入了%d字节!\\n&amp;quot;,
+				   Status\_Block.Information ) );
+		} else {
+			KdPrint( ( &amp;quot;写入设备失败!\\n&amp;quot; ) );
+			break;
+		}
+	}
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+//创建异步Irp读取请求,
+//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+pNewIrp = NULL;
+pStack = NULL;
+KeResetEvent( &amp;Event );
+liOffset.QuadPart = 0i64;
+RtlZeroBytes( &amp;ucBuf[0], sizeof( ucBuf ) );</p>
+<pre><code>	//创建异步Irp
+	pNewIrp = IoBuildAsynchronousFsdRequest( IRP\_MJ\_READ, pDevice, &amp;amp;ucBuf\[0\],
+			sizeof( ucBuf ), &amp;amp;liOffset, &amp;amp;Status\_Block );
+
+	//Irp完成后会通过这里通知这边
+	pNewIrp-&amp;gt;UserEvent = &amp;amp;Event;
+
+	//获取下一层I/O堆栈
+	pStack = IoGetNextIrpStackLocation( pNewIrp );
+
+	pStack-&amp;gt;FileObject = pFileObj;
+
+	Status = IoCallDriver( pDevice, pNewIrp );
+	if ( !NT\_SUCCESS( Status ) ) {
+		KdPrint( ( &amp;quot;读取设备请求失败!&amp;quot; ) );
+		break;
+	}
+
+	if ( Status == STATUS\_PENDING ) {
+		KeWaitForSingleObject( &amp;amp;Event, Executive, KernelMode, FALSE, NULL );
+		Status = Status\_Block.Status;
+
+		if ( NT\_SUCCESS( Status\_Block.Status ) ) {
+
+			KdPrint( ( &amp;quot;读取设备成功!\\n&amp;quot; ) );
+
+			for( i = 0; i &amp;lt; Status\_Block.Information; i++ ) {
+				KdPrint( ( &amp;quot;%c\\t&amp;quot;, ucBuf\[i\] ) );
+			}
+			KdPrint( ( &amp;quot;\\n&amp;quot; ) );
+
+		} else {
+			KdPrint( ( &amp;quot;读取设备失败!\\n&amp;quot; ) );
+			break;
+		}
+	}
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+//手工创建Irp
+//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+pNewIrp = NULL;
+pStack = NULL;
+KeResetEvent( &amp;Event );
+liOffset.QuadPart = 0i64;
+RtlZeroBytes( &amp;ucBuf[0], sizeof( ucBuf ) );</p>
+<pre><code>	//这个创建出来的是最原始的IRP
+	pNewIrp = IoAllocateIrp( pDevice-&amp;gt;StackSize, FALSE );
+
+	//设置同步事件
+	pNewIrp-&amp;gt;UserEvent = &amp;amp;Event;
+	pNewIrp-&amp;gt;UserIosb = &amp;amp;Status\_Block;
+
+	//填写新Irp的线程号
+	pNewIrp-&amp;gt;Tail.Overlay.Thread = PsGetCurrentThread();
+
+	//填写缓冲区
+	pNewIrp-&amp;gt;AssociatedIrp.SystemBuffer = ucBuf;
+
+	//获取下一层堆栈
+	pStack = IoGetNextIrpStackLocation( pNewIrp );
+
+	//填写功能号
+	pStack-&amp;gt;MajorFunction = IRP\_MJ\_READ;
+	pStack-&amp;gt;MinorFunction = IRP\_MN\_NORMAL;
+
+	//填写文件对象
+	pStack-&amp;gt;FileObject = pFileObj;
+
+	//填写缓冲区长度和偏移
+	pStack-&amp;gt;Parameters.Read.Length = sizeof( ucBuf );
+	pStack-&amp;gt;Parameters.Read.ByteOffset = liOffset;
+
+	Status = IoCallDriver( pDevice, pNewIrp );
+	if ( !NT\_SUCCESS( Status ) ) {
+		KdPrint( ( &amp;quot;Irp发送失败!\\n&amp;quot; ) );
+		break;
+	}
+
+	if ( Status == STATUS\_PENDING  ) {
+		KeWaitForSingleObject( &amp;amp;Event, Executive, KernelMode, FALSE, NULL );
+
+		Status = Status\_Block.Status;
+
+		if ( NT\_SUCCESS( Status\_Block.Status ) ) {
+
+			KdPrint( ( &amp;quot;读取设备成功!\\n&amp;quot; ) );
+
+			for( i = 0; i &amp;lt; Status\_Block.Information; i++ ) {
+				KdPrint( ( &amp;quot;%c\\t&amp;quot;, ucBuf\[i\] ) );
+			}
+			KdPrint( ( &amp;quot;\\n&amp;quot; ) );
+
+		} else {
+			KdPrint( ( &amp;quot;读取设备失败!\\n&amp;quot; ) );
+			break;
+		}
+
+	}
+
+} while ( FALSE );
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+if ( USzDeviceName.Buffer ) {
+ExFreePool( USzDeviceName.Buffer );
+}
+if ( hSysLink ) {
+ZwClose( hSysLink );
+}
+if ( pFileObj ) {
+ObDereferenceObject( pFileObj );
+}</p>
+<pre><code>return Status;
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//驱动入口
+//===========================================================================
+NTSTATUS DriverEntry( PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pUSzRegPath ) {
+NTSTATUS Status;
+PDEVICE_OBJECT pDevice = NULL;
+PFILE_OBJECT pFileObj = NULL;
+UNICODE_STRING USzDeviceName = RTL_CONSTANT_STRING( SYSLINK_NAME );</p>
+<pre><code>//这号函数可以通过名字获取设备指针, 可以获取各种对象的指针(事件, 互斥量等)
+Status = ObReferenceObjectByName( &amp;amp;USzDeviceName, OBJ\_CASE\_INSENSITIVE,
+	NULL, FILE\_ALL\_ACCESS, IoDeviceObjectType,
+				  KernelMode, NULL, &amp;amp;pDevice );
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint( ( &amp;quot;通过名称获取对象指针失败!\\n&amp;quot; ) );
+	return Status;
+} else {
+	KdPrint( ( &amp;quot;通过名称获取对象指针成功!\\n&amp;quot; ) );
+}
+
+if ( pDevice ) {
+	ObDereferenceObject( pDevice );
+	pDevice = NULL;
+}
+Status = OpenDevice();
+if ( !NT\_SUCCESS( Status ) ) {
+	KdPrint( ( &amp;quot;操作设备失败!\\n&amp;quot; ) );
+	return Status;
+} else {
+	KdPrint( ( &amp;quot;操作设备成功!\\n&amp;quot; ) );
+}
+
+return STATUS\_UNSUCCESSFUL;
+</code></pre>
+<p>}</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-11-13
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E5%88%86%E5%B1%82%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">分层驱动程序</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E7%94%A8%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F1/">
+            <span class="next-text nav-default">驱动程序调用驱动程序1</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

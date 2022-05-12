@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>sdk · 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="忆杰博客、主要研究关注方向软件逆向、调试、反调试、驱动开发、应用开发、内核开发、VT技术、硬件虚拟化" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/categories/sdk/" />
+  <link href="https://xchen.com/categories/sdk/index.xml" rel="alternate" type="application/rss+xml" title="忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化" />
+  <link href="https://xchen.com/categories/sdk/index.xml" rel="feed" type="application/rss+xml" title="忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="sdk" />
+<meta property="og:description" content="忆杰博客、主要研究关注方向软件逆向、调试、反调试、驱动开发、应用开发、内核开发、VT技术、硬件虚拟化" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://xchen.com/categories/sdk/" />
+
+<meta itemprop="name" content="sdk">
+<meta itemprop="description" content="忆杰博客、主要研究关注方向软件逆向、调试、反调试、驱动开发、应用开发、内核开发、VT技术、硬件虚拟化"><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="sdk"/>
+<meta name="twitter:description" content="忆杰博客、主要研究关注方向软件逆向、调试、反调试、驱动开发、应用开发、内核开发、VT技术、硬件虚拟化"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <section id="archive" class="archive">
+  <div class="archive-title category">
+        <h2 class="archive-name">sdk</h2>
+      </div>
+
+  <div class="archive-post">
+      <span class="archive-post-time">
+        2021-06-25
+      </span>
+      <span class="archive-post-title">
+        <a href="/post/visual-leak-detector%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E6%A3%80%E6%B5%8B/" class="archive-post-link">
+          Visual Leak Detector内存泄漏检测
+        </a>
+      </span>
+    </div><div class="archive-post">
+      <span class="archive-post-time">
+        2019-03-26
+      </span>
+      <span class="archive-post-title">
+        <a href="/post/win10-disable-aslrwin10%E5%85%B3%E9%97%ADaslr/" class="archive-post-link">
+          win10 disable aslr(win10关闭ASLR)
+        </a>
+      </span>
+    </div><div class="archive-post">
+      <span class="archive-post-time">
+        2018-12-21
+      </span>
+      <span class="archive-post-title">
+        <a href="/post/vscode%E9%AB%98%E7%AB%AF%E7%8E%A9%E6%B3%95/" class="archive-post-link">
+          VSCode高端玩法
+        </a>
+      </span>
+    </div><div class="archive-post">
+      <span class="archive-post-time">
+        2017-06-08
+      </span>
+      <span class="archive-post-title">
+        <a href="/post/windows%E7%8E%AF%E5%A2%83%E4%B8%8B64%E4%BD%8D%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/" class="archive-post-link">
+          windows环境下64位汇编语言程序设计
+        </a>
+      </span>
+    </div><div class="archive-post">
+      <span class="archive-post-time">
+        2016-12-30
+      </span>
+      <span class="archive-post-title">
+        <a href="/post/vs2015%E4%BD%BF%E7%94%A8qt%E9%9D%99%E6%80%81%E5%BA%935-7/" class="archive-post-link">
+          vs2015使用qt静态库5.7
+        </a>
+      </span>
+    </div><div class="archive-post">
+      <span class="archive-post-time">
+        2016-12-27
+      </span>
+      <span class="archive-post-title">
+        <a href="/post/hex_to_ascii/" class="archive-post-link">
+          hex_to_ascii
+        </a>
+      </span>
+    </div><div class="archive-post">
+      <span class="archive-post-time">
+        2014-09-12
+      </span>
+      <span class="archive-post-title">
+        <a href="/post/ida-6-6%E4%B8%AD%E6%96%87%E5%AD%97%E4%BD%93%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/" class="archive-post-link">
+          IDA 6.6中文字体解决办法
+        </a>
+      </span>
+    </div><div class="archive-post">
+      <span class="archive-post-time">
+        2014-01-06
+      </span>
+      <span class="archive-post-title">
+        <a href="/post/windows-api%E6%93%8D%E4%BD%9C%E9%93%BE%E8%A1%A8/" class="archive-post-link">
+          windows API操作链表
+        </a>
+      </span>
+    </div><div class="archive-post">
+      <span class="archive-post-time">
+        2013-12-26
+      </span>
+      <span class="archive-post-title">
+        <a href="/post/%E7%89%B9%E6%AE%8A%E7%AA%97%E5%8F%A3/" class="archive-post-link">
+          特殊窗口
+        </a>
+      </span>
+    </div><div class="archive-post">
+      <span class="archive-post-time">
+        2013-08-27
+      </span>
+      <span class="archive-post-title">
+        <a href="/post/ida%E8%84%9A%E6%9C%AC%E7%9A%84%E7%BC%96%E5%86%99%E6%96%B9%E6%B3%95/" class="archive-post-link">
+          IDA脚本的编写方法
+        </a>
+      </span>
+    </div><div class="archive-post">
+      <span class="archive-post-time">
+        2013-08-13
+      </span>
+      <span class="archive-post-title">
+        <a href="/post/ida-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BB%93%E6%9E%84%E4%BD%93%E5%BF%AB%E6%8D%B7%E9%94%AE%E6%93%8D%E4%BD%9C%E6%96%B9%E6%B3%95/" class="archive-post-link">
+          IDA 自定义结构体快捷键操作方法
+        </a>
+      </span>
+    </div><div class="archive-post">
+      <span class="archive-post-time">
+        2012-11-23
+      </span>
+      <span class="archive-post-title">
+        <a href="/post/createdialogparam%E9%9D%9E%E6%A8%A1%E6%80%81%E5%AF%B9%E8%AF%9D%E6%A1%86/" class="archive-post-link">
+          CreateDialogParam非模态对话框
+        </a>
+      </span>
+    </div><div class="archive-post">
+      <span class="archive-post-time">
+        2011-11-03
+      </span>
+      <span class="archive-post-title">
+        <a href="/post/%E6%8C%87%E9%92%88%E7%9A%84%E5%87%A0%E4%B8%AA%E5%B0%8F%E9%97%AE%E9%A2%98/" class="archive-post-link">
+          指针的几个小问题
+        </a>
+      </span>
+    </div><div class="archive-post">
+      <span class="archive-post-time">
+        2011-10-28
+      </span>
+      <span class="archive-post-title">
+        <a href="/post/c%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/" class="archive-post-link">
+          C语言结构体的内存结构
+        </a>
+      </span>
+    </div><div class="archive-post">
+      <span class="archive-post-time">
+        2011-07-24
+      </span>
+      <span class="archive-post-title">
+        <a href="/post/%E5%86%99%E8%87%AA%E5%AE%9A%E4%BD%8D%E4%BB%A3%E7%A0%81/" class="archive-post-link">
+          写自定位代码
+        </a>
+      </span>
+    </div><div class="archive-post">
+      <span class="archive-post-time">
+        2011-07-17
+      </span>
+      <span class="archive-post-title">
+        <a href="/post/%E6%89%93%E9%80%A0%E8%B6%85%E5%B0%8Fpe%E6%96%87%E4%BB%B6/" class="archive-post-link">
+          打造超小PE文件
+        </a>
+      </span>
+    </div><div class="archive-post">
+      <span class="archive-post-time">
+        2011-07-06
+      </span>
+      <span class="archive-post-title">
+        <a href="/post/%E5%A5%BD%E7%94%A8%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%AE%8F/" class="archive-post-link">
+          好用的字符串宏
+        </a>
+      </span>
+    </div>
+</section>
+
+<nav class="pagination">
+  
+  
+</nav>
+        </div>
+        
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

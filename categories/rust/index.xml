@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>rust on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+    <link>https://xchen.com/categories/rust/</link>
+    <description>Recent content in rust on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 20 Feb 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://xchen.com/categories/rust/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>初试Rust</title>
+      <link>https://xchen.com/post/%E5%88%9D%E8%AF%95rust/</link>
+      <pubDate>Thu, 20 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/%E5%88%9D%E8%AF%95rust/</guid>
+      <description>最近这些年的程序设计语言发展趋势从C-&amp;gt;C++-&amp;gt;Java-&amp;gt;Python-&amp;gt;Go从一开始引入面向对象，后面又引入垃</description>
+    </item>
+    
+  </channel>
+</rss>

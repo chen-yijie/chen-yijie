@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ios开发 on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+    <link>https://xchen.com/categories/ios%E5%BC%80%E5%8F%91/</link>
+    <description>Recent content in ios开发 on 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 30 May 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://xchen.com/categories/ios%E5%BC%80%E5%8F%91/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Fastlane自动构建iOS开发者证书</title>
+      <link>https://xchen.com/post/fastlane%E8%87%AA%E5%8A%A8%E6%9E%84%E5%BB%BAios%E5%BC%80%E5%8F%91%E8%80%85%E8%AF%81%E4%B9%A6/</link>
+      <pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://xchen.com/post/fastlane%E8%87%AA%E5%8A%A8%E6%9E%84%E5%BB%BAios%E5%BC%80%E5%8F%91%E8%80%85%E8%AF%81%E4%B9%A6/</guid>
+      <description>http://shaojunxiao.com/2017/11/26/fastlane-cert/ unzip app.ipa rm -rf Payload/MyApp.app/_CodeSignature/ cp ~/Downloads/AdHoc.mobileprovision Payload/MyApp.app/embedded.mobileprovision codesign -f -s &amp;ldquo;iPhone Distribution: Company Certificate&amp;rdquo; &amp;ndash;resource-rules Payload/MyApp.app/ResourceRules.plist Payload/MyApp.app zip -qr app-resigned.ipa Payload/</description>
+    </item>
+    
+  </channel>
+</rss>

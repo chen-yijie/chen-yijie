@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>完成例程 - 忆杰的博客 - 专注于软件逆向、调试、反调试、内核开发、硬件虚拟化</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="忆杰" /><meta name="description" content="在将Irp发送给底层驱动程序, 或者其他驱动之前, 我们可以对Irp设置一个完成例程, 这样一旦在底层驱动程序将Irp完成以后, Irp完成例程将被" /><meta name="keywords" content="忆杰的博客, 软件逆向, 调试, 反调试, 驱动开发, 应用开发, 内核开发, VT技术, 硬件虚拟化" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.98.0 with theme even" />
+
+
+<link rel="canonical" href="https://xchen.com/post/%E5%AE%8C%E6%88%90%E4%BE%8B%E7%A8%8B/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.b5a744db6de49a86cadafb3b70f555ab443f83c307a483402259e94726b045ff.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="完成例程" />
+<meta property="og:description" content="在将Irp发送给底层驱动程序, 或者其他驱动之前, 我们可以对Irp设置一个完成例程, 这样一旦在底层驱动程序将Irp完成以后, Irp完成例程将被" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://xchen.com/post/%E5%AE%8C%E6%88%90%E4%BE%8B%E7%A8%8B/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2011-11-14T00:00:00+00:00" />
+<meta property="article:modified_time" content="2011-11-14T00:00:00+00:00" />
+
+<meta itemprop="name" content="完成例程">
+<meta itemprop="description" content="在将Irp发送给底层驱动程序, 或者其他驱动之前, 我们可以对Irp设置一个完成例程, 这样一旦在底层驱动程序将Irp完成以后, Irp完成例程将被"><meta itemprop="datePublished" content="2011-11-14T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2011-11-14T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2226">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="完成例程"/>
+<meta name="twitter:description" content="在将Irp发送给底层驱动程序, 或者其他驱动之前, 我们可以对Irp设置一个完成例程, 这样一旦在底层驱动程序将Irp完成以后, Irp完成例程将被"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">忆杰的博客</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">忆杰的博客</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">完成例程</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2011-11-14 </span>
+        <div class="post-category">
+            <a href="/categories/kernel/"> kernel </a>
+            </div>
+          <span class="more-meta"> 约 2226 字 </span>
+          <span class="more-meta"> 预计阅读 5 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>在将Irp发送给底层驱动程序, 或者其他驱动之前, 我们可以对Irp设置一个完成例程, 这样一旦在底层驱动程序将Irp完成以后, Irp完成例程将被触发, 通过设置完成例程可以方便的使程序员了解其他驱动对Irp进行的处理.</p>
+<p>完成例程是一种很暴力的东西, 非常有用, 必须要熟练掌握, 当调用IoCallDriver将Irp的控制权交给被动驱动程序的时候有两种情况, 一种是调用的设备同步完成了这个Irp, 那么这时候从IoCallDriver返回的时候Irp已经被完成了, 另外一种的话, 就是调用的时候是异步操作. IoCallDriver会立刻返回IoCallDriver, 但此时并没有真正的完成Irp.在这种情况下, 调用IoCallDriver前, 先对Irp注册一个完成例程, 当底层驱动或者其他驱动完成的此Irp时, 此完成例程立刻被调用.</p>
+<p>这就是空手套白狼啊, 过滤的暴力之处, 要设置完成例程只需要在当前的Io堆栈(Io_Stack_Location)中的CompletionRoutine子域. 如果这个字段非空, 那么在Irp完成的时候会回卷看到这个字段非空就会调用我们设置的完成例程. 当然微软已经提供了宏方便我们设置这个区域, IoSetCompletionRoutine. 就是它..</p>
+<p>还有一点, 虽然我们没有动Irp但是这里不能够直接跳过当前的堆栈, 必须调用IoCopyCurrentIrpStackToNext函数, 将本层的I/O堆栈Copy到下一层的I/O堆栈. 这样在Irp完成的时候就会进入我们设置的完成例程, 这时候我们的完成例程处理完后可以返回两个值, 一个是Status_Success(Status_Continue_Completion)两个是等价的, 如果返回这个值, 那么故事就在这里就结束了, Irp改回卷回卷, 改干嘛干嘛. 但是如果返回Status_Continue_Completion, 那么我们的分发函数就又会获得控制权, 多暴力啊.</p>
+<p>还有一个问题就是传播Pending位了, 这个东西的话我们设置了完成例程必须我们帮忙传播这个位了.但是是不可以在IoCallDriver后去动Irp的, 记住这点在调用IoCallDriver以后Irp就不属于驱动这一层了. 所以这个事情的话只能留给完成例程来做了. 所以记得在完成里面里面调用IoMarkIrpPending就好了..</p>
+<p>这边是代码, 一个测试驱动和前面一样, 还有一个用户态这边的程序, 就是打开设备一个写设备, 一个读设备和前面也一样就不贴了:</p>
+<p>/*
+Windows 内核下驱动程序调用驱动程序设置了完成例程 测试驱动
+编译方法参见makefile. TAB = 8
+*/
+#include &lt;ntddk.h&gt;</p>
+<p>#define DEVICE_NAME		L&quot;\\Device\\DevCompletionRoutine&quot;
+#define SYSLINK_NAME		L&quot;\\??\\SysLinkCompletionRoutine&quot;
+#define TARGET_DEVICE_NAME	L&quot;\\Device\\DevTestDriver&quot;</p>
+<p>typedef struct tagDevice_Ext {
+PDEVICE_OBJECT pDeviceObj;
+PDEVICE_OBJECT pLowDevice;
+UNICODE_STRING USzDeviceName;
+UNICODE_STRING USzSysLinkName;
+} DEVICE_EXT, *PDEVICE_EXT;</p>
+<p>//===========================================================================
+//驱动卸载例程
+//===========================================================================
+VOID DriverUnLoad( PDRIVER_OBJECT pDriverObj ) {
+PDEVICE_EXT pDeviceExt = NULL;
+PDEVICE_OBJECT pNextDeviceObj = NULL;</p>
+<pre><code>pNextDeviceObj = pDriverObj-&amp;gt;DeviceObject;
+
+while ( pNextDeviceObj  ) {
+	pDeviceExt = pNextDeviceObj-&amp;gt;DeviceExtension;
+
+	IoDetachDevice( pDeviceExt-&amp;gt;pLowDevice );
+
+	IoDeleteDevice( pDeviceExt-&amp;gt;pDeviceObj );
+
+	IoDeleteSymbolicLink( &amp;amp;pDeviceExt-&amp;gt;USzSysLinkName );
+
+	KdPrint( ( &amp;quot;删除%wZ设备成功!\\n&amp;quot;, &amp;amp;pDeviceExt-&amp;gt;USzDeviceName ) );
+
+	pNextDeviceObj = pNextDeviceObj-&amp;gt;NextDevice;
+}
+</code></pre>
+<p>}
+//===========================================================================
+//所有不关心的Irp处理
+//===========================================================================
+NTSTATUS DispatchRoutine( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+NTSTATUS Status;
+PDEVICE_EXT pDeviceExt = NULL;</p>
+<pre><code>pDeviceExt = pDeviceObj-&amp;gt;DeviceExtension;
+
+//跳过当前堆栈
+IoSkipCurrentIrpStackLocation( pIrp );
+
+//调用下层驱动
+Status = IoCallDriver( pDeviceExt-&amp;gt;pLowDevice, pIrp );
+
+KdPrint( ( &amp;quot;不关心的Irp来了一次!\\n&amp;quot; ) );
+return Status;
+</code></pre>
+<p>}</p>
+<p>//===========================================================================
+//读取请求的完成例程
+//===========================================================================
+NTSTATUS CompletionRead( PDEVICE_OBJECT pDeviceObj, PIRP pIrp, PVOID pContext ) {
+ULONG ulReadLen;
+PIO_STACK_LOCATION pStack = NULL;
+PDEVICE_EXT pDeviceExt = NULL;</p>
+<pre><code>\_asm int 3;
+pStack = IoGetCurrentIrpStackLocation( pIrp );
+
+pDeviceExt = pDeviceObj-&amp;gt;DeviceExtension;
+ulReadLen = pStack-&amp;gt;Parameters.Read.Length;
+
+//再次将数据改写
+RtlFillMemory( pIrp-&amp;gt;AssociatedIrp.SystemBuffer, ulReadLen, &amp;#39;c&amp;#39; );
+
+//进入此函数标志底层驱动设备将IRP完成
+KdPrint( ( &amp;quot;Completion:读取请求的完成例程\\n&amp;quot; ) );
+if ( pIrp-&amp;gt;PendingReturned ) {
+	//传播pending位
+	IoMarkIrpPending( pIrp );
+}
+
+//如果想分发函数继续获得控制器那么返回
+//STATUS\_MORE\_PROCESSING\_REQUIRED
+return STATUS\_CONTINUE\_COMPLETION;
+</code></pre>
+<p>}
+//===========================================================================
+//读取请求处理例程
+//===========================================================================
+NTSTATUS DispatchRead( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+NTSTATUS Status;
+PDEVICE_EXT pDeviceExt = NULL;</p>
+<pre><code>\_asm int 3;
+pDeviceExt = pDeviceObj-&amp;gt;DeviceExtension;
+
+//将当前IRP堆栈拷贝底层堆栈
+IoCopyCurrentIrpStackLocationToNext( pIrp );
+
+//设置完成例程
+IoSetCompletionRoutine( pIrp, &amp;amp;CompletionRead, NULL, TRUE, TRUE, TRUE );
+
+//调用底层驱动程序(只要调用了函数就不能够去操作Irp
+Status = IoCallDriver( pDeviceExt-&amp;gt;pLowDevice, pIrp );
+
+if ( Status == STATUS\_PENDING ) {
+	KdPrint( ( &amp;quot;Completion: DispatchRead-&amp;gt;Irp被挂起!\\n&amp;quot; ) );
+}
+
+KdPrint( ( &amp;quot;Completion:DispatchRead来了一次\\n&amp;quot; ) );
+return Status;
+</code></pre>
+<p>}
+//===========================================================================
+//写入请求处理例程
+//===========================================================================
+NTSTATUS DispatchWrite( PDEVICE_OBJECT pDeviceObj, PIRP pIrp ) {
+ULONG uWriteLen;
+NTSTATUS Status;
+PDEVICE_EXT pDeviceExt = NULL;
+PIO_STACK_LOCATION pStack = NULL;</p>
+<pre><code>pStack = IoGetCurrentIrpStackLocation( pIrp );
+
+uWriteLen = pStack-&amp;gt;Parameters.Write.Length;
+pDeviceExt = pDeviceObj-&amp;gt;DeviceExtension;
+
+//将用户层写入的数据修改掉
+RtlFillMemory( pIrp-&amp;gt;AssociatedIrp.SystemBuffer, uWriteLen, &amp;#39;b&amp;#39; );
+
+//跳过当前堆栈
+IoSkipCurrentIrpStackLocation( pIrp );
+
+Status = IoCallDriver( pDeviceExt-&amp;gt;pLowDevice, pIrp );
+return Status;
+</code></pre>
+<p>}
+//===========================================================================
+//驱动程序入口
+//===========================================================================
+NTSTATUS DriverEntry( PDRIVER_OBJECT pDriverObj, PUNICODE_STRING pUSzRegPath ) {
+NTSTATUS Status;
+ULONG i;
+PDEVICE_EXT pDeviceExt = NULL;
+PFILE_OBJECT pTargetFileObj = NULL;
+PDEVICE_OBJECT pTargetDevice = NULL;
+PDEVICE_OBJECT pLowDevice = NULL;
+PDEVICE_OBJECT pDeviceObj = NULL;
+UNICODE_STRING USzDeviceName = RTL_CONSTANT_STRING( DEVICE_NAME );
+UNICODE_STRING USzSysLinkName = RTL_CONSTANT_STRING( SYSLINK_NAME );
+UNICODE_STRING USzTargetDeviceName = RTL_CONSTANT_STRING( TARGET_DEVICE_NAME );</p>
+<pre><code>for( i = 0; i &amp;lt; IRP\_MJ\_MAXIMUM\_FUNCTION; i++ ) {
+	pDriverObj-&amp;gt;MajorFunction\[i\] = &amp;amp;DispatchRoutine;
+}
+pDriverObj-&amp;gt;MajorFunction\[IRP\_MJ\_WRITE\] = &amp;amp;DispatchWrite;
+pDriverObj-&amp;gt;MajorFunction\[IRP\_MJ\_READ\] = &amp;amp;DispatchRead;
+pDriverObj-&amp;gt;DriverUnload = &amp;amp;DriverUnLoad;
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+do {
+_asm int 3;
+Status = IoCreateDevice( pDriverObj, sizeof( DEVICE_EXT ),
+&amp;USzDeviceName, FILE_DEVICE_UNKNOWN, 0,
+TRUE, &amp;pDeviceObj );
+if ( !NT_SUCCESS( Status ) ) {
+KdPrint( ( &quot;创建设备失败!\n&quot; ) );
+break;
+}</p>
+<pre><code>	Status = IoCreateSymbolicLink( &amp;amp;USzSysLinkName, &amp;amp;USzDeviceName );
+	if ( !NT\_SUCCESS( Status ) ) {
+		KdPrint( ( &amp;quot;创建符号链接失败!\\n&amp;quot; ) );
+		break;
+	}
+
+	//获取目标设备的设备对象
+	Status = IoGetDeviceObjectPointer( &amp;amp;USzTargetDeviceName, FILE\_ALL\_ACCESS,
+					   &amp;amp;pTargetFileObj, &amp;amp;pTargetDevice );
+	if ( !NT\_SUCCESS( Status ) ) {
+		KdPrint( ( &amp;quot;获取目标设备失败!\\n&amp;quot; ) );
+		break;
+	}
+
+	//将自己的设备对象挂载在目标设备对象上
+	pLowDevice = IoAttachDeviceToDeviceStack( pDeviceObj, pTargetDevice );
+	if ( !pLowDevice ) {
+		KdPrint( ( &amp;quot;设备挂载失败!\\n&amp;quot; ) );
+		Status = STATUS\_UNSUCCESSFUL;
+		break;
+	}
+
+	//设置设备类型, 属性
+	pDeviceObj-&amp;gt;DeviceType = pLowDevice-&amp;gt;DeviceType;
+	pDeviceObj-&amp;gt;Characteristics = pLowDevice-&amp;gt;DeviceType;
+	//启动设备
+	pDeviceObj-&amp;gt;Flags &amp;amp;= ~DO\_DEVICE\_INITIALIZING;
+	//设置缓冲区操作方式
+	pDeviceObj-&amp;gt;Flags |= pLowDevice-&amp;gt;Flags &amp;amp; ( DO\_BUFFERED\_IO | DO\_DIRECT\_IO );
+	//设置设备扩展
+	pDeviceExt = pDeviceObj-&amp;gt;DeviceExtension;
+	pDeviceExt-&amp;gt;pDeviceObj = pDeviceObj;
+	pDeviceExt-&amp;gt;pLowDevice = pLowDevice;
+	pDeviceExt-&amp;gt;USzDeviceName = USzDeviceName;
+	pDeviceExt-&amp;gt;USzSysLinkName = USzSysLinkName;
+
+	if ( pTargetFileObj ) {
+		ObDereferenceObject( pTargetFileObj );
+		pTargetFileObj = NULL;
+	}
+	KdPrint( ( &amp;quot;设备绑定成功!\\n&amp;quot; ) );
+
+} while ( FALSE );
+</code></pre>
+<p>//&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;
+if ( !NT_SUCCESS( Status ) ) {
+if ( pDeviceObj ) {
+IoDeleteSymbolicLink( &amp;USzSysLinkName );
+IoDeleteDevice( pDeviceObj );
+}</p>
+<pre><code>	//这边要卸载的是文件对象
+	if ( pTargetFileObj ) {
+		ObDereferenceObject( pTargetFileObj );
+	}
+}
+return Status;
+</code></pre>
+<p>}</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">忆杰</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2011-11-14
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E9%81%8D%E5%8E%86%E9%A9%B1%E5%8A%A8%E4%B8%8A%E7%9A%84%E8%AE%BE%E5%A4%87%E5%AF%B9%E8%B1%A1/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">遍历设备栈</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/%E5%88%86%E5%B1%82%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F/">
+            <span class="next-text nav-default">分层驱动程序</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chen-yijie/utterances-Comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chen-yijie@qq.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/chen-yijie" class="iconfont icon-github" title="github"></a>
+      <a href="https://www.zhihu.com/people/joen88" class="iconfont icon-zhihu" title="zhihu"></a>
+  <a href="https://xchen.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>忆杰</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.64437849d125a2d603b3e71d6de5225d641a32d17168a58106e0b61852079683.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
